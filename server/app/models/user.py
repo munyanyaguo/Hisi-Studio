@@ -12,6 +12,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(100), nullable=True)
     last_name = db.Column(db.String(100), nullable=True)
+    phone = db.Column(db.String(13), nullable=True, unique=True)
     role = db.Column(db.String(20), nullable=False, default='customer')
     # roles: 'customer', 'admin'
     is_verified = db.Column(db.Boolean, default=False, nullable=False)
