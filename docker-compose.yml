@@ -1,0 +1,54 @@
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: hisi_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hisi_admin
+      POSTGRES_PASSWORD: hisi_password_dev
+      POSTGRES_DB: hisi_studio_dev
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - hisi_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hisi_admin -d hisi_studio_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: hisi_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - hisi_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+# Named volumes for persistent data
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# Network for services to communicate
+networks:
+  hisi_network:
+    driver: bridge
