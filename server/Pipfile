@@ -6,10 +6,16 @@ name = "pypi"
 [packages]
 flask = "*"
 flask-sqlalchemy = "*"
+flask-cors = "*"
 redis = "*"
 psycopg2-binary = "*"
+flask-migrate = "*"
+alembic = "*"
+flask-jwt-extended = "*"
+python-dotenv = "*"
 
 [dev-packages]
+flask-shell-ipython = "*"
 
 [requires]
 python_version = "3.12"
