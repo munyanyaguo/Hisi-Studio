@@ -28,6 +28,19 @@ def error_response(
     return jsonify(response), status_code
 
 
+def created_response(
+        data: Any = None,
+        message: str = "Created successfully",
+        status_code: int = 201
+) -> tuple:
+    response = {
+        'success': True,
+        'message': message,
+        'data': data
+    }
+    return jsonify(response), status_code
+
+
 def validation_error_response(errors: Dict) -> tuple:
     return error_response(
         message="Validation failed",
@@ -50,3 +63,43 @@ def not_found_response(message: str = "Resource not found") -> tuple:
 
 def server_error_response(message: str = "Internal server error") -> tuple:
     return error_response(message=message, status_code=500)
+
+
+def paginated_response(
+        items: list,
+        page: int,
+        per_page: int,
+        total: int,
+        message: str = "Success"
+) -> tuple:
+    """
+    Paginated response helper
+
+    Args:
+        items: List of items for current page
+        page: Current page number
+        per_page: Items per page
+        total: Total number of items
+        message: Success message
+
+    Returns:
+        JSON response with pagination data
+    """
+    total_pages = (total + per_page - 1) // per_page if per_page > 0 else 0
+
+    response = {
+        'success': True,
+        'message': message,
+        'data': {
+            'items': items,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': total,
+                'total_pages': total_pages,
+                'has_next': page < total_pages,
+                'has_prev': page > 1
+            }
+        }
+    }
+    return jsonify(response), 200
