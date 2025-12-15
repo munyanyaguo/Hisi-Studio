@@ -30,7 +30,7 @@ class Payment(db.Model):
     customer_name = db.Column(db.String(255), nullable=True)
 
     # Additional data
-    metadata = db.Column(db.JSON, nullable=True)  # Extra Flutterwave response data
+    payment_metadata = db.Column(db.JSON, nullable=True)  # Extra Flutterwave response data
     failure_reason = db.Column(db.Text, nullable=True)
 
     # Timestamps
