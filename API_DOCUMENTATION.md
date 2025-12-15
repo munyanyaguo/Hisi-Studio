@@ -16,8 +16,9 @@ All API endpoints are prefixed with `/api/v1`
 3. [Cart](#cart)
 4. [Addresses](#addresses)
 5. [Orders](#orders)
-6. [CMS (Pages, Blog, Settings)](#cms)
-7. [Newsletter & Contact](#newsletter--contact)
+6. [Payments](#payments)
+7. [CMS (Pages, Blog, Settings)](#cms)
+8. [Newsletter & Contact](#newsletter--contact)
 
 ---
 
@@ -411,6 +412,117 @@ Authorization: Bearer {admin_access_token}
   "tracking_number": "DHL123456789"
 }
 ```
+
+---
+
+## 💳 Payments
+
+### Initialize Payment
+```http
+POST /api/v1/payments/initialize
+Authorization: Bearer {access_token}
+```
+
+**Request Body:**
+```json
+{
+  "order_id": "order-uuid",
+  "redirect_url": "https://yoursite.com/payment/callback"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Payment initialized successfully",
+  "data": {
+    "payment_id": "payment-uuid",
+    "transaction_id": "HS-TXN-20241215120000-abc12345",
+    "payment_link": "https://checkout.flutterwave.com/v3/hosted/pay/xxxxx",
+    "order_id": "order-uuid",
+    "order_number": "HS-20241215-1234",
+    "amount": 15998.00,
+    "currency": "NGN"
+  }
+}
+```
+
+### Verify Payment
+```http
+GET /api/v1/payments/verify/{transaction_id}
+Authorization: Bearer {access_token}
+```
+
+### Get Payment Details
+```http
+GET /api/v1/payments/{payment_id}
+Authorization: Bearer {access_token}
+```
+
+### Get Payment by Order
+```http
+GET /api/v1/payments/order/{order_id}
+Authorization: Bearer {access_token}
+```
+
+### Cancel Payment
+```http
+PUT /api/v1/payments/{payment_id}/cancel
+Authorization: Bearer {access_token}
+```
+
+**Request Body:**
+```json
+{
+  "reason": "Customer changed mind"
+}
+```
+
+### Admin: List All Payments
+```http
+GET /api/v1/payments/admin/payments?page=1&status=successful
+Authorization: Bearer {admin_access_token}
+```
+
+### Admin: Initiate Refund
+```http
+POST /api/v1/payments/admin/payments/{payment_id}/refund
+Authorization: Bearer {admin_access_token}
+```
+
+**Request Body:**
+```json
+{
+  "amount": 15998.00,
+  "reason": "Product defective"
+}
+```
+
+### Admin: Payment Statistics
+```http
+GET /api/v1/payments/admin/stats
+Authorization: Bearer {admin_access_token}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "total_payments": 150,
+    "successful_payments": 142,
+    "pending_payments": 3,
+    "failed_payments": 5,
+    "total_revenue": 2250000.00,
+    "refunded_amount": 45000.00,
+    "net_revenue": 2205000.00,
+    "success_rate": 94.67
+  }
+}
+```
+
+**For complete payment integration guide, see [PAYMENT_INTEGRATION.md](PAYMENT_INTEGRATION.md)**
 
 ---
 

@@ -2,21 +2,96 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Search, ShoppingBag, User, Menu, X, Eye } from 'lucide-react'
 
+// Product Card with Image Carousel on Hover
+const ProductCardWithCarousel = ({ id, images, name, price }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [isHovering, setIsHovering] = useState(false)
+
+  useEffect(() => {
+    if (!isHovering || images.length <= 1) return
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length)
+    }, 1000) // Change image every 1 second on hover
+
+    return () => clearInterval(interval)
+  }, [isHovering, images.length])
+
+  const handleMouseEnter = () => {
+    setIsHovering(true)
+    setCurrentImageIndex(0)
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovering(false)
+    setCurrentImageIndex(0)
+  }
+
+  return (
+    <Link
+      to={`/product/${id}`}
+      className="group block"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="aspect-[4/5] bg-gray-100 rounded-md overflow-hidden mb-2 relative">
+        {images.map((image, index) => (
+          <img
+            key={index}
+            src={image}
+            alt={`${name} - View ${index + 1}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+          />
+        ))}
+
+        {/* Dot Indicators */}
+        {images.length > 1 && isHovering && (
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
+            {images.map((_, index) => (
+              <div
+                key={index}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${index === currentImageIndex ? 'bg-white w-4' : 'bg-white/50'
+                  }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+      <h4 className="text-xs font-semibold text-gray-900 group-hover:text-hisi-primary transition-colors mb-1 line-clamp-2">
+        {name}
+      </h4>
+      <p className="text-xs text-gray-600 font-medium">KES {price}</p>
+    </Link>
+  )
+}
+
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isPastHero, setIsPastHero] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [highContrast, setHighContrast] = useState(false)
+  const [shopDropdownOpen, setShopDropdownOpen] = useState(false)
   const navigate = useNavigate()
 
   // Cart item count (will come from Redux later)
   const cartItemCount = 0
 
-  // Handle scroll effect
+  // Handle scroll effect - check if past hero section
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
+      const scrollPosition = window.scrollY
+      const heroHeight = window.innerHeight // Approximate hero section height
+
+      // Small scroll for subtle effects
+      setIsScrolled(scrollPosition > 20)
+
+      // Past hero section - show white background
+      setIsPastHero(scrollPosition > heroHeight * 0.8) // 80% of viewport height
     }
+
+    handleScroll() // Check on mount
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
@@ -60,11 +135,10 @@ const Navbar = () => {
       </a>
 
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-md'
-            : 'bg-white'
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isPastHero || shopDropdownOpen
+          ? 'bg-white shadow-lg'
+          : 'bg-transparent'
+          }`}
         role="navigation"
         aria-label="Main navigation"
       >
@@ -76,23 +150,272 @@ const Navbar = () => {
               className="flex items-center space-x-2 group focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded-lg px-2"
               aria-label="Hisi Studio Home"
             >
-              <span className="text-2xl font-bold text-hisi-primary group-hover:text-hisi-accent transition-colors duration-300">
+              <span className={`text-2xl font-bold group-hover:text-hisi-accent transition-colors duration-500 ${isPastHero || shopDropdownOpen ? 'text-hisi-primary' : 'text-white'
+                }`}>
                 HISI
               </span>
-              <span className="text-2xl font-light text-gray-700">STUDIO</span>
+              <span className={`text-2xl font-light transition-colors duration-500 ${isPastHero || shopDropdownOpen ? 'text-gray-700' : 'text-white/90'
+                }`}>STUDIO</span>
             </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  className="text-gray-700 hover:text-hisi-primary transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1"
-                >
-                  {link.name}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                // Special handling for Shop link with dropdown
+                if (link.name === 'Shop') {
+                  return (
+                    <div
+                      key={link.name}
+                      className="relative h-full flex items-center"
+                    >
+                      <button
+                        onMouseEnter={() => setShopDropdownOpen(true)}
+                        className={`hover:text-hisi-accent transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 flex items-center space-x-1 ${isPastHero || shopDropdownOpen ? 'text-gray-700' : 'text-white'
+                          }`}
+                      >
+                        <span>{link.name}</span>
+                        <svg
+                          className={`w-4 h-4 transition-transform duration-300 ${shopDropdownOpen ? 'rotate-180' : ''
+                            }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      {/* Mega Menu Dropdown */}
+                      {shopDropdownOpen && (
+                        <div
+                          className="fixed left-0 right-0 top-20 w-full z-40 flex justify-center"
+                          onMouseEnter={() => setShopDropdownOpen(true)}
+                          onMouseLeave={() => setShopDropdownOpen(false)}
+                        >
+                          <div className="bg-white shadow-2xl animate-fadeIn border border-gray-200 rounded-b-lg">
+                            <div className="w-full px-6 py-6">
+                              <div className="max-w-5xl">
+                                <div className="grid grid-cols-10 gap-6">
+                                  {/* Categories Section - Takes up more space */}
+                                  <div className="col-span-4">
+                                    <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wide border-b border-gray-200 pb-2">
+                                      Shop by Category
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                                      {/* Column 1 */}
+                                      <div className="space-y-2">
+                                        <div>
+                                          <Link
+                                            to="/shop/adaptive-outerwear"
+                                            className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block mb-2"
+                                          >
+                                            Adaptive Outerwear
+                                          </Link>
+                                          <ul className="space-y-1.5 ml-2">
+                                            <li>
+                                              <Link to="/shop/jackets" className="text-gray-600 hover:text-hisi-primary text-xs">
+                                                Jackets & Coats
+                                              </Link>
+                                            </li>
+                                            <li>
+                                              <Link to="/shop/blazers" className="text-gray-600 hover:text-hisi-primary text-sm">
+                                                Blazers
+                                              </Link>
+                                            </li>
+                                          </ul>
+                                        </div>
+
+                                        <div>
+                                          <Link
+                                            to="/shop/sensory-friendly"
+                                            className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block mb-2"
+                                          >
+                                            Sensory-Friendly
+                                          </Link>
+                                          <ul className="space-y-2 ml-3">
+                                            <li>
+                                              <Link to="/shop/soft-fabrics" className="text-gray-600 hover:text-hisi-primary text-sm">
+                                                Soft Fabrics
+                                              </Link>
+                                            </li>
+                                            <li>
+                                              <Link to="/shop/tagless" className="text-gray-600 hover:text-hisi-primary text-sm">
+                                                Tag-Free
+                                              </Link>
+                                            </li>
+                                          </ul>
+                                        </div>
+
+                                        <div>
+                                          <Link
+                                            to="/shop/accessories"
+                                            className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block"
+                                          >
+                                            Accessories
+                                          </Link>
+                                        </div>
+                                      </div>
+
+                                      {/* Column 2 */}
+                                      <div className="space-y-4">
+                                        <div>
+                                          <Link
+                                            to="/shop/seated-comfort"
+                                            className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block mb-2"
+                                          >
+                                            Seated Comfort
+                                          </Link>
+                                          <ul className="space-y-2 ml-3">
+                                            <li>
+                                              <Link to="/shop/pants" className="text-gray-600 hover:text-hisi-primary text-sm">
+                                                Pants & Trousers
+                                              </Link>
+                                            </li>
+                                            <li>
+                                              <Link to="/shop/dresses" className="text-gray-600 hover:text-hisi-primary text-sm">
+                                                Dresses
+                                              </Link>
+                                            </li>
+                                          </ul>
+                                        </div>
+
+                                        <div>
+                                          <Link
+                                            to="/shop/easy-dressing"
+                                            className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block mb-2"
+                                          >
+                                            Easy Dressing
+                                          </Link>
+                                          <ul className="space-y-2 ml-3">
+                                            <li>
+                                              <Link to="/shop/magnetic-closures" className="text-gray-600 hover:text-hisi-primary text-sm">
+                                                Magnetic Closures
+                                              </Link>
+                                            </li>
+                                            <li>
+                                              <Link to="/shop/side-openings" className="text-gray-600 hover:text-hisi-primary text-sm">
+                                                Side Openings
+                                              </Link>
+                                            </li>
+                                          </ul>
+                                        </div>
+
+                                        <div>
+                                          <Link
+                                            to="/shop/all"
+                                            className="text-hisi-primary hover:text-hisi-accent transition-colors duration-200 font-semibold text-sm block"
+                                          >
+                                            View All →
+                                          </Link>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* New In & Trending Section */}
+                                  <div className="col-span-3 border-l border-gray-200 pl-4">
+                                    <h3 className="text-lg font-bold text-gray-900 mb-6 uppercase tracking-wide">
+                                      New In
+                                    </h3>
+                                    <ul className="space-y-2">
+                                      <li>
+                                        <Link
+                                          to="/shop/new"
+                                          className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-xs flex items-center space-x-1.5"
+                                        >
+                                          <span className="w-1.5 h-1.5 bg-hisi-accent rounded-full"></span>
+                                          <span>All New Arrivals</span>
+                                        </Link>
+                                      </li>
+                                      <li>
+                                        <Link
+                                          to="/shop/best-sellers"
+                                          className="text-gray-600 hover:text-hisi-primary transition-colors duration-200 text-xs"
+                                        >
+                                          Best Sellers
+                                        </Link>
+                                      </li>
+                                      <li>
+                                        <Link
+                                          to="/shop/trending"
+                                          className="text-gray-600 hover:text-hisi-primary transition-colors duration-200 text-xs"
+                                        >
+                                          Trending Now
+                                        </Link>
+                                      </li>
+                                      <li>
+                                        <Link
+                                          to="/shop/limited-edition"
+                                          className="text-gray-600 hover:text-hisi-primary transition-colors duration-200 text-xs"
+                                        >
+                                          Limited Edition
+                                        </Link>
+                                      </li>
+                                      <li className="pt-4 border-t border-gray-200">
+                                        <Link
+                                          to="/shop/sale"
+                                          className="text-red-600 hover:text-red-700 transition-colors duration-200 text-sm font-bold flex items-center space-x-2"
+                                        >
+                                          <span>🔥</span>
+                                          <span>Sale - Up to 40% Off</span>
+                                        </Link>
+                                      </li>
+                                    </ul>
+                                  </div>
+
+                                  {/* Featured Products */}
+                                  <div className="col-span-3 border-l border-gray-200 pl-4">
+                                    <h3 className="text-lg font-bold text-gray-900 mb-6 uppercase tracking-wide">
+                                      Featured
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-3">
+                                      {/* Product 1 with hover carousel */}
+                                      <ProductCardWithCarousel
+                                        id="1"
+                                        images={[
+                                          '/images/products/jacket-main.jpg',
+                                          '/images/products/jacket-main.jpg',
+                                          '/images/products/jacket-main.jpg',
+                                        ]}
+                                        name="Adaptive Bomber Jacket"
+                                        price="89,000"
+                                      />
+
+                                      {/* Product 2 with hover carousel */}
+                                      <ProductCardWithCarousel
+                                        id="4"
+                                        images={[
+                                          '/images/products/top-main.jpg',
+                                          '/images/products/top-main.jpg',
+                                          '/images/products/top-main.jpg',
+                                        ]}
+                                        name="Sensory-Friendly Top"
+                                        price="42,000"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                }
+
+                // Regular links
+                return (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    className={`hover:text-hisi-accent transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 ${isPastHero || shopDropdownOpen ? 'text-gray-700' : 'text-white'
+                      }`}
+                  >
+                    {link.name}
+                  </Link>
+                )
+              })}
             </div>
 
             {/* Right Icons */}
@@ -100,38 +423,46 @@ const Navbar = () => {
               {/* Accessibility Toggle */}
               <button
                 onClick={toggleHighContrast}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary"
+                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${(isPastHero || shopDropdownOpen) ? 'hover:bg-gray-100' : 'hover:bg-white/20'
+                  }`}
                 aria-label={`${highContrast ? 'Disable' : 'Enable'} high contrast mode`}
                 title="Toggle high contrast"
               >
-                <Eye className={`w-5 h-5 ${highContrast ? 'text-hisi-primary' : 'text-gray-700'}`} />
+                <Eye className={`w-5 h-5 transition-colors duration-300 ${highContrast ? 'text-hisi-primary' : (isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                  }`} />
               </button>
 
               {/* Search */}
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block"
+                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block ${isPastHero ? 'hover:bg-gray-100' : 'hover:bg-white/20'
+                  }`}
                 aria-label="Search"
               >
-                <Search className="w-5 h-5 text-gray-700" />
+                <Search className={`w-5 h-5 transition-colors duration-300 ${(isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                  }`} />
               </button>
 
               {/* User Account */}
               <Link
                 to="/account"
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block"
+                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block ${isPastHero ? 'hover:bg-gray-100' : 'hover:bg-white/20'
+                  }`}
                 aria-label="Account"
               >
-                <User className="w-5 h-5 text-gray-700" />
+                <User className={`w-5 h-5 transition-colors duration-300 ${(isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                  }`} />
               </Link>
 
               {/* Shopping Cart */}
               <Link
                 to="/cart"
-                className="relative p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary"
+                className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${(isPastHero || shopDropdownOpen) ? 'hover:bg-gray-100' : 'hover:bg-white/20'
+                  }`}
                 aria-label={`Shopping cart with ${cartItemCount} items`}
               >
-                <ShoppingBag className="w-5 h-5 text-gray-700" />
+                <ShoppingBag className={`w-5 h-5 transition-colors duration-300 ${(isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                  }`} />
                 {cartItemCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-hisi-accent text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                     {cartItemCount}
@@ -142,14 +473,17 @@ const Navbar = () => {
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary"
+                className={`md:hidden p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${(isPastHero || shopDropdownOpen) ? 'hover:bg-gray-100' : 'hover:bg-white/20'
+                  }`}
                 aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={mobileMenuOpen}
               >
                 {mobileMenuOpen ? (
-                  <X className="w-6 h-6 text-gray-700" />
+                  <X className={`w-6 h-6 transition-colors duration-300 ${(isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                    }`} />
                 ) : (
-                  <Menu className="w-6 h-6 text-gray-700" />
+                  <Menu className={`w-6 h-6 transition-colors duration-300 ${(isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                    }`} />
                 )}
               </button>
             </div>
@@ -216,9 +550,6 @@ const Navbar = () => {
           </div>
         )}
       </nav>
-
-      {/* Spacer to prevent content from going under fixed navbar */}
-      <div className="h-20" aria-hidden="true" />
     </>
   )
 }

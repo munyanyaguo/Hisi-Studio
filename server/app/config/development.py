@@ -29,3 +29,12 @@ class DevelopmentConfig:
     
     # File uploads (we'll add Cloudinary later)
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+
+    # Flutterwave Payment Gateway
+    FLUTTERWAVE_PUBLIC_KEY = os.getenv('FLUTTERWAVE_PUBLIC_KEY', '')
+    FLUTTERWAVE_SECRET_KEY = os.getenv('FLUTTERWAVE_SECRET_KEY', '')
+    FLUTTERWAVE_ENCRYPTION_KEY = os.getenv('FLUTTERWAVE_ENCRYPTION_KEY', '')
+    FLUTTERWAVE_SECRET_HASH = os.getenv('FLUTTERWAVE_SECRET_HASH', '')  # For webhook verification
+
+    # Site Configuration
+    SITE_LOGO_URL = os.getenv('SITE_LOGO_URL', 'https://hisistudio.com/logo.png')

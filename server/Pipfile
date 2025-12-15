@@ -13,6 +13,8 @@ flask-migrate = "*"
 alembic = "*"
 flask-jwt-extended = "*"
 python-dotenv = "*"
+rave-python = "*"
+requests = "*"
 
 [dev-packages]
 flask-shell-ipython = "*"
