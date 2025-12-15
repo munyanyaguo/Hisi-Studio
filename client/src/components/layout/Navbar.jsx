@@ -170,7 +170,7 @@ const Navbar = () => {
                     >
                       <button
                         onMouseEnter={() => setShopDropdownOpen(true)}
-                        className={`hover:text-hisi-accent transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 flex items-center space-x-1 ${isPastHero || shopDropdownOpen ? 'text-gray-700' : 'text-white'
+                        className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 flex items-center space-x-1 ${isPastHero || shopDropdownOpen ? 'text-gray-700' : 'text-white'
                           }`}
                       >
                         <span>{link.name}</span>
@@ -207,13 +207,13 @@ const Navbar = () => {
                                         <div>
                                           <Link
                                             to="/shop/adaptive-outerwear"
-                                            className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block mb-2"
+                                            className="text-gray-900 hover:text-hisi-primary hover:underline transition-colors duration-200 font-semibold text-sm block mb-2"
                                           >
                                             Adaptive Outerwear
                                           </Link>
                                           <ul className="space-y-1.5 ml-2">
                                             <li>
-                                              <Link to="/shop/jackets" className="text-gray-600 hover:text-hisi-primary text-xs">
+                                              <Link to="/shop/jackets" className="text-gray-600 hover:text-hisi-primary hover:underline text-xs">
                                                 Jackets & Coats
                                               </Link>
                                             </li>
@@ -249,7 +249,7 @@ const Navbar = () => {
                                         <div>
                                           <Link
                                             to="/shop/accessories"
-                                            className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block"
+                                            className="text-gray-900 hover:text-hisi-primary hover:underline transition-colors duration-200 font-semibold text-sm block"
                                           >
                                             Accessories
                                           </Link>
@@ -321,7 +321,7 @@ const Navbar = () => {
                                       <li>
                                         <Link
                                           to="/shop/new"
-                                          className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-xs flex items-center space-x-1.5"
+                                          className="text-gray-900 hover:text-hisi-primary hover:underline transition-colors duration-200 font-semibold text-xs flex items-center space-x-1.5"
                                         >
                                           <span className="w-1.5 h-1.5 bg-hisi-accent rounded-full"></span>
                                           <span>All New Arrivals</span>
@@ -330,7 +330,7 @@ const Navbar = () => {
                                       <li>
                                         <Link
                                           to="/shop/best-sellers"
-                                          className="text-gray-600 hover:text-hisi-primary transition-colors duration-200 text-xs"
+                                          className="text-gray-600 hover:text-hisi-primary hover:underline transition-colors duration-200 text-xs"
                                         >
                                           Best Sellers
                                         </Link>
@@ -409,7 +409,7 @@ const Navbar = () => {
                   <Link
                     key={link.name}
                     to={link.href}
-                    className={`hover:text-hisi-accent transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 ${isPastHero || shopDropdownOpen ? 'text-gray-700' : 'text-white'
+                    className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 ${isPastHero || shopDropdownOpen ? 'text-gray-700' : 'text-white'
                       }`}
                   >
                     {link.name}

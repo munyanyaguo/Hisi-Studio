@@ -8,13 +8,84 @@ Hisi Studio uses **Flutterwave** as its payment gateway to process payments for 
 
 ## Table of Contents
 
-1. [Setup](#setup)
-2. [Payment Flow](#payment-flow)
-3. [API Endpoints](#api-endpoints)
-4. [Testing](#testing)
-5. [Webhooks](#webhooks)
-6. [Error Handling](#error-handling)
-7. [Security](#security)
+1. [Supported Payment Methods](#supported-payment-methods)
+2. [Setup](#setup)
+3. [Payment Flow](#payment-flow)
+4. [API Endpoints](#api-endpoints)
+5. [Testing](#testing)
+6. [Webhooks](#webhooks)
+7. [Error Handling](#error-handling)
+8. [Security](#security)
+
+---
+
+## Supported Payment Methods
+
+### ✅ All Major Payment Methods Enabled
+
+The integration supports **ALL** these payment methods out of the box:
+
+#### 1. 💳 **Bank Cards**
+- **Visa** - All Visa debit and credit cards
+- **Mastercard** - All Mastercard debit and credit cards
+- **Verve** - Nigerian Verve cards
+- **Other Cards** - American Express, Discover, etc.
+
+**Customer Flow:**
+1. Enter card number, CVV, expiry
+2. Enter card PIN (if required)
+3. Receive OTP via SMS
+4. Enter OTP to confirm
+5. Payment processed instantly
+
+#### 2. 📱 **M-Pesa (Mobile Money)**
+- **Kenya M-Pesa** - Safaricom M-Pesa payments
+- **Other Mobile Money** - MTN, Airtel, Tigo, etc.
+
+**M-Pesa Flow (THIS IS WHAT YOU ASKED FOR):**
+1. Customer selects "Mobile Money" on payment page
+2. Enters M-Pesa phone number (e.g., 254712345678)
+3. Clicks "Pay"
+4. **📲 STK Push sent to customer's phone**
+5. **Customer's phone displays: "Enter M-Pesa PIN to pay KES 15,998.00"**
+6. **Customer enters M-Pesa PIN on their phone**
+7. M-Pesa processes payment
+8. Customer receives SMS confirmation
+9. Payment verified
+10. Redirected back to site
+
+**Yes, M-Pesa PIN entry happens on the customer's phone via STK Push!**
+
+#### 3. 🏦 **Bank Transfer**
+- Direct bank account transfers
+- All major Nigerian and Kenyan banks supported
+
+**Flow:**
+1. Customer selects bank
+2. Gets account details to transfer to
+3. Makes transfer from their bank
+4. Payment verified automatically
+
+#### 4. 📞 **USSD**
+- USSD code-based payments
+- Works on basic phones (no internet needed)
+
+**Flow:**
+1. Customer selects bank
+2. Dials USSD code provided
+3. Completes payment via phone menu
+4. Payment verified
+
+---
+
+### 🔧 **How It's Configured**
+
+In `payment_service.py` line 71:
+```python
+"payment_options": "card,mobilemoney,ussd,banktransfer"
+```
+
+This tells Flutterwave to show ALL payment options to customers. They can choose their preferred method!
 
 ---
 
@@ -382,17 +453,47 @@ Flutterwave provides test credentials for development:
 2. No real money is charged
 3. Use test card numbers provided by Flutterwave
 
-### Test Cards
+### Test Payment Methods
 
-**Successful Payment:**
+#### 1. Card Payments (Visa/Mastercard)
+
+**Successful Card:**
 - Card Number: `5531886652142950`
 - CVV: `564`
 - Expiry: Any future date
 - PIN: `3310`
 - OTP: `12345`
 
-**Failed Payment:**
+**Failed Card:**
 - Card Number: `5143010522339965`
+
+#### 2. M-Pesa (Mobile Money)
+
+**Test M-Pesa Number:**
+- Phone: `254712345678` or `254709999999`
+- **Flow:**
+  1. Select "Mobile Money" on payment page
+  2. Enter M-Pesa phone number
+  3. Click "Pay"
+  4. **STK Push sent to phone**
+  5. **Enter M-Pesa PIN on your phone** (test mode simulates this)
+  6. Payment confirmed
+
+**Note:** In test mode, the STK push is simulated. In production, a real STK push will be sent to the customer's phone prompting them to enter their M-Pesa PIN.
+
+#### 3. Bank Transfer
+
+**Test Bank Transfer:**
+- Select bank from list
+- Get account details
+- Payment verified automatically in test mode
+
+#### 4. USSD
+
+**Test USSD:**
+- Select bank
+- Dial USSD code shown
+- Complete payment via phone menu (simulated in test mode)
 
 ### Testing Flow
 

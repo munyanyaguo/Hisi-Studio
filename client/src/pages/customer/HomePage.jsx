@@ -1,6 +1,7 @@
 import Navbar from '../../components/layout/Navbar'
 import Footer from '../../components/layout/Footer'
 import HeroSection from '../../components/home/HeroSection'
+import InstagramVideoSection from '../../components/home/InstagramVideoSection'
 import AboutSection from '../../components/home/AboutSection'
 import FeaturedProducts from '../../components/home/FeaturedProducts'
 import AdaptiveFeaturesSection from '../../components/home/AdaptiveFeaturesSection'
@@ -18,6 +19,7 @@ import {
   categories,
   testimonials,
   instagramPosts,
+  pinnedInstagramVideo,
   footerLinks,
   socialLinks,
 } from '../../data/mockData'
@@ -29,6 +31,13 @@ const HomePage = () => {
 
       {/* Hero Section */}
       <HeroSection slides={heroSlides} />
+
+      {/* Pinned Instagram Video Section */}
+      <InstagramVideoSection
+        videoUrl={pinnedInstagramVideo.videoUrl}
+        caption={pinnedInstagramVideo.caption}
+        username={pinnedInstagramVideo.username}
+      />
 
       {/* About/Mission Section */}
       <AboutSection content={aboutContent} />
@@ -46,7 +55,7 @@ const HomePage = () => {
       <TestimonialsSection testimonials={testimonials} />
 
       {/* Instagram Feed */}
-      <InstagramFeed posts={instagramPosts} username="hisistudio" />
+      <InstagramFeed username="hisi_studio" />
 
       {/* Newsletter Signup */}
       <NewsletterSection />

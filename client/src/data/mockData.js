@@ -243,10 +243,23 @@ export const aboutContent = {
 }
 
 export const socialLinks = {
-    instagram: 'https://instagram.com/hisistudio',
+    instagram: 'https://www.instagram.com/hisi_studio/',
     facebook: 'https://facebook.com/hisistudio',
     twitter: 'https://twitter.com/hisistudio',
-    linkedin: 'https://linkedin.com/company/hisistudio',
+    pinterest: 'https://pinterest.com/hisistudio',
+}
+
+// Pinned Instagram Video
+export const pinnedInstagramVideo = {
+    videoUrl: 'https://www.instagram.com/p/DGfhSLRNHHT/',
+    username: 'hisi_studio',
+    caption: `At Hisi Studio, we believe that fashion should be accessible to everyone, regardless of their physical abilities. Our adaptive clothing line is designed with thoughtful features that make dressing easier and more comfortable.
+
+From magnetic closures to adjustable waistbands, every detail is crafted with care to ensure that style and functionality go hand in hand.
+
+Join us in celebrating inclusive fashion that empowers everyone to look and feel their best. 💙
+
+#HisiStudio #AdaptiveFashion #InclusiveDesign #FashionForAll #Accessibility`,
 }
 
 export const footerLinks = {
