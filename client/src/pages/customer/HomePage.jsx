@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Navbar from '../../components/layout/Navbar'
 import Footer from '../../components/layout/Footer'
 import HeroSection from '../../components/home/HeroSection'
@@ -18,19 +19,24 @@ import {
   adaptiveFeatures,
   categories,
   testimonials,
-  instagramPosts,
   pinnedInstagramVideo,
   footerLinks,
   socialLinks,
 } from '../../data/mockData'
 
 const HomePage = () => {
+  const [isHeroDark, setIsHeroDark] = useState(true) // Default to dark
+
+  const handleSlideChange = (slide) => {
+    setIsHeroDark(slide.isDark !== false) // Default to dark if not specified
+  }
+
   return (
     <div className="min-h-screen">
-      <Navbar />
+      <Navbar isHeroDark={isHeroDark} />
 
       {/* Hero Section */}
-      <HeroSection slides={heroSlides} />
+      <HeroSection slides={heroSlides} onSlideChange={handleSlideChange} />
 
       {/* Pinned Instagram Video Section */}
       <InstagramVideoSection

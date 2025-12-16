@@ -66,7 +66,7 @@ const ProductCardWithCarousel = ({ id, images, name, price }) => {
   )
 }
 
-const Navbar = () => {
+const Navbar = ({ isHeroDark = true }) => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isPastHero, setIsPastHero] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -75,6 +75,10 @@ const Navbar = () => {
   const [shopDropdownOpen, setShopDropdownOpen] = useState(false)
   const navigate = useNavigate()
 
+  // Determine if navbar should use light text (white) or dark text
+  // Use white text when: over hero AND hero is dark AND not scrolled past hero AND dropdown not open
+  const useLightText = !isPastHero && isHeroDark && !shopDropdownOpen
+
   // Cart item count (will come from Redux later)
   const cartItemCount = 0
 
@@ -82,13 +86,13 @@ const Navbar = () => {
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY
-      const heroHeight = window.innerHeight // Approximate hero section height
 
       // Small scroll for subtle effects
       setIsScrolled(scrollPosition > 20)
 
       // Past hero section - show white background
-      setIsPastHero(scrollPosition > heroHeight * 0.8) // 80% of viewport height
+      // Use a smaller threshold for Contact page to ensure white text shows initially
+      setIsPastHero(scrollPosition > 100)
     }
 
     handleScroll() // Check on mount
@@ -150,11 +154,11 @@ const Navbar = () => {
               className="flex items-center space-x-2 group focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded-lg px-2"
               aria-label="Hisi Studio Home"
             >
-              <span className={`text-2xl font-bold group-hover:text-hisi-accent transition-colors duration-500 ${isPastHero || shopDropdownOpen ? 'text-hisi-primary' : 'text-white'
+              <span className={`text-2xl font-bold tracking-tight transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-900'
                 }`}>
                 HISI
               </span>
-              <span className={`text-2xl font-light transition-colors duration-500 ${isPastHero || shopDropdownOpen ? 'text-gray-700' : 'text-white/90'
+              <span className={`text-2xl font-light transition-colors duration-500 ${useLightText ? 'text-white/90' : 'text-gray-700'
                 }`}>STUDIO</span>
             </Link>
 
@@ -170,7 +174,7 @@ const Navbar = () => {
                     >
                       <button
                         onMouseEnter={() => setShopDropdownOpen(true)}
-                        className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 flex items-center space-x-1 ${isPastHero || shopDropdownOpen ? 'text-gray-700' : 'text-white'
+                        className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 flex items-center space-x-1 ${useLightText ? 'text-white' : 'text-gray-700'
                           }`}
                       >
                         <span>{link.name}</span>
@@ -409,7 +413,7 @@ const Navbar = () => {
                   <Link
                     key={link.name}
                     to={link.href}
-                    className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 ${isPastHero || shopDropdownOpen ? 'text-gray-700' : 'text-white'
+                    className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 ${useLightText ? 'text-white' : 'text-gray-700'
                       }`}
                   >
                     {link.name}
@@ -423,45 +427,45 @@ const Navbar = () => {
               {/* Accessibility Toggle */}
               <button
                 onClick={toggleHighContrast}
-                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${(isPastHero || shopDropdownOpen) ? 'hover:bg-gray-100' : 'hover:bg-white/20'
+                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
                   }`}
                 aria-label={`${highContrast ? 'Disable' : 'Enable'} high contrast mode`}
                 title="Toggle high contrast"
               >
-                <Eye className={`w-5 h-5 transition-colors duration-300 ${highContrast ? 'text-hisi-primary' : (isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                <Eye className={`w-5 h-5 transition-colors duration-300 ${highContrast ? 'text-hisi-primary' : (useLightText ? 'text-white' : 'text-gray-700')
                   }`} />
               </button>
 
               {/* Search */}
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
-                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block ${isPastHero ? 'hover:bg-gray-100' : 'hover:bg-white/20'
+                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
                   }`}
                 aria-label="Search"
               >
-                <Search className={`w-5 h-5 transition-colors duration-300 ${(isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                <Search className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
                   }`} />
               </button>
 
               {/* User Account */}
               <Link
                 to="/account"
-                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block ${isPastHero ? 'hover:bg-gray-100' : 'hover:bg-white/20'
+                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
                   }`}
                 aria-label="Account"
               >
-                <User className={`w-5 h-5 transition-colors duration-300 ${(isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                <User className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
                   }`} />
               </Link>
 
               {/* Shopping Cart */}
               <Link
                 to="/cart"
-                className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${(isPastHero || shopDropdownOpen) ? 'hover:bg-gray-100' : 'hover:bg-white/20'
+                className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
                   }`}
                 aria-label={`Shopping cart with ${cartItemCount} items`}
               >
-                <ShoppingBag className={`w-5 h-5 transition-colors duration-300 ${(isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                <ShoppingBag className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
                   }`} />
                 {cartItemCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-hisi-accent text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
@@ -473,16 +477,16 @@ const Navbar = () => {
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className={`md:hidden p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${(isPastHero || shopDropdownOpen) ? 'hover:bg-gray-100' : 'hover:bg-white/20'
+                className={`md:hidden p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20 text-white' : 'hover:bg-gray-100 text-gray-700'
                   }`}
                 aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={mobileMenuOpen}
               >
                 {mobileMenuOpen ? (
-                  <X className={`w-6 h-6 transition-colors duration-300 ${(isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                  <X className={`w-6 h-6 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
                     }`} />
                 ) : (
-                  <Menu className={`w-6 h-6 transition-colors duration-300 ${(isPastHero || shopDropdownOpen) ? 'text-gray-700' : 'text-white'
+                  <Menu className={`w-6 h-6 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
                     }`} />
                 )}
               </button>

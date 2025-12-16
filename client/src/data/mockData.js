@@ -11,6 +11,7 @@ export const heroSlides = [
         subtitle: 'Style Meets Accessibility',
         cta: 'Shop Now',
         ctaLink: '/shop',
+        isDark: true, // Dark background - use white text
     },
     {
         id: 2,
@@ -19,6 +20,7 @@ export const heroSlides = [
         subtitle: 'Designed for Everyone',
         cta: 'Explore',
         ctaLink: '/shop',
+        isDark: false, // Light background - use dark text
     },
     {
         id: 3,
@@ -27,6 +29,7 @@ export const heroSlides = [
         subtitle: 'Fashion Without Barriers',
         cta: 'Learn More',
         ctaLink: '/about',
+        isDark: true, // Dark background - use white text
     },
 ]
 

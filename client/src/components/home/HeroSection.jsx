@@ -1,13 +1,20 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-const HeroSection = ({ slides = [] }) => {
+const HeroSection = ({ slides = [], onSlideChange }) => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
 
   const slideCount = slides.length
+
+  // Notify parent component when slide changes
+  useEffect(() => {
+    if (onSlideChange && slides[currentSlide]) {
+      onSlideChange(slides[currentSlide])
+    }
+  }, [currentSlide, slides, onSlideChange])
 
   // Navigate to next slide
   const nextSlide = useCallback(() => {
@@ -132,9 +139,8 @@ const HeroSection = ({ slides = [] }) => {
         {displaySlides.map((slide, index) => (
           <div
             key={slide.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
+            className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              }`}
             aria-hidden={index !== currentSlide}
           >
             {/* Background Image */}
@@ -204,11 +210,10 @@ const HeroSection = ({ slides = [] }) => {
           <button
             key={slide.id}
             onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${
-              index === currentSlide
+            className={`w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${index === currentSlide
                 ? 'bg-white w-8'
                 : 'bg-white/50 hover:bg-white/75'
-            }`}
+              }`}
             aria-label={`Go to slide ${index + 1}`}
             aria-selected={index === currentSlide}
             role="tab"
