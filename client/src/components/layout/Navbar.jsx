@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, ShoppingBag, User, Menu, X, Eye } from 'lucide-react'
+import { Search, ShoppingCart, ShoppingBag, User, Menu, X, Heart, Accessibility, Eye } from 'lucide-react'
+import FlipProductCard from '../product/FlipProductCard'
 
 // Product Card with Image Carousel on Hover
 const ProductCardWithCarousel = ({ id, images, name, price }) => {
@@ -125,6 +126,8 @@ const Navbar = ({ isHeroDark = true }) => {
     { name: 'Collections', href: '/collections' },
     { name: 'About', href: '/about' },
     { name: 'Accessibility', href: '/accessibility' },
+    { name: 'Press', href: '/press' },
+    { name: 'Blog', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ]
 
@@ -372,29 +375,25 @@ const Navbar = ({ isHeroDark = true }) => {
                                     <h3 className="text-lg font-bold text-gray-900 mb-6 uppercase tracking-wide">
                                       Featured
                                     </h3>
-                                    <div className="grid grid-cols-2 gap-3">
-                                      {/* Product 1 with hover carousel */}
-                                      <ProductCardWithCarousel
+                                    <div className="grid grid-cols-2 gap-4">
+                                      {/* Product 1 with flip animation */}
+                                      <FlipProductCard
                                         id="1"
-                                        images={[
-                                          '/images/products/jacket-main.jpg',
-                                          '/images/products/jacket-main.jpg',
-                                          '/images/products/jacket-main.jpg',
-                                        ]}
+                                        image="/images/products/jacket-main.jpg"
                                         name="Adaptive Bomber Jacket"
-                                        price="89,000"
+                                        price={89000}
+                                        description="Stylish bomber jacket with magnetic closures and easy-access pockets for wheelchair users"
+                                        category="Outerwear"
                                       />
 
-                                      {/* Product 2 with hover carousel */}
-                                      <ProductCardWithCarousel
+                                      {/* Product 2 with flip animation */}
+                                      <FlipProductCard
                                         id="4"
-                                        images={[
-                                          '/images/products/top-main.jpg',
-                                          '/images/products/top-main.jpg',
-                                          '/images/products/top-main.jpg',
-                                        ]}
+                                        image="/images/products/top-main.jpg"
                                         name="Sensory-Friendly Top"
-                                        price="42,000"
+                                        price={42000}
+                                        description="Ultra-soft, tagless top with flat seams designed for sensory sensitivities"
+                                        category="Tops"
                                       />
                                     </div>
                                   </div>

@@ -79,7 +79,6 @@ const InstagramVideoSection = ({ videoUrl, videoFile, caption, username }) => {
                                     className="absolute inset-0 w-full h-full"
                                     frameBorder="0"
                                     scrolling="no"
-                                    allowTransparency="true"
                                     allow="encrypted-media"
                                     title="Instagram Video"
                                 />

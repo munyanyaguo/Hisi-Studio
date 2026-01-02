@@ -39,3 +39,8 @@ export const placeholders = {
   testimonial3: generatePlaceholder(100, 100, 'AH', '#4A5D5E'),
   testimonial4: generatePlaceholder(100, 100, 'DK', '#E8B44C'),
 }
+
+// Helper function to generate placeholder images dynamically
+export const getPlaceholderImage = (width, height, text, bgColor) => {
+  return generatePlaceholder(width, height, text, bgColor)
+}

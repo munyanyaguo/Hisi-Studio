@@ -103,7 +103,7 @@ const InstagramFeed = ({ username }) => {
                             className="w-full h-full"
                             frameBorder="0"
                             scrolling="no"
-                            allowTransparency="true"
+                            allowtransparency="true"
                             title={`Instagram Post ${index + 1}`}
                         />
                     </div>

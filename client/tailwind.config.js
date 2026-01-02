@@ -86,7 +86,25 @@ export default {
         height: 'height',
         spacing: 'margin, padding',
       },
+      perspective: {
+        '1000': '1000px',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      const newUtilities = {
+        '.transform-style-3d': {
+          'transform-style': 'preserve-3d',
+        },
+        '.backface-hidden': {
+          'backface-visibility': 'hidden',
+        },
+        '.perspective-1000': {
+          perspective: '1000px',
+        },
+      }
+      addUtilities(newUtilities)
+    },
+  ],
 }
