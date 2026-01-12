@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
     Mail, Send, Clock, CheckCircle, Sparkles, Heart, Users, Zap
 } from 'lucide-react'
@@ -10,6 +10,7 @@ import LocationMap from '../../components/contact/LocationMap'
 import ContactTestimonials from '../../components/contact/ContactTestimonials'
 import BookingSystem from '../../components/contact/BookingSystem'
 import { footerLinks, socialLinks } from '../../data/mockData'
+import { getContactStats, submitContactForm } from '../../services/contactApi'
 
 const ContactPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('general')
@@ -25,6 +26,25 @@ const ContactPage = () => {
     })
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitSuccess, setSubmitSuccess] = useState(false)
+    const [submitError, setSubmitError] = useState('')
+    const [stats, setStats] = useState(null)
+    const [statsLoading, setStatsLoading] = useState(true)
+
+    // Fetch stats on mount
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await getContactStats()
+                setStats(response.data)
+            } catch (error) {
+                console.error('Failed to load stats:', error)
+                // Keep default values if fetch fails
+            } finally {
+                setStatsLoading(false)
+            }
+        }
+        fetchStats()
+    }, [])
 
     const categories = [
         { id: 'general', label: 'General Inquiry', responseTime: '24 hours', icon: Mail },
@@ -37,22 +57,32 @@ const ContactPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setIsSubmitting(true)
-        await new Promise(resolve => setTimeout(resolve, 2000))
-        setIsSubmitting(false)
-        setSubmitSuccess(true)
-        setTimeout(() => {
-            setSubmitSuccess(false)
-            setFormData({
-                name: '',
-                email: '',
-                phone: '',
-                category: selectedCategory,
-                message: '',
-                consultationType: '',
-                orderDetails: '',
-                partnershipType: '',
-            })
-        }, 3000)
+        setSubmitError('')
+
+        try {
+            await submitContactForm(formData)
+            setSubmitSuccess(true)
+
+            // Reset form after 5 seconds
+            setTimeout(() => {
+                setSubmitSuccess(false)
+                setFormData({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    category: selectedCategory,
+                    message: '',
+                    consultationType: '',
+                    orderDetails: '',
+                    partnershipType: '',
+                })
+            }, 5000)
+        } catch (error) {
+            console.error('Form submission error:', error)
+            setSubmitError(error.message || 'Failed to send message. Please try again.')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     const handleInputChange = (e) => {
@@ -108,15 +138,19 @@ const ContactPage = () => {
                                 <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-4">
                                     <Clock className="w-6 h-6 text-white" />
                                 </div>
-                                <div className="text-3xl font-bold text-white mb-2">24hrs</div>
-                                <div className="text-sm text-gray-300">Average Response Time</div>
+                                <div className="text-3xl font-bold text-white mb-2">
+                                    {statsLoading || !stats ? '...' : `${stats.response_rate}%`}
+                                </div>
+                                <div className="text-sm text-gray-300">Response Rate</div>
                             </div>
 
                             <div className="bg-transparent backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/5 transition-all duration-300">
                                 <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-4">
                                     <Users className="w-6 h-6 text-white" />
                                 </div>
-                                <div className="text-3xl font-bold text-white mb-2">500+</div>
+                                <div className="text-3xl font-bold text-white mb-2">
+                                    {statsLoading || !stats ? '...' : `${stats.completed_consultations}+`}
+                                </div>
                                 <div className="text-sm text-gray-300">Consultations Completed</div>
                             </div>
 
@@ -124,8 +158,10 @@ const ContactPage = () => {
                                 <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-4">
                                     <CheckCircle className="w-6 h-6 text-white" />
                                 </div>
-                                <div className="text-3xl font-bold text-white mb-2">98%</div>
-                                <div className="text-sm text-gray-300">Customer Satisfaction</div>
+                                <div className="text-3xl font-bold text-white mb-2">
+                                    {statsLoading || !stats ? '...' : `${stats.total_orders}+`}
+                                </div>
+                                <div className="text-sm text-gray-300">Orders Fulfilled</div>
                             </div>
                         </div>
                     </div>
@@ -149,30 +185,50 @@ const ContactPage = () => {
                                     icon: Sparkles,
                                     title: 'Personalized Styling',
                                     description: 'Expert advice on adaptive fashion including tactile elements, braille labels, and designs for visual impairments',
-                                    color: 'from-purple-500 to-pink-500'
+                                    color: 'from-purple-500 to-pink-500',
+                                    category: 'accessibility',
+                                    consultationType: 'styling'
                                 },
                                 {
                                     icon: Zap,
                                     title: 'Custom Orders',
                                     description: 'Bespoke pieces with tactile identifiers, easy-to-navigate closures, and features tailored for blind and visually impaired individuals',
-                                    color: 'from-blue-500 to-cyan-500'
+                                    color: 'from-blue-500 to-cyan-500',
+                                    category: 'custom',
+                                    consultationType: ''
                                 },
                                 {
                                     icon: Heart,
                                     title: 'Accessibility Consultations',
                                     description: 'Free consultations for visual impairments, tactile navigation systems, and adaptive features for independent dressing',
-                                    color: 'from-red-500 to-orange-500'
+                                    color: 'from-red-500 to-orange-500',
+                                    category: 'accessibility',
+                                    consultationType: 'accessibility'
                                 },
                                 {
                                     icon: Users,
                                     title: 'Partnership Opportunities',
                                     description: 'Collaborate with us on inclusive fashion initiatives, community programs, and accessibility advocacy',
-                                    color: 'from-green-500 to-emerald-500'
+                                    color: 'from-green-500 to-emerald-500',
+                                    category: 'partnership',
+                                    consultationType: ''
                                 }
                             ].map((service, index) => (
                                 <div
                                     key={index}
-                                    className="group relative bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-transparent overflow-hidden"
+                                    onClick={() => {
+                                        // Set the category
+                                        setSelectedCategory(service.category)
+                                        setFormData({
+                                            ...formData,
+                                            category: service.category,
+                                            consultationType: service.consultationType
+                                        })
+                                        // Scroll to form
+                                        const formSection = document.getElementById('contact-form')
+                                        formSection?.scrollIntoView({ behavior: 'smooth' })
+                                    }}
+                                    className="group relative bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-transparent overflow-hidden cursor-pointer"
                                 >
                                     <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
 
@@ -183,16 +239,10 @@ const ContactPage = () => {
                                     <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
                                     <p className="text-gray-600 text-sm leading-relaxed">{service.description}</p>
 
-                                    <button
-                                        onClick={() => {
-                                            const formSection = document.getElementById('contact-form')
-                                            formSection?.scrollIntoView({ behavior: 'smooth' })
-                                        }}
-                                        className="mt-4 text-sm font-semibold text-hisi-primary hover:text-hisi-accent transition-colors duration-300 flex items-center space-x-1"
-                                    >
+                                    <div className="mt-4 text-sm font-semibold text-hisi-primary group-hover:text-hisi-accent transition-colors duration-300 flex items-center space-x-1">
                                         <span>Get Started</span>
-                                        <Send className="w-4 h-4" />
-                                    </button>
+                                        <Send className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -214,14 +264,16 @@ const ContactPage = () => {
                                                     setFormData({ ...formData, category: cat.id })
                                                 }}
                                                 className={`flex-1 min-w-[150px] px-4 py-4 text-sm font-medium transition-all duration-300 ${selectedCategory === cat.id
-                                                        ? 'bg-gradient-to-r from-hisi-primary to-hisi-accent text-white'
-                                                        : 'text-gray-600 hover:text-hisi-primary hover:bg-gray-50'
+                                                    ? 'bg-hisi-primary/10 text-hisi-primary border-2 border-hisi-primary shadow-md'
+                                                    : 'bg-gray-50 text-gray-700 border-2 border-transparent hover:bg-gray-100 hover:text-hisi-primary'
                                                     }`}
                                             >
                                                 <div className="flex flex-col items-center space-y-1">
-                                                    <cat.icon className="w-5 h-5" />
-                                                    <span className="hidden sm:inline">{cat.label}</span>
-                                                    <span className="text-xs opacity-75">~{cat.responseTime}</span>
+                                                    <cat.icon className={`w-5 h-5 ${selectedCategory === cat.id ? 'text-hisi-primary' : 'text-gray-600'}`} />
+                                                    <span className="hidden sm:inline font-semibold">{cat.label}</span>
+                                                    <span className={`text-xs ${selectedCategory === cat.id ? 'text-hisi-primary/80' : 'text-gray-500'}`}>
+                                                        ~{cat.responseTime}
+                                                    </span>
                                                 </div>
                                             </button>
                                         ))}
@@ -251,6 +303,20 @@ const ContactPage = () => {
                                     </div>
                                 ) : (
                                     <form onSubmit={handleSubmit} className="space-y-6">
+                                        {submitError && (
+                                            <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 flex items-start space-x-3">
+                                                <div className="flex-shrink-0">
+                                                    <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="text-sm font-semibold text-red-800">Error sending message</h3>
+                                                    <p className="text-sm text-red-700 mt-1">{submitError}</p>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div>
                                                 <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -380,11 +446,11 @@ const ContactPage = () => {
                                         <button
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className="w-full bg-gradient-to-r from-hisi-primary to-hisi-accent text-white font-semibold py-4 px-6 rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                                            className="w-full bg-hisi-primary/10 text-hisi-primary border-2 border-hisi-primary font-bold py-4 px-6 rounded-lg hover:bg-hisi-primary/20 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                                         >
                                             {isSubmitting ? (
                                                 <>
-                                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                    <div className="w-5 h-5 border-2 border-hisi-primary border-t-transparent rounded-full animate-spin"></div>
                                                     <span>Sending...</span>
                                                 </>
                                             ) : (

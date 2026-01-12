@@ -1,0 +1,126 @@
+.metric-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e5e7eb;
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.metric-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.metric-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s;
+}
+
+.metric-card:hover .metric-icon-wrapper {
+    transform: scale(1.1);
+}
+
+.metric-card-green .metric-icon-wrapper {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.metric-card-blue .metric-icon-wrapper {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.metric-card-purple .metric-icon-wrapper {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.metric-card-orange .metric-icon-wrapper {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.metric-card-indigo .metric-icon-wrapper {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+}
+
+.metric-card-teal .metric-icon-wrapper {
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+}
+
+.metric-card-red .metric-icon-wrapper {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.metric-icon {
+    color: white;
+}
+
+.metric-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.metric-trend.up {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.metric-trend.down {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.metric-body {
+    margin-top: 1rem;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+    line-height: 1;
+}
+
+.metric-title {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .metric-card {
+        padding: 1.25rem;
+    }
+
+    .metric-value {
+        font-size: 1.75rem;
+    }
+
+    .metric-icon-wrapper {
+        width: 40px;
+        height: 40px;
+    }
+
+    .metric-icon {
+        width: 20px;
+        height: 20px;
+    }
+}

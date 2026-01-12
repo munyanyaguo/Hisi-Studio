@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, ShoppingCart, ShoppingBag, User, Menu, X, Heart, Accessibility, Eye } from 'lucide-react'
+import { Search, ShoppingCart, ShoppingBag, User, Menu, X, Heart, Accessibility, Eye, LogOut, UserCircle, Settings } from 'lucide-react'
+import { useAuth } from '../../contexts/AuthContext'
 import FlipProductCard from '../product/FlipProductCard'
 
 // Product Card with Image Carousel on Hover
@@ -74,7 +75,9 @@ const Navbar = ({ isHeroDark = true }) => {
   const [searchOpen, setSearchOpen] = useState(false)
   const [highContrast, setHighContrast] = useState(false)
   const [shopDropdownOpen, setShopDropdownOpen] = useState(false)
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const navigate = useNavigate()
+  const { user, isAuthenticated, logout } = useAuth()
 
   // Determine if navbar should use light text (white) or dark text
   // Use white text when: over hero AND hero is dark AND not scrolled past hero AND dropdown not open
@@ -150,24 +153,11 @@ const Navbar = ({ isHeroDark = true }) => {
         aria-label="Main navigation"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <Link
-              to="/"
-              className="flex items-center space-x-2 group focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded-lg px-2"
-              aria-label="Hisi Studio Home"
-            >
-              <span className={`text-2xl font-bold tracking-tight transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-900'
-                }`}>
-                HISI
-              </span>
-              <span className={`text-2xl font-light transition-colors duration-500 ${useLightText ? 'text-white/90' : 'text-gray-700'
-                }`}>STUDIO</span>
-            </Link>
+          <div className="flex items-center justify-between h-24"> {/* Increased height for larger logo */}
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              {navLinks.map((link) => {
+            {/* Left Navigation */}
+            <div className="hidden md:flex items-center space-x-6 lg:space-x-8 flex-1 justify-start min-w-0"> {/* Uses flex-1 to push towards center/left */}
+              {navLinks.slice(0, 3).map((link) => { // Reduced to 3 for balance: Shop, Collections, About
                 // Special handling for Shop link with dropdown
                 if (link.name === 'Shop') {
                   return (
@@ -177,7 +167,7 @@ const Navbar = ({ isHeroDark = true }) => {
                     >
                       <button
                         onMouseEnter={() => setShopDropdownOpen(true)}
-                        className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 flex items-center space-x-1 ${useLightText ? 'text-white' : 'text-gray-700'
+                        className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 flex items-center space-x-1 ${useLightText ? 'text-white' : 'text-gray-900'
                           }`}
                       >
                         <span>{link.name}</span>
@@ -195,13 +185,13 @@ const Navbar = ({ isHeroDark = true }) => {
                       {/* Mega Menu Dropdown */}
                       {shopDropdownOpen && (
                         <div
-                          className="fixed left-0 right-0 top-20 w-full z-40 flex justify-center"
+                          className="fixed left-0 right-0 top-24 w-full z-40 flex justify-center" // Matches h-24
                           onMouseEnter={() => setShopDropdownOpen(true)}
                           onMouseLeave={() => setShopDropdownOpen(false)}
                         >
                           <div className="bg-white shadow-2xl animate-fadeIn border border-gray-200 rounded-b-lg">
                             <div className="w-full px-6 py-6">
-                              <div className="max-w-5xl">
+                              <div className="max-w-5xl mx-auto">
                                 <div className="grid grid-cols-10 gap-6">
                                   {/* Categories Section - Takes up more space */}
                                   <div className="col-span-4">
@@ -412,7 +402,7 @@ const Navbar = ({ isHeroDark = true }) => {
                   <Link
                     key={link.name}
                     to={link.href}
-                    className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 ${useLightText ? 'text-white' : 'text-gray-700'
+                    className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 ${useLightText ? 'text-white' : 'text-gray-900'
                       }`}
                   >
                     {link.name}
@@ -421,74 +411,188 @@ const Navbar = ({ isHeroDark = true }) => {
               })}
             </div>
 
-            {/* Right Icons */}
-            <div className="flex items-center space-x-4">
-              {/* Accessibility Toggle */}
-              <button
-                onClick={toggleHighContrast}
-                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
-                  }`}
-                aria-label={`${highContrast ? 'Disable' : 'Enable'} high contrast mode`}
-                title="Toggle high contrast"
-              >
-                <Eye className={`w-5 h-5 transition-colors duration-300 ${highContrast ? 'text-hisi-primary' : (useLightText ? 'text-white' : 'text-gray-700')
-                  }`} />
-              </button>
-
-              {/* Search */}
-              <button
-                onClick={() => setSearchOpen(!searchOpen)}
-                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
-                  }`}
-                aria-label="Search"
-              >
-                <Search className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
-                  }`} />
-              </button>
-
-              {/* User Account */}
+            {/* STATIC Centered Logo with Reserved Space */}
+            <div className="flex-shrink-0 mx-4 lg:mx-8">
               <Link
-                to="/account"
-                className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
-                  }`}
-                aria-label="Account"
+                to="/"
+                className="flex items-center justify-center p-2 group focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded-lg"
+                aria-label="Hisi Studio Home"
               >
-                <User className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
-                  }`} />
-              </Link>
-
-              {/* Shopping Cart */}
-              <Link
-                to="/cart"
-                className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
-                  }`}
-                aria-label={`Shopping cart with ${cartItemCount} items`}
-              >
-                <ShoppingBag className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
-                  }`} />
-                {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-hisi-accent text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                    {cartItemCount}
-                  </span>
-                )}
-              </Link>
-
-              {/* Mobile Menu Toggle */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className={`md:hidden p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20 text-white' : 'hover:bg-gray-100 text-gray-700'
-                  }`}
-                aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-                aria-expanded={mobileMenuOpen}
-              >
-                {mobileMenuOpen ? (
-                  <X className={`w-6 h-6 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
-                    }`} />
+                {useLightText ? (
+                  <img
+                    src="/images/hisi-logo-white.png"
+                    alt="Hisi Studio"
+                    className="h-28 w-auto object-contain transition-all duration-300"
+                  />
                 ) : (
-                  <Menu className={`w-6 h-6 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
-                    }`} />
+                  <img
+                    src="/images/hisi-logo-light.png"
+                    alt="Hisi Studio"
+                    className="h-28 w-auto object-contain transition-all duration-300"
+                  />
                 )}
-              </button>
+              </Link>
+            </div>
+
+            {/* Right Navigation & Icons */}
+            <div className="hidden md:flex items-center justify-end flex-1 min-w-0 space-x-6 lg:space-x-8">
+              {/* Right Side Links (Remaining links) */}
+              {navLinks.slice(3).map((link) => (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 ${useLightText ? 'text-white' : 'text-gray-900'
+                    }`}
+                >
+                  {link.name}
+                </Link>
+              ))}
+
+              <div className="h-6 w-px bg-gray-300/50 mx-2"></div> {/* Separator */}
+
+              {/* Right Icons */}
+              <div className="flex items-center space-x-4">
+                {/* Accessibility Toggle */}
+                <button
+                  onClick={toggleHighContrast}
+                  className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
+                    }`}
+                  aria-label={`${highContrast ? 'Disable' : 'Enable'} high contrast mode`}
+                  title="Toggle high contrast"
+                >
+                  <Eye className={`w-5 h-5 transition-colors duration-300 ${highContrast ? 'text-hisi-primary' : (useLightText ? 'text-white' : 'text-gray-700')
+                    }`} />
+                </button>
+
+                {/* Search */}
+                <button
+                  onClick={() => setSearchOpen(!searchOpen)}
+                  className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
+                    }`}
+                  aria-label="Search"
+                >
+                  <Search className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
+                    }`} />
+                </button>
+
+                {/* User Account - Profile Dropdown */}
+                <div className="relative hidden sm:block">
+                  <button
+                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                    onBlur={() => setTimeout(() => setProfileDropdownOpen(false), 200)}
+                    className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
+                      }`}
+                    aria-label="Account menu"
+                    aria-expanded={profileDropdownOpen}
+                  >
+                    <User className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
+                      }`} />
+                  </button>
+
+                  {/* Profile Dropdown Menu */}
+                  {profileDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 animate-fadeIn">
+                      {isAuthenticated() ? (
+                        // Logged In Menu
+                        <>
+                          <div className="px-4 py-3 border-b border-gray-200">
+                            <p className="text-sm font-semibold text-gray-900">
+                              {user?.first_name} {user?.last_name}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                          </div>
+
+                          <Link
+                            to="/profile"
+                            className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            onClick={() => setProfileDropdownOpen(false)}
+                          >
+                            <UserCircle className="w-4 h-4" />
+                            <span>My Profile</span>
+                          </Link>
+
+                          <Link
+                            to="/account"
+                            className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            onClick={() => setProfileDropdownOpen(false)}
+                          >
+                            <Settings className="w-4 h-4" />
+                            <span>Account Settings</span>
+                          </Link>
+
+                          <div className="border-t border-gray-200 my-1"></div>
+
+                          <button
+                            onClick={() => {
+                              logout()
+                              setProfileDropdownOpen(false)
+                              navigate('/')
+                            }}
+                            className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Sign Out</span>
+                          </button>
+                        </>
+                      ) : (
+                        // Logged Out Menu
+                        <>
+                          <Link
+                            to="/login"
+                            className="flex items-center space-x-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                            onClick={() => setProfileDropdownOpen(false)}
+                          >
+                            <User className="w-4 h-4" />
+                            <span>Sign In</span>
+                          </Link>
+
+                          <Link
+                            to="/signup"
+                            className="flex items-center space-x-3 px-4 py-3 text-sm font-semibold text-hisi-primary hover:bg-hisi-primary/10 transition-colors"
+                            onClick={() => setProfileDropdownOpen(false)}
+                          >
+                            <UserCircle className="w-4 h-4" />
+                            <span>Create Account</span>
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Shopping Cart */}
+                <Link
+                  to="/cart"
+                  className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
+                    }`}
+                  aria-label={`Shopping cart with ${cartItemCount} items`}
+                >
+                  <ShoppingBag className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
+                    }`} />
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-hisi-accent text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartItemCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Mobile Menu Toggle */}
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className={`md:hidden p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20 text-white' : 'hover:bg-gray-100 text-gray-700'
+                    }`}
+                  aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+                  aria-expanded={mobileMenuOpen}
+                >
+                  {mobileMenuOpen ? (
+                    <X className={`w-6 h-6 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
+                      }`} />
+                  ) : (
+                    <Menu className={`w-6 h-6 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
+                      }`} />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -529,14 +633,68 @@ const Navbar = ({ isHeroDark = true }) => {
               ))}
 
               <div className="pt-4 border-t border-gray-200 space-y-4">
-                <Link
-                  to="/account"
-                  className="flex items-center space-x-3 text-gray-700 hover:text-hisi-primary transition-colors duration-300 py-2 focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User className="w-5 h-5" />
-                  <span className="font-medium">My Account</span>
-                </Link>
+                {isAuthenticated() ? (
+                  // Logged In Mobile Menu
+                  <>
+                    <div className="px-2 py-2 bg-gray-50 rounded-lg">
+                      <p className="text-sm font-semibold text-gray-900">
+                        {user?.first_name} {user?.last_name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                    </div>
+
+                    <Link
+                      to="/profile"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-hisi-primary transition-colors duration-300 py-2 focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <UserCircle className="w-5 h-5" />
+                      <span className="font-medium">My Profile</span>
+                    </Link>
+
+                    <Link
+                      to="/account"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-hisi-primary transition-colors duration-300 py-2 focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Settings className="w-5 h-5" />
+                      <span className="font-medium">Account Settings</span>
+                    </Link>
+
+                    <button
+                      onClick={() => {
+                        logout()
+                        setMobileMenuOpen(false)
+                        navigate('/')
+                      }}
+                      className="flex items-center space-x-3 text-red-600 hover:text-red-700 transition-colors duration-300 py-2 w-full focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span className="font-medium">Sign Out</span>
+                    </button>
+                  </>
+                ) : (
+                  // Logged Out Mobile Menu
+                  <>
+                    <Link
+                      to="/login"
+                      className="flex items-center space-x-3 text-gray-700 hover:text-hisi-primary transition-colors duration-300 py-2 focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <User className="w-5 h-5" />
+                      <span className="font-medium">Sign In</span>
+                    </Link>
+
+                    <Link
+                      to="/signup"
+                      className="flex items-center space-x-3 text-hisi-primary hover:text-hisi-accent transition-colors duration-300 py-2 focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <UserCircle className="w-5 h-5" />
+                      <span className="font-semibold">Create Account</span>
+                    </Link>
+                  </>
+                )}
 
                 <button
                   onClick={() => {

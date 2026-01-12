@@ -14,7 +14,8 @@ class User(db.Model):
     last_name = db.Column(db.String(100), nullable=True)
     phone = db.Column(db.String(13), nullable=True, unique=True)
     role = db.Column(db.String(20), nullable=False, default='customer')
-    # roles: 'customer', 'admin'
+    # roles: 'customer', 'content_manager', 'super_admin'
+    permissions = db.Column(db.JSON, nullable=True)  # Custom permissions for granular control
     is_verified = db.Column(db.Boolean, default=False, nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -29,6 +30,23 @@ class User(db.Model):
         """Check if password matches hash"""
         return check_password_hash(self.password_hash, password)
     
+    def is_admin(self):
+        """Check if user is any type of admin"""
+        return self.role in ['content_manager', 'super_admin']
+    
+    def is_super_admin(self):
+        """Check if user is super admin"""
+        return self.role == 'super_admin'
+    
+    def has_permission(self, permission):
+        """Check if user has a specific permission"""
+        if self.is_super_admin():
+            return True  # Super admin has all permissions
+        if not self.permissions:
+            return False
+        return permission in self.permissions
+
+    
     def to_dict(self):
         """Convert user object to dictionary"""
         return {
@@ -38,6 +56,7 @@ class User(db.Model):
             'last_name': self.last_name,
             'phone': self.phone,
             'role': self.role,
+            'permissions': self.permissions,
             'is_verified': self.is_verified,
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,

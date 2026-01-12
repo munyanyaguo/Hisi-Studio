@@ -44,7 +44,7 @@ def admin_get_pages():
     try:
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
-        if user.role != 'admin':
+        if not user.is_admin():
             return forbidden_response("Admin access required")
 
         pages = Page.query.all()
@@ -60,7 +60,7 @@ def admin_create_page():
     try:
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
-        if user.role != 'admin':
+        if not user.is_admin():
             return forbidden_response("Admin access required")
 
         data = request.get_json()
@@ -100,7 +100,7 @@ def admin_update_page(page_id):
     try:
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
-        if user.role != 'admin':
+        if not user.is_admin():
             return forbidden_response("Admin access required")
 
         page = Page.query.get(page_id)
@@ -140,7 +140,7 @@ def admin_delete_page(page_id):
     try:
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
-        if user.role != 'admin':
+        if not user.is_admin():
             return forbidden_response("Admin access required")
 
         page = Page.query.get(page_id)
@@ -197,7 +197,7 @@ def admin_create_blog_post():
     try:
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
-        if user.role != 'admin':
+        if not user.is_admin():
             return forbidden_response("Admin access required")
 
         data = request.get_json()
@@ -239,7 +239,7 @@ def admin_update_blog_post(post_id):
     try:
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
-        if user.role != 'admin':
+        if not user.is_admin():
             return forbidden_response("Admin access required")
 
         post = BlogPost.query.get(post_id)
@@ -274,7 +274,7 @@ def admin_delete_blog_post(post_id):
     try:
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
-        if user.role != 'admin':
+        if not user.is_admin():
             return forbidden_response("Admin access required")
 
         post = BlogPost.query.get(post_id)
@@ -309,7 +309,7 @@ def admin_get_settings():
     try:
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
-        if user.role != 'admin':
+        if not user.is_admin():
             return forbidden_response("Admin access required")
 
         settings = SiteSetting.query.all()
@@ -325,7 +325,7 @@ def admin_update_settings():
     try:
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
-        if user.role != 'admin':
+        if not user.is_admin():
             return forbidden_response("Admin access required")
 
         data = request.get_json()

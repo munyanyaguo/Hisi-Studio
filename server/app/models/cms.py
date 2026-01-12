@@ -184,10 +184,33 @@ class ContactMessage(db.Model):
     name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(255), nullable=False)
     phone = db.Column(db.String(20), nullable=True)
+    
+    # Category and type-specific fields
+    category = db.Column(db.String(50), nullable=False, default='general')
+    # Categories: general, custom, accessibility, partnership, press
+    
+    consultation_type = db.Column(db.String(100), nullable=True)
+    # For accessibility category
+    
+    order_details = db.Column(db.Text, nullable=True)
+    # For custom orders category
+    
+    partnership_type = db.Column(db.String(100), nullable=True)
+    # For partnership category
+    
     subject = db.Column(db.String(255), nullable=True)
     message = db.Column(db.Text, nullable=False)
+    
+    # Status tracking
+    status = db.Column(db.String(20), nullable=False, default='new')
+    # Status: new, in_progress, resolved
+    
     is_read = db.Column(db.Boolean, default=False, nullable=False)
+    admin_notes = db.Column(db.Text, nullable=True)
+    
+    # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    replied_at = db.Column(db.DateTime, nullable=True)
 
     def to_dict(self):
         """Convert message to dictionary"""
@@ -196,11 +219,152 @@ class ContactMessage(db.Model):
             'name': self.name,
             'email': self.email,
             'phone': self.phone,
+            'category': self.category,
+            'consultation_type': self.consultation_type,
+            'order_details': self.order_details,
+            'partnership_type': self.partnership_type,
             'subject': self.subject,
             'message': self.message,
+            'status': self.status,
             'is_read': self.is_read,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'admin_notes': self.admin_notes,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'replied_at': self.replied_at.isoformat() if self.replied_at else None
         }
 
     def __repr__(self):
         return f"<ContactMessage from {self.email}>"
+
+
+class Consultation(db.Model):
+    """Consultation booking model"""
+    __tablename__ = 'consultations'
+    __table_args__ = {'schema': 'hisi'}
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(255), nullable=False)
+    phone = db.Column(db.String(20), nullable=True)
+    
+    # Consultation details
+    consultation_type = db.Column(db.String(50), nullable=False)
+    # Types: styling, accessibility, custom, fitting
+    
+    meeting_type = db.Column(db.String(20), nullable=False, default='in-person')
+    # Types: in-person, virtual
+    
+    preferred_date = db.Column(db.Date, nullable=False)
+    preferred_time = db.Column(db.String(20), nullable=False)
+    
+    # Status and notes
+    status = db.Column(db.String(20), nullable=False, default='pending')
+    # Status: pending, confirmed, completed, cancelled
+    
+    notes = db.Column(db.Text, nullable=True)
+    admin_notes = db.Column(db.Text, nullable=True)
+    confirmation_sent = db.Column(db.Boolean, default=False, nullable=False)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        """Convert consultation to dictionary"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'phone': self.phone,
+            'consultation_type': self.consultation_type,
+            'meeting_type': self.meeting_type,
+            'preferred_date': self.preferred_date.isoformat() if self.preferred_date else None,
+            'preferred_time': self.preferred_time,
+            'status': self.status,
+            'notes': self.notes,
+            'admin_notes': self.admin_notes,
+            'confirmation_sent': self.confirmation_sent,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def __repr__(self):
+        return f"<Consultation {self.consultation_type} - {self.email}>"
+
+
+class FAQ(db.Model):
+    """Frequently Asked Questions model"""
+    __tablename__ = 'faqs'
+    __table_args__ = {'schema': 'hisi'}
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    category = db.Column(db.String(50), nullable=False)
+    # Categories: orders, accessibility, shipping, returns, general
+    
+    question = db.Column(db.Text, nullable=False)
+    answer = db.Column(db.Text, nullable=False)
+    
+    display_order = db.Column(db.Integer, nullable=False, default=0)
+    is_published = db.Column(db.Boolean, default=True, nullable=False)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        """Convert FAQ to dictionary"""
+        return {
+            'id': self.id,
+            'category': self.category,
+            'question': self.question,
+            'answer': self.answer,
+            'display_order': self.display_order,
+            'is_published': self.is_published,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def __repr__(self):
+        return f"<FAQ {self.category} - {self.question[:50]}>"
+
+
+class Testimonial(db.Model):
+    """Customer testimonial model"""
+    __tablename__ = 'testimonials'
+    __table_args__ = {'schema': 'hisi'}
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(200), nullable=False)
+    role = db.Column(db.String(200), nullable=True)
+    image_url = db.Column(db.String(500), nullable=True)
+    
+    story = db.Column(db.Text, nullable=False)
+    result = db.Column(db.String(500), nullable=True)
+    rating = db.Column(db.Integer, nullable=False, default=5)
+    
+    is_featured = db.Column(db.Boolean, default=False, nullable=False)
+    display_order = db.Column(db.Integer, nullable=False, default=0)
+    is_published = db.Column(db.Boolean, default=True, nullable=False)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        """Convert testimonial to dictionary"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'role': self.role,
+            'image_url': self.image_url,
+            'story': self.story,
+            'result': self.result,
+            'rating': self.rating,
+            'is_featured': self.is_featured,
+            'display_order': self.display_order,
+            'is_published': self.is_published,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def __repr__(self):
+        return f"<Testimonial from {self.name}>"

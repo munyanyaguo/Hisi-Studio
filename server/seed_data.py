@@ -7,7 +7,8 @@ from app import create_app
 from app.extensions import db
 from app.models import (
     User, Product, Category,
-    Page, BlogPost, SiteSetting
+    Page, BlogPost, SiteSetting,
+    FAQ, Testimonial
 )
 from werkzeug.security import generate_password_hash
 import uuid
@@ -29,7 +30,7 @@ def create_admin_user():
         password_hash=generate_password_hash('Admin123!'),
         first_name='Admin',
         last_name='User',
-        role='admin',
+        role='super_admin',
         is_active=True
     )
     db.session.add(admin)
@@ -342,7 +343,8 @@ def create_cms_pages():
     db.session.commit()
 
 
-def create_blog_posts():
+
+def create_blog_posts(admin):
     """Create sample blog posts"""
     print("Creating blog posts...")
 
@@ -400,6 +402,7 @@ def create_blog_posts():
             slug=post_data['slug'],
             excerpt=post_data['excerpt'],
             content=post_data['content'],
+            author_id=admin.id,
             featured_image=f'https://placeholder.com/1200x630/{post_data["slug"]}.jpg',
             meta_title=post_data['meta_title'],
             meta_description=post_data['meta_description'],
@@ -416,13 +419,13 @@ def create_site_settings():
     print("Creating site settings...")
 
     settings_data = [
-        {'key': 'site_name', 'value': 'Hisi Studio', 'group': 'general'},
-        {'key': 'tagline', 'value': 'Adaptive Fashion for Everyone', 'group': 'general'},
-        {'key': 'contact_email', 'value': 'info@hisistudio.com', 'group': 'contact'},
-        {'key': 'contact_phone', 'value': '+254712345678', 'group': 'contact'},
-        {'key': 'facebook_url', 'value': 'https://facebook.com/hisistudio', 'group': 'social'},
-        {'key': 'instagram_url', 'value': 'https://instagram.com/hisistudio', 'group': 'social'},
-        {'key': 'twitter_url', 'value': 'https://twitter.com/hisistudio', 'group': 'social'},
+        {'key': 'site_name', 'value': 'Hisi Studio'},
+        {'key': 'tagline', 'value': 'Adaptive Fashion for Everyone'},
+        {'key': 'contact_email', 'value': 'info@hisistudio.com'},
+        {'key': 'contact_phone', 'value': '+254712345678'},
+        {'key': 'facebook_url', 'value': 'https://facebook.com/hisistudio'},
+        {'key': 'instagram_url', 'value': 'https://instagram.com/hisistudio'},
+        {'key': 'twitter_url', 'value': 'https://twitter.com/hisistudio'},
     ]
 
     for setting_data in settings_data:
@@ -435,13 +438,285 @@ def create_site_settings():
         setting = SiteSetting(
             id=str(uuid.uuid4()),
             key=setting_data['key'],
-            value=setting_data['value'],
-            group=setting_data['group']
+            value=setting_data['value']
         )
         db.session.add(setting)
         print(f"  ✓ Created setting: {setting.key}")
 
     db.session.commit()
+
+
+def create_faqs():
+    """Create FAQ entries"""
+    print("Creating FAQs...")
+
+    faqs_data = [
+        {
+            'category': 'orders',
+            'question': 'How long does it take to process a custom order?',
+            'answer': 'Custom orders typically take 2-4 weeks depending on complexity. We\'ll provide a detailed timeline after reviewing your requirements during the consultation.',
+            'display_order': 1
+        },
+        {
+            'category': 'orders',
+            'question': 'Can I request modifications to existing designs?',
+            'answer': 'Absolutely! We can modify any of our existing designs to include specific adaptive features or adjust sizing to meet your needs.',
+            'display_order': 2
+        },
+        {
+            'category': 'accessibility',
+            'question': 'What adaptive features do you offer?',
+            'answer': 'We offer magnetic closures, adjustable waistbands, wheelchair-friendly designs, sensory-friendly fabrics, easy-grip zippers, and many more features. Each piece can be customized to your specific needs.',
+            'display_order': 1
+        },
+        {
+            'category': 'accessibility',
+            'question': 'Do you offer free accessibility consultations?',
+            'answer': 'Yes! We offer complimentary 30-minute consultations to help you find the perfect adaptive solutions for your lifestyle and needs.',
+            'display_order': 2
+        },
+        {
+            'category': 'shipping',
+            'question': 'Do you ship internationally?',
+            'answer': 'Currently, we ship within Kenya. International shipping is coming soon! Join our mailing list to be notified when we expand.',
+            'display_order': 1
+        },
+        {
+            'category': 'shipping',
+            'question': 'What are the shipping costs?',
+            'answer': 'Shipping within Nairobi is KES 300. Outside Nairobi is KES 500-800 depending on location. Free shipping on orders over KES 15,000.',
+            'display_order': 2
+        },
+        {
+            'category': 'returns',
+            'question': 'What is your return policy?',
+            'answer': 'We offer 30-day returns on all standard items. Custom orders can be returned within 14 days if there\'s a manufacturing defect. We want you to be completely satisfied!',
+            'display_order': 1
+        },
+        {
+            'category': 'returns',
+            'question': 'How do I initiate a return?',
+            'answer': 'Contact us via email or phone with your order number. We\'ll provide a return label and guide you through the process.',
+            'display_order': 2
+        },
+        {
+            'category': 'general',
+            'question': 'Do you have a physical showroom?',
+            'answer': 'Yes! Visit us at Westlands, Nairobi. We recommend booking an appointment for personalized attention, but walk-ins are welcome during business hours.',
+            'display_order': 1
+        },
+        {
+            'category': 'general',
+            'question': 'How can I become a wholesale partner?',
+            'answer': 'We\'d love to partner with you! Fill out the Partnership inquiry form above or email us at partnerships@hisistudio.com with details about your business.',
+            'display_order': 2
+        }
+    ]
+
+    for faq_data in faqs_data:
+        # Check if FAQ exists
+        faq = FAQ.query.filter_by(
+            category=faq_data['category'],
+            question=faq_data['question']
+        ).first()
+        if faq:
+            print(f"  ⚠ FAQ '{faq_data['question'][:50]}...' already exists")
+            continue
+
+        faq = FAQ(
+            id=str(uuid.uuid4()),
+            category=faq_data['category'],
+            question=faq_data['question'],
+            answer=faq_data['answer'],
+            display_order=faq_data['display_order'],
+            is_published=True
+        )
+        db.session.add(faq)
+        print(f"  ✓ Created FAQ: {faq.question[:50]}...")
+
+    db.session.commit()
+
+
+def create_testimonials():
+    """Create testimonial entries"""
+    print("Creating testimonials...")
+
+    testimonials_data = [
+        {
+            'name': 'Grace Wanjiku',
+            'role': 'Custom Order Client',
+            'image_url': 'https://ui-avatars.com/api/?name=Grace+Wanjiku&background=8B5CF6&color=fff&size=200',
+            'story': 'I reached out to Hisi Studio for a custom wheelchair-friendly dress for my sister\'s wedding. The team was incredibly patient, understanding my needs perfectly. The final piece was stunning and made me feel confident and beautiful.',
+            'result': 'Perfect custom dress delivered in 3 weeks',
+            'rating': 5,
+            'is_featured': True,
+            'display_order': 1
+        },
+        {
+            'name': 'David Kimani',
+            'role': 'Accessibility Consultation',
+            'image_url': 'https://ui-avatars.com/api/?name=David+Kimani&background=3B82F6&color=fff&size=200',
+            'story': 'As someone with limited dexterity, finding stylish clothing was always frustrating. The accessibility consultation changed everything. They introduced me to magnetic closures and adaptive features I didn\'t know existed.',
+            'result': 'Found 5 perfect pieces in one consultation',
+            'rating': 5,
+            'is_featured': True,
+            'display_order': 2
+        },
+        {
+            'name': 'Amina Hassan',
+            'role': 'Partnership Inquiry',
+            'image_url': 'https://ui-avatars.com/api/?name=Amina+Hassan&background=EC4899&color=fff&size=200',
+            'story': 'I contacted Hisi Studio about a wholesale partnership for my boutique. Their response was professional and welcoming. We now stock their adaptive collection and our customers love it!',
+            'result': 'Successful wholesale partnership established',
+            'rating': 5,
+            'is_featured': True,
+            'display_order': 3
+        },
+        {
+            'name': 'James Omondi',
+            'role': 'General Inquiry',
+            'image_url': 'https://ui-avatars.com/api/?name=James+Omondi&background=10B981&color=fff&size=200',
+            'story': 'I had questions about sensory-friendly fabrics for my son. The team responded within hours with detailed information and product recommendations. Their knowledge and care were exceptional.',
+            'result': 'Found perfect sensory-friendly options',
+            'rating': 5,
+            'is_featured': True,
+            'display_order': 4
+        }
+    ]
+
+    for testimonial_data in testimonials_data:
+        # Check if testimonial exists
+        testimonial = Testimonial.query.filter_by(
+            name=testimonial_data['name'],
+            role=testimonial_data['role']
+        ).first()
+        if testimonial:
+            print(f"  ⚠ Testimonial from '{testimonial_data['name']}' already exists")
+            continue
+
+        testimonial = Testimonial(
+            id=str(uuid.uuid4()),
+            name=testimonial_data['name'],
+            role=testimonial_data['role'],
+            image_url=testimonial_data['image_url'],
+            story=testimonial_data['story'],
+            result=testimonial_data['result'],
+            rating=testimonial_data['rating'],
+            is_featured=testimonial_data['is_featured'],
+            display_order=testimonial_data['display_order'],
+            is_published=True
+        )
+        db.session.add(testimonial)
+        print(f"  ✓ Created testimonial: {testimonial.name}")
+
+    db.session.commit()
+
+
+def create_contact_settings():
+    """Create contact and location settings"""
+    print("Creating contact/location settings...")
+
+    import json
+
+    contact_settings = [
+        # Contact Methods
+        {
+            'key': 'contact_phone',
+            'value': '+254 700 123 456',
+            'setting_type': 'text',
+            'description': 'Main contact phone number'
+        },
+        {
+            'key': 'contact_email',
+            'value': 'hello@hisistudio.com',
+            'setting_type': 'text',
+            'description': 'Main contact email'
+        },
+        {
+            'key': 'contact_whatsapp',
+            'value': '+254700123456',
+            'setting_type': 'text',
+            'description': 'WhatsApp number (no spaces)'
+        },
+        {
+            'key': 'contact_instagram',
+            'value': '@hisi_studio',
+            'setting_type': 'text',
+            'description': 'Instagram handle'
+        },
+        {
+            'key': 'contact_instagram_url',
+            'value': 'https://www.instagram.com/hisi_studio/',
+            'setting_type': 'text',
+            'description': 'Instagram profile URL'
+        },
+        
+        # Location Details
+        {
+            'key': 'showroom_address',
+            'value': json.dumps({
+                'line1': 'Hisi Studio Showroom',
+                'line2': 'Westlands, Ring Road Parklands',
+                'city': 'Nairobi',
+                'country': 'Kenya'
+            }),
+            'setting_type': 'json',
+            'description': 'Showroom address details'
+        },
+        {
+            'key': 'showroom_hours',
+            'value': json.dumps({
+                'monday_friday': '9:00 AM - 6:00 PM',
+                'saturday': '10:00 AM - 4:00 PM',
+                'sunday': 'Closed'
+            }),
+            'setting_type': 'json',
+            'description': 'Showroom operating hours'
+        },
+        {
+            'key': 'showroom_accessibility',
+            'value': json.dumps([
+                'Wheelchair accessible entrance',
+                'Accessible parking available',
+                'Spacious fitting rooms',
+                'Assistance available upon request'
+            ]),
+            'setting_type': 'json',
+            'description': 'Showroom accessibility features'
+        },
+        {
+            'key': 'showroom_map_url',
+            'value': 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.819799384!2d36.80611731475394!3d-1.2833879359915!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f10d6d3b3b3b3%3A0x1234567890abcdef!2sWestlands%2C%20Nairobi!5e0!3m2!1sen!2ske!4v1234567890123!5m2!1sen!2ske',
+            'setting_type': 'text',
+            'description': 'Google Maps embed URL'
+        },
+        {
+            'key': 'showroom_directions_url',
+            'value': 'https://www.google.com/maps/dir//Westlands,+Nairobi',
+            'setting_type': 'text',
+            'description': 'Google Maps directions URL'
+        }
+    ]
+
+    for setting_data in contact_settings:
+        # Check if setting exists
+        setting = SiteSetting.query.filter_by(key=setting_data['key']).first()
+        if setting:
+            print(f"  ⚠ Setting '{setting_data['key']}' already exists")
+            continue
+
+        setting = SiteSetting(
+            id=str(uuid.uuid4()),
+            key=setting_data['key'],
+            value=setting_data['value'],
+            setting_type=setting_data['setting_type'],
+            description=setting_data['description']
+        )
+        db.session.add(setting)
+        print(f"  ✓ Created setting: {setting.key}")
+
+    db.session.commit()
+
 
 
 def main():
@@ -465,8 +740,13 @@ def main():
 
         # Create CMS content
         create_cms_pages()
-        create_blog_posts()
+        create_blog_posts(admin)
         create_site_settings()
+
+        # Create contact page content
+        create_faqs()
+        create_testimonials()
+        create_contact_settings()
 
         print("\n" + "="*60)
         print("✓ SEEDING COMPLETE!")

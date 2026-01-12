@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
 from app.models import Product, Category, User
+from app.utils.admin_decorators import admin_required
 
 bp = Blueprint('products', __name__, url_prefix='/api/v1/products')
 
@@ -120,16 +121,10 @@ def get_product_by_slug(slug):
 
 
 @bp.route('', methods=['POST'])
-@jwt_required()
+@admin_required
 def create_product():
     """Create a new product (admin only)"""
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-
-        if not user or user.role != 'admin':
-            return jsonify({'error': 'Unauthorized'}), 403
-
         data = request.get_json()
 
         # Validate required fields
@@ -160,7 +155,8 @@ def create_product():
             hover_image=data.get('hover_image'),
             images=data.get('images'),
             badge=data.get('badge'),
-            is_featured=data.get('is_featured', False)
+            is_featured=data.get('is_featured', False),
+            is_active=data.get('is_active', True)
         )
 
         db.session.add(product)
@@ -177,16 +173,10 @@ def create_product():
 
 
 @bp.route('/<product_id>', methods=['PUT'])
-@jwt_required()
+@admin_required
 def update_product(product_id):
     """Update a product (admin only)"""
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-
-        if not user or user.role != 'admin':
-            return jsonify({'error': 'Unauthorized'}), 403
-
         product = Product.query.get(product_id)
         if not product:
             return jsonify({'error': 'Product not found'}), 404
@@ -219,16 +209,10 @@ def update_product(product_id):
 
 
 @bp.route('/<product_id>', methods=['DELETE'])
-@jwt_required()
+@admin_required
 def delete_product(product_id):
     """Delete a product (admin only)"""
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-
-        if not user or user.role != 'admin':
-            return jsonify({'error': 'Unauthorized'}), 403
-
         product = Product.query.get(product_id)
         if not product:
             return jsonify({'error': 'Product not found'}), 404

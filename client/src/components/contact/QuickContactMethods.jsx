@@ -1,48 +1,137 @@
 import { Phone, Mail, MessageCircle, MapPin, Instagram, Clock } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { getContactInfo } from '../../services/contactApi'
 
 const QuickContactMethods = () => {
-    const contactMethods = [
-        {
-            icon: Phone,
-            title: 'Phone',
-            value: '+254 700 123 456',
-            action: 'tel:+254700123456',
-            actionLabel: 'Call Now',
-            availability: 'Mon-Fri, 9AM-6PM EAT',
-            color: 'from-blue-500 to-cyan-500'
-        },
-        {
-            icon: MessageCircle,
-            title: 'WhatsApp',
-            value: '+254 700 123 456',
-            action: 'https://wa.me/254700123456',
-            actionLabel: 'Chat on WhatsApp',
-            availability: 'Usually responds in minutes',
-            color: 'from-green-500 to-emerald-500'
-        },
-        {
-            icon: Mail,
-            title: 'Email',
-            value: 'hello@hisistudio.com',
-            action: 'mailto:hello@hisistudio.com',
-            actionLabel: 'Send Email',
-            availability: 'Response within 24 hours',
-            color: 'from-purple-500 to-pink-500'
-        },
-        {
-            icon: Instagram,
-            title: 'Instagram',
-            value: '@hisi_studio',
-            action: 'https://www.instagram.com/hisi_studio/',
-            actionLabel: 'Message on Instagram',
-            availability: 'Active daily',
-            color: 'from-pink-500 to-orange-500'
+    const [contactMethods, setContactMethods] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchContactInfo = async () => {
+            try {
+                const response = await getContactInfo()
+                const data = response.data || response
+
+                // Map API data to component format
+                const methods = [
+                    {
+                        icon: Phone,
+                        title: 'Phone',
+                        value: data.phone?.value || '+254 700 123 456',
+                        action: data.phone?.action || 'tel:+254700123456',
+                        actionLabel: 'Call Now',
+                        availability: data.phone?.availability || 'Mon-Fri, 9AM-6PM EAT',
+                        color: 'from-blue-500 to-cyan-500'
+                    },
+                    {
+                        icon: MessageCircle,
+                        title: 'WhatsApp',
+                        value: data.whatsapp?.value || '+254 700 123 456',
+                        action: data.whatsapp?.action || 'https://wa.me/254700123456',
+                        actionLabel: 'Chat on WhatsApp',
+                        availability: data.whatsapp?.availability || 'Usually responds in minutes',
+                        color: 'from-green-500 to-emerald-500'
+                    },
+                    {
+                        icon: Mail,
+                        title: 'Email',
+                        value: data.email?.value || 'hello@hisistudio.com',
+                        action: data.email?.action || 'mailto:hello@hisistudio.com',
+                        actionLabel: 'Send Email',
+                        availability: data.email?.availability || 'Response within 24 hours',
+                        color: 'from-purple-500 to-pink-500'
+                    },
+                    {
+                        icon: Instagram,
+                        title: 'Instagram',
+                        value: data.instagram?.value || '@hisi_studio',
+                        action: data.instagram?.action || 'https://www.instagram.com/hisi_studio/',
+                        actionLabel: 'Message on Instagram',
+                        availability: data.instagram?.availability || 'Active daily',
+                        color: 'from-pink-500 to-orange-500'
+                    }
+                ]
+
+                setContactMethods(methods)
+            } catch (error) {
+                console.error('Error fetching contact info:', error)
+                // Set default values on error
+                setContactMethods([
+                    {
+                        icon: Phone,
+                        title: 'Phone',
+                        value: '+254 700 123 456',
+                        action: 'tel:+254700123456',
+                        actionLabel: 'Call Now',
+                        availability: 'Mon-Fri, 9AM-6PM EAT',
+                        color: 'from-blue-500 to-cyan-500'
+                    },
+                    {
+                        icon: MessageCircle,
+                        title: 'WhatsApp',
+                        value: '+254 700 123 456',
+                        action: 'https://wa.me/254700123456',
+                        actionLabel: 'Chat on WhatsApp',
+                        availability: 'Usually responds in minutes',
+                        color: 'from-green-500 to-emerald-500'
+                    },
+                    {
+                        icon: Mail,
+                        title: 'Email',
+                        value: 'hello@hisistudio.com',
+                        action: 'mailto:hello@hisistudio.com',
+                        actionLabel: 'Send Email',
+                        availability: 'Response within 24 hours',
+                        color: 'from-purple-500 to-pink-500'
+                    },
+                    {
+                        icon: Instagram,
+                        title: 'Instagram',
+                        value: '@hisi_studio',
+                        action: 'https://www.instagram.com/hisi_studio/',
+                        actionLabel: 'Message on Instagram',
+                        availability: 'Active daily',
+                        color: 'from-pink-500 to-orange-500'
+                    }
+                ])
+            } finally {
+                setLoading(false)
+            }
         }
-    ]
+
+        fetchContactInfo()
+    }, [])
 
     const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text)
         // Could add toast notification here
+    }
+
+    if (loading) {
+        return (
+            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-white">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                            Prefer Another Way to Connect?
+                        </h2>
+                        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                            Choose your preferred communication channel
+                        </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="bg-white rounded-2xl p-6 shadow-lg animate-pulse">
+                                <div className="w-14 h-14 bg-gray-200 rounded-xl mb-4"></div>
+                                <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                                <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                                <div className="h-10 bg-gray-200 rounded"></div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        )
     }
 
     return (

@@ -39,11 +39,13 @@ def create_app(config_name='development'):
         from app.models import (
             User, Product, Category, Order, OrderItem,
             Cart, CartItem, UserAddress, Payment,
-            Page, BlogPost, SiteSetting, NewsletterSubscriber, ContactMessage
+            Page, BlogPost, SiteSetting, NewsletterSubscriber, ContactMessage,
+            Consultation, FAQ, Testimonial,
+            Notification, MediaFile, Message, ProductCollection
         )
 
     # Register blueprints
-    from app.routes import auth, products, cart, addresses, orders, cms, newsletter, payments
+    from app.routes import auth, products, cart, addresses, orders, cms, newsletter, payments, contact, admin
     app.register_blueprint(auth.bp)
     app.register_blueprint(products.bp)
     app.register_blueprint(cart.bp)
@@ -52,6 +54,8 @@ def create_app(config_name='development'):
     app.register_blueprint(cms.bp)
     app.register_blueprint(newsletter.bp)
     app.register_blueprint(payments.bp)
+    app.register_blueprint(contact.bp)
+    app.register_blueprint(admin.bp)
 
     # Configure CORS
     CORS(app, resources={
