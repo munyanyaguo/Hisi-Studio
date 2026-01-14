@@ -47,8 +47,8 @@ const InstagramVideoSection = ({ videoUrl, videoFile, caption, username }) => {
 
                 {/* Video and Caption Grid */}
                 <div className="grid md:grid-cols-2 gap-8 items-center">
-                    {/* Video Player or Instagram Embed */}
-                    <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white">
+                    {/* Video Player or Instagram Embed - Boxy */}
+                    <div className="relative overflow-hidden shadow-2xl bg-white">
                         <div className="aspect-[4/5] relative">
                             {videoFile ? (
                                 <>
@@ -63,7 +63,7 @@ const InstagramVideoSection = ({ videoUrl, videoFile, caption, username }) => {
                                     />
                                     <button
                                         onClick={toggleMute}
-                                        className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition-all duration-300 backdrop-blur-sm z-10"
+                                        className="absolute bottom-4 right-4 bg-black/60 hover:bg-black/80 text-white p-3 transition-all duration-300 backdrop-blur-sm z-10"
                                         aria-label={isMuted ? 'Unmute video' : 'Mute video'}
                                     >
                                         {isMuted ? (
@@ -94,13 +94,13 @@ const InstagramVideoSection = ({ videoUrl, videoFile, caption, username }) => {
                             </p>
                         </div>
 
-                        {/* Follow CTA */}
+                        {/* Follow CTA - Boxy */}
                         <div className="flex flex-col sm:flex-row gap-4">
                             <a
                                 href={`https://www.instagram.com/${username}/`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white font-semibold rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300"
+                                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300"
                             >
                                 <Instagram className="w-5 h-5 mr-2" />
                                 Follow Us on Instagram
@@ -109,7 +109,7 @@ const InstagramVideoSection = ({ videoUrl, videoFile, caption, username }) => {
                                 href={videoUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center px-6 py-3 border-2 border-hisi-primary text-hisi-primary font-semibold rounded-lg hover:bg-hisi-primary hover:text-white transition-all duration-300"
+                                className="inline-flex items-center justify-center px-6 py-3 border-2 border-hisi-primary text-hisi-primary font-semibold hover:bg-hisi-primary hover:text-white transition-all duration-300"
                             >
                                 View Full Post
                             </a>

@@ -55,7 +55,7 @@ const NewsletterSection = () => {
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="text-center">
                     {/* Icon */}
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm mb-6">
                         <Mail className="w-8 h-8 text-white" />
                     </div>
 
@@ -75,7 +75,7 @@ const NewsletterSection = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="Enter your email"
-                                className="flex-1 px-6 py-4 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 px-6 py-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled={status === 'loading'}
                                 aria-label="Email address"
                                 aria-describedby={status === 'error' ? 'email-error' : undefined}
@@ -83,7 +83,7 @@ const NewsletterSection = () => {
                             <button
                                 type="submit"
                                 disabled={status === 'loading'}
-                                className="px-8 py-4 bg-hisi-accent text-white font-medium rounded-lg hover:bg-hisi-gold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl whitespace-nowrap"
+                                className="px-8 py-4 bg-hisi-accent text-white font-medium hover:bg-hisi-gold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl whitespace-nowrap"
                             >
                                 {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
                             </button>
@@ -92,7 +92,7 @@ const NewsletterSection = () => {
                         {/* Status Messages */}
                         {status === 'success' && (
                             <div
-                                className="flex items-center justify-center space-x-2 text-white bg-green-500/20 backdrop-blur-sm px-4 py-3 rounded-lg animate-fadeIn"
+                                className="flex items-center justify-center space-x-2 text-white bg-green-500/20 backdrop-blur-sm px-4 py-3 animate-fadeIn"
                                 role="alert"
                             >
                                 <CheckCircle className="w-5 h-5" />
@@ -103,7 +103,7 @@ const NewsletterSection = () => {
                         {status === 'error' && (
                             <div
                                 id="email-error"
-                                className="flex items-center justify-center space-x-2 text-white bg-red-500/20 backdrop-blur-sm px-4 py-3 rounded-lg animate-fadeIn"
+                                className="flex items-center justify-center space-x-2 text-white bg-red-500/20 backdrop-blur-sm px-4 py-3 animate-fadeIn"
                                 role="alert"
                             >
                                 <AlertCircle className="w-5 h-5" />

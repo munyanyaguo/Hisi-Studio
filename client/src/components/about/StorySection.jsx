@@ -5,9 +5,9 @@ const StorySection = ({ story }) => {
         <section className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    {/* Image */}
+                    {/* Image - Boxy (no rounded corners) */}
                     <div className="order-2 lg:order-1">
-                        <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
+                        <div className="aspect-[4/3] overflow-hidden shadow-2xl">
                             <img
                                 src={story.image}
                                 alt={story.title}
@@ -31,9 +31,9 @@ const StorySection = ({ story }) => {
                             {story.description}
                         </p>
 
-                        {/* Quote */}
+                        {/* Quote - Boxy */}
                         {story.quote && (
-                            <div className="border-l-4 border-hisi-accent pl-6 py-4 bg-gray-50 rounded-r-lg">
+                            <div className="border-l-4 border-hisi-accent pl-6 py-4 bg-gray-50">
                                 <blockquote className="text-xl font-medium text-gray-900 italic mb-2">
                                     "{story.quote}"
                                 </blockquote>

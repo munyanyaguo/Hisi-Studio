@@ -16,9 +16,9 @@ const FlipProductCard = ({ id, image, name, price, description, category }) => {
                 {/* Card Container */}
                 <div className="relative w-full h-full transition-all duration-500 transform-style-3d">
 
-                    {/* Front Side - Image */}
+                    {/* Front Side - Image - Boxy (no rounded corners) */}
                     <div
-                        className={`absolute inset-0 w-full h-full rounded-xl overflow-hidden shadow-lg transition-all duration-500 ${isFlipped ? 'opacity-0 h-0' : 'opacity-100 h-full'
+                        className={`absolute inset-0 w-full h-full overflow-hidden shadow-lg transition-all duration-500 ${isFlipped ? 'opacity-0 h-0' : 'opacity-100 h-full'
                             }`}
                     >
                         <img
@@ -29,17 +29,17 @@ const FlipProductCard = ({ id, image, name, price, description, category }) => {
                         {/* Gradient overlay on hover */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                        {/* Category badge */}
+                        {/* Category badge - Boxy */}
                         {category && (
-                            <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                            <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1">
                                 <span className="text-xs font-semibold text-gray-900">{category}</span>
                             </div>
                         )}
                     </div>
 
-                    {/* Back Side - Info with translucent overlay */}
+                    {/* Back Side - Info with translucent overlay - Boxy */}
                     <div
-                        className={`absolute inset-0 w-full h-full rounded-xl overflow-hidden shadow-2xl transition-all duration-500 ${isFlipped ? 'opacity-100 h-full' : 'opacity-0 h-0'
+                        className={`absolute inset-0 w-full h-full overflow-hidden shadow-2xl transition-all duration-500 ${isFlipped ? 'opacity-100 h-full' : 'opacity-0 h-0'
                             }`}
                     >
                         {/* Background image with blur */}
@@ -62,14 +62,14 @@ const FlipProductCard = ({ id, image, name, price, description, category }) => {
                             <div>
                                 <div className="text-2xl font-bold mb-4">KES {price.toLocaleString()}</div>
 
-                                {/* Action buttons */}
+                                {/* Action buttons - Boxy */}
                                 <div className="flex items-center space-x-2">
                                     <button
                                         onClick={(e) => {
                                             e.preventDefault()
                                             // Add to cart logic
                                         }}
-                                        className="flex-1 bg-white text-hisi-primary font-semibold py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center space-x-2"
+                                        className="flex-1 bg-white text-hisi-primary font-semibold py-2 px-4 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-center space-x-2"
                                     >
                                         <ShoppingCart className="w-4 h-4" />
                                         <span className="text-sm">Add to Cart</span>
@@ -80,7 +80,7 @@ const FlipProductCard = ({ id, image, name, price, description, category }) => {
                                             e.preventDefault()
                                             // Add to wishlist logic
                                         }}
-                                        className="bg-white/20 backdrop-blur-sm text-white p-2 rounded-lg hover:bg-white/30 transition-colors duration-200"
+                                        className="bg-white/20 backdrop-blur-sm text-white p-2 hover:bg-white/30 transition-colors duration-200"
                                     >
                                         <Heart className="w-5 h-5" />
                                     </button>
@@ -90,7 +90,7 @@ const FlipProductCard = ({ id, image, name, price, description, category }) => {
                                             e.preventDefault()
                                             // Quick view logic
                                         }}
-                                        className="bg-white/20 backdrop-blur-sm text-white p-2 rounded-lg hover:bg-white/30 transition-colors duration-200"
+                                        className="bg-white/20 backdrop-blur-sm text-white p-2 hover:bg-white/30 transition-colors duration-200"
                                     >
                                         <Eye className="w-5 h-5" />
                                     </button>

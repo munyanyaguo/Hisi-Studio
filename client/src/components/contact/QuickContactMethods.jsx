@@ -121,11 +121,11 @@ const QuickContactMethods = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="bg-white rounded-2xl p-6 shadow-lg animate-pulse">
-                                <div className="w-14 h-14 bg-gray-200 rounded-xl mb-4"></div>
-                                <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                                <div className="h-4 bg-gray-200 rounded mb-4"></div>
-                                <div className="h-10 bg-gray-200 rounded"></div>
+                            <div key={i} className="bg-white p-6 shadow-lg animate-pulse">
+                                <div className="w-14 h-14 bg-gray-200 mb-4"></div>
+                                <div className="h-6 bg-gray-200 mb-2"></div>
+                                <div className="h-4 bg-gray-200 mb-4"></div>
+                                <div className="h-10 bg-gray-200"></div>
                             </div>
                         ))}
                     </div>
@@ -150,13 +150,13 @@ const QuickContactMethods = () => {
                     {contactMethods.map((method, index) => (
                         <div
                             key={index}
-                            className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-transparent relative overflow-hidden"
+                            className="group bg-white p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-transparent relative overflow-hidden"
                         >
                             {/* Gradient Background on Hover */}
                             <div className={`absolute inset-0 bg-gradient-to-br ${method.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
 
-                            {/* Icon */}
-                            <div className={`relative w-14 h-14 bg-gradient-to-br ${method.color} rounded-xl flex items-center justify-center mb-4 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+                            {/* Icon - Boxy */}
+                            <div className={`relative w-14 h-14 bg-gradient-to-br ${method.color} flex items-center justify-center mb-4 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
                                 <method.icon className="w-7 h-7 text-white" />
                             </div>
 
@@ -171,13 +171,13 @@ const QuickContactMethods = () => {
                                     <span>{method.availability}</span>
                                 </div>
 
-                                {/* Action Buttons */}
+                                {/* Action Buttons - Boxy */}
                                 <div className="flex space-x-2">
                                     <a
                                         href={method.action}
                                         target={method.action.startsWith('http') ? '_blank' : undefined}
                                         rel={method.action.startsWith('http') ? 'noopener noreferrer' : undefined}
-                                        className={`flex-1 text-center px-4 py-2 bg-gradient-to-r ${method.color} text-white text-sm font-semibold rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300`}
+                                        className={`flex-1 text-center px-4 py-2 bg-gradient-to-r ${method.color} text-white text-sm font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300`}
                                     >
                                         {method.actionLabel}
                                     </a>
@@ -185,7 +185,7 @@ const QuickContactMethods = () => {
                                     {method.title !== 'Instagram' && (
                                         <button
                                             onClick={() => copyToClipboard(method.value)}
-                                            className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg transition-colors duration-300"
+                                            className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold transition-colors duration-300"
                                             title="Copy to clipboard"
                                         >
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,9 +199,9 @@ const QuickContactMethods = () => {
                     ))}
                 </div>
 
-                {/* Live Chat CTA */}
+                {/* Live Chat CTA - Boxy */}
                 <div className="mt-12 text-center">
-                    <div className="inline-block bg-white rounded-2xl shadow-xl p-8 max-w-2xl">
+                    <div className="inline-block bg-white shadow-xl p-8 max-w-2xl">
                         <div className="flex items-center justify-center space-x-3 mb-4">
                             <div className="relative">
                                 <MessageCircle className="w-8 h-8 text-hisi-primary" />
@@ -212,7 +212,7 @@ const QuickContactMethods = () => {
                         <p className="text-gray-600 mb-6">
                             Our team is online and ready to assist you with any questions
                         </p>
-                        <button className="px-8 py-4 bg-gradient-to-r from-hisi-primary to-hisi-accent text-white font-semibold rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 flex items-center space-x-2 mx-auto">
+                        <button className="px-8 py-4 bg-gradient-to-r from-hisi-primary to-hisi-accent text-white font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 flex items-center space-x-2 mx-auto">
                             <MessageCircle className="w-5 h-5" />
                             <span>Start Live Chat</span>
                         </button>

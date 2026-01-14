@@ -10,7 +10,7 @@ const AboutSection = ({ content }) => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     {/* Image */}
                     <div className="order-2 lg:order-1">
-                        <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
+                        <div className="relative overflow-hidden shadow-2xl group">
                             <img
                                 src={content.image}
                                 alt={content.title}
@@ -23,7 +23,7 @@ const AboutSection = ({ content }) => {
 
                     {/* Content */}
                     <div className="order-1 lg:order-2">
-                        <div className="inline-block px-4 py-2 bg-hisi-primary/10 text-hisi-primary rounded-full text-sm font-semibold mb-4">
+                        <div className="inline-block px-4 py-2 bg-hisi-primary/10 text-hisi-primary text-sm font-semibold mb-4">
                             {content.subtitle}
                         </div>
 
@@ -40,7 +40,7 @@ const AboutSection = ({ content }) => {
                             <ul className="space-y-4 mb-8">
                                 {content.highlights.map((highlight, index) => (
                                     <li key={index} className="flex items-start space-x-3">
-                                        <div className="flex-shrink-0 w-6 h-6 bg-hisi-primary rounded-full flex items-center justify-center mt-0.5">
+                                        <div className="flex-shrink-0 w-6 h-6 bg-hisi-primary flex items-center justify-center mt-0.5">
                                             <Check className="w-4 h-4 text-white" />
                                         </div>
                                         <span className="text-gray-700 text-base">{highlight}</span>
@@ -49,11 +49,11 @@ const AboutSection = ({ content }) => {
                             </ul>
                         )}
 
-                        {/* CTA Button */}
+                        {/* CTA Button - Boxy with white text */}
                         {content.cta && (
                             <Link
                                 to={content.ctaLink}
-                                className="inline-block bg-hisi-primary text-white px-8 py-4 rounded-lg font-medium hover:bg-hisi-primary/90 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-hisi-primary/50 shadow-lg hover:shadow-xl"
+                                className="inline-block bg-hisi-primary text-white px-10 py-4 font-semibold uppercase tracking-wider hover:bg-hisi-primary/90 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-hisi-primary/50 shadow-lg hover:shadow-xl border-2 border-hisi-primary"
                             >
                                 {content.cta}
                             </Link>

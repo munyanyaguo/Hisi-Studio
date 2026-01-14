@@ -12,7 +12,9 @@ import {
     Settings,
     ChevronLeft,
     ChevronRight,
-    ExternalLink
+    ExternalLink,
+    Layout,
+    Star
 } from 'lucide-react';
 import './AdminSidebar.css';
 
@@ -56,6 +58,18 @@ const AdminSidebar = ({ user }) => {
             path: '/admin/content',
             icon: FileText,
             label: 'Content',
+            roles: ['super_admin', 'content_manager']
+        },
+        {
+            path: '/admin/sections',
+            icon: Layout,
+            label: 'Sections',
+            roles: ['super_admin', 'content_manager']
+        },
+        {
+            path: '/admin/reviews',
+            icon: Star,
+            label: 'Reviews',
             roles: ['super_admin', 'content_manager']
         },
         {

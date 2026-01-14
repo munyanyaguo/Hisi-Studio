@@ -87,7 +87,7 @@ const ContactFAQ = () => {
                     </p>
                 </div>
 
-                {/* Search Bar */}
+                {/* Search Bar - Boxy */}
                 <div className="mb-8">
                     <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -96,20 +96,20 @@ const ContactFAQ = () => {
                             placeholder="Search questions..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-hisi-primary focus:ring-2 focus:ring-hisi-primary/20 transition-all duration-300"
+                            className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 focus:border-hisi-primary focus:ring-2 focus:ring-hisi-primary/20 transition-all duration-300"
                         />
                     </div>
                 </div>
 
-                {/* Category Filter */}
+                {/* Category Filter - Boxy */}
                 <div className="flex flex-wrap gap-2 mb-8">
                     {categories.map((cat) => (
                         <button
                             key={cat.id}
                             onClick={() => setSelectedCategory(cat.id)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${selectedCategory === cat.id
-                                    ? 'bg-hisi-primary text-white shadow-lg'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            className={`px-4 py-2 text-sm font-medium transition-all duration-300 ${selectedCategory === cat.id
+                                ? 'bg-hisi-primary text-white shadow-lg'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                         >
                             {cat.label}
@@ -117,13 +117,13 @@ const ContactFAQ = () => {
                     ))}
                 </div>
 
-                {/* FAQ Accordion */}
+                {/* FAQ Accordion - Boxy */}
                 <div className="space-y-4">
                     {filteredFaqs.length > 0 ? (
                         filteredFaqs.map((faq, index) => (
                             <div
                                 key={index}
-                                className="bg-white border-2 border-gray-100 rounded-xl overflow-hidden hover:border-hisi-primary/30 transition-all duration-300"
+                                className="bg-white border-2 border-gray-100 overflow-hidden hover:border-hisi-primary/30 transition-all duration-300"
                             >
                                 <button
                                     onClick={() => setOpenIndex(openIndex === index ? null : index)}
@@ -162,8 +162,8 @@ const ContactFAQ = () => {
                     )}
                 </div>
 
-                {/* Still Have Questions CTA */}
-                <div className="mt-12 text-center bg-gradient-to-br from-hisi-primary/5 to-hisi-accent/5 rounded-2xl p-8">
+                {/* Still Have Questions CTA - Boxy */}
+                <div className="mt-12 text-center bg-gradient-to-br from-hisi-primary/5 to-hisi-accent/5 p-8">
                     <h3 className="text-2xl font-bold text-gray-900 mb-3">
                         Still Have Questions?
                     </h3>
@@ -175,7 +175,7 @@ const ContactFAQ = () => {
                             const formSection = document.getElementById('contact-form')
                             formSection?.scrollIntoView({ behavior: 'smooth' })
                         }}
-                        className="px-8 py-3 bg-gradient-to-r from-hisi-primary to-hisi-accent text-white font-semibold rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300"
+                        className="px-8 py-3 bg-gradient-to-r from-hisi-primary to-hisi-accent text-white font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300"
                     >
                         Contact Us
                     </button>

@@ -4,6 +4,7 @@ import StorySection from '../../components/about/StorySection'
 import MissionValuesSection from '../../components/about/MissionValuesSection'
 import DisabilityVisionSection from '../../components/about/DisabilityVisionSection'
 import TimelineSection from '../../components/about/TimelineSection'
+import ScrollAnimationWrapper from '../../components/ui/ScrollAnimationWrapper'
 
 // Import mock data
 import {
@@ -37,42 +38,52 @@ const AboutPage = () => {
             {/* Main Content */}
             <main id="main-content">
                 {/* Founder Story */}
-                <StorySection story={founderStory} />
+                <ScrollAnimationWrapper>
+                    <StorySection story={founderStory} />
+                </ScrollAnimationWrapper>
 
                 {/* Mission & Values */}
-                <MissionValuesSection mission={mission} values={values} />
+                <ScrollAnimationWrapper>
+                    <MissionValuesSection mission={mission} values={values} />
+                </ScrollAnimationWrapper>
 
                 {/* Disability Inclusion Vision */}
-                <DisabilityVisionSection vision={disabilityVision} />
+                <ScrollAnimationWrapper>
+                    <DisabilityVisionSection vision={disabilityVision} />
+                </ScrollAnimationWrapper>
 
                 {/* Timeline */}
-                <TimelineSection timeline={timeline} />
+                <ScrollAnimationWrapper>
+                    <TimelineSection timeline={timeline} />
+                </ScrollAnimationWrapper>
 
                 {/* Call to Action */}
-                <section className="py-20 bg-gradient-to-b from-white to-gray-50">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                            {callToAction.title}
-                        </h2>
-                        <p className="text-xl text-gray-600 mb-10">
-                            {callToAction.description}
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            {callToAction.buttons.map((button, index) => (
-                                <a
-                                    key={index}
-                                    href={button.href}
-                                    className={`px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl ${button.primary
+                <ScrollAnimationWrapper>
+                    <section className="py-20 bg-gradient-to-b from-white to-gray-50">
+                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                                {callToAction.title}
+                            </h2>
+                            <p className="text-xl text-gray-600 mb-10">
+                                {callToAction.description}
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                {callToAction.buttons.map((button, index) => (
+                                    <a
+                                        key={index}
+                                        href={button.href}
+                                        className={`px-8 py-4 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl ${button.primary
                                             ? 'bg-hisi-primary text-white hover:bg-hisi-accent'
                                             : 'bg-white text-hisi-primary border-2 border-hisi-primary hover:bg-hisi-primary hover:text-white'
-                                        }`}
-                                >
-                                    {button.text}
-                                </a>
-                            ))}
+                                            }`}
+                                    >
+                                        {button.text}
+                                    </a>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                </ScrollAnimationWrapper>
             </main>
 
             {/* Footer */}

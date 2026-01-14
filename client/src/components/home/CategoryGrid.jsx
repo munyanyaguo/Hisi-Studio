@@ -22,7 +22,7 @@ const CategoryGrid = ({ categories = [] }) => {
                         <Link
                             key={category.id}
                             to={`/shop/${category.slug}`}
-                            className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
+                            className="group relative overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
                         >
                             {/* Image */}
                             <div className="relative h-80 overflow-hidden">
@@ -57,7 +57,7 @@ const CategoryGrid = ({ categories = [] }) => {
                                         </span>
 
                                         {/* Arrow Icon */}
-                                        <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-hisi-primary transition-all duration-300">
+                                        <div className="w-8 h-8 bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white group-hover:text-hisi-primary transition-all duration-300">
                                             <ArrowRight className="w-4 h-4" />
                                         </div>
                                     </div>

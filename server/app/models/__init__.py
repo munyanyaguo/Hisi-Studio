@@ -8,6 +8,8 @@ from app.models.address import UserAddress
 from app.models.payment import Payment
 from app.models.cms import Page, BlogPost, SiteSetting, NewsletterSubscriber, ContactMessage, Consultation, FAQ, Testimonial
 from app.models.admin import Notification, MediaFile, Message, ProductCollection
+from app.models.review import Review
+from app.models.section_content import SectionContent
 
 __all__ = [
     "User",
@@ -30,5 +32,7 @@ __all__ = [
     "Notification",
     "MediaFile",
     "Message",
-    "ProductCollection"
+    "ProductCollection",
+    "Review",
+    "SectionContent"
 ]

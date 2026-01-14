@@ -27,13 +27,13 @@ const TimelineSection = ({ timeline }) => {
                                 className={`relative flex flex-col lg:flex-row items-center ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
                                     }`}
                             >
-                                {/* Content */}
+                                {/* Content - Boxy Card */}
                                 <div className="w-full lg:w-5/12 mb-6 lg:mb-0">
                                     <div
-                                        className={`bg-white rounded-2xl shadow-lg p-8 hover:shadow-2xl transition-shadow duration-300 ${index % 2 === 0 ? 'lg:text-right' : 'lg:text-left'
+                                        className={`bg-white shadow-lg p-8 hover:shadow-2xl transition-shadow duration-300 ${index % 2 === 0 ? 'lg:text-right' : 'lg:text-left'
                                             }`}
                                     >
-                                        <span className="inline-block px-4 py-1 bg-hisi-primary text-white text-sm font-bold rounded-full mb-4">
+                                        <span className="inline-block px-4 py-1 bg-hisi-primary text-white text-sm font-bold mb-4">
                                             {item.year}
                                         </span>
                                         <h3 className="text-2xl font-bold text-gray-900 mb-3">
@@ -45,14 +45,14 @@ const TimelineSection = ({ timeline }) => {
                                     </div>
                                 </div>
 
-                                {/* Center Dot */}
+                                {/* Center Dot - Keep rounded for visual flow */}
                                 <div className="hidden lg:flex w-2/12 justify-center">
                                     <div className="w-6 h-6 bg-hisi-accent rounded-full border-4 border-white shadow-lg z-10"></div>
                                 </div>
 
-                                {/* Image */}
+                                {/* Image - Boxy */}
                                 <div className="w-full lg:w-5/12">
-                                    <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
+                                    <div className="aspect-[4/3] overflow-hidden shadow-xl">
                                         <img
                                             src={item.image}
                                             alt={`${item.year} - ${item.title}`}

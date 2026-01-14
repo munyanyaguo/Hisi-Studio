@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.env
+*.egg-info/
+
+# Build outputs
+dist/
+build/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Font files with permission issues
+client/public/fonts/Raphigrafie-1VEZ.ttf
+
+# Python virtual environments
+venv/
+.venv/
+pipenv/
+
+# Flask
+instance/
+*.db
+
+# Misc
+*.bak
+*.tmp

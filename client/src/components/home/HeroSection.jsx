@@ -152,25 +152,23 @@ const HeroSection = ({ slides = [], onSlideChange }) => {
             />
 
             {/* Overlay */}
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-black/30" />
 
-            {/* Content */}
-            <div className="absolute inset-0 flex items-center justify-center text-center px-4">
-              <div className="max-w-4xl animate-fadeInUp">
-                <h2 className="text-white text-5xl sm:text-6xl md:text-7xl font-bold mb-4 tracking-tight">
-                  {slide.title}
+            {/* Content - Bottom Left Positioned */}
+            <div className="absolute inset-0 flex items-end justify-start px-8 sm:px-12 lg:px-16 pb-16 sm:pb-20 lg:pb-24">
+              <div className="animate-fadeInUp">
+                <h2 className="text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-none font-braille">
+                  <span className="block">2 THUKU 0</span>
+                  <span className="block">COLLECTION</span>
                 </h2>
-                <p className="text-white/90 text-xl sm:text-2xl md:text-3xl font-light mb-8">
-                  {slide.subtitle}
-                </p>
-                {slide.cta && (
+                <div className="flex justify-center mt-8">
                   <a
-                    href={slide.ctaLink}
-                    className="inline-block bg-white text-gray-900 px-8 py-4 text-lg font-medium hover:bg-hisi-primary hover:text-white transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-white/50 rounded-lg"
+                    href="/shop"
+                    className="inline-block bg-white text-gray-900 px-8 py-4 text-sm font-medium uppercase tracking-wider hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-white/50"
                   >
-                    {slide.cta}
+                    SHOP NOW
                   </a>
-                )}
+                </div>
               </div>
             </div>
           </div>
@@ -211,8 +209,8 @@ const HeroSection = ({ slides = [], onSlideChange }) => {
             key={slide.id}
             onClick={() => goToSlide(index)}
             className={`w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${index === currentSlide
-                ? 'bg-white w-8'
-                : 'bg-white/50 hover:bg-white/75'
+              ? 'bg-white w-8'
+              : 'bg-white/50 hover:bg-white/75'
               }`}
             aria-label={`Go to slide ${index + 1}`}
             aria-selected={index === currentSlide}

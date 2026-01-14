@@ -8,6 +8,7 @@ import BlogPostPage from './pages/customer/BlogPostPage'
 import CustomerCollectionsPage from './pages/customer/CollectionsPage'
 import ContactPage from './pages/customer/ContactPage'
 import ShopPage from './pages/customer/ShopPage'
+import ProductDetailsPage from './pages/customer/ProductDetailsPage'
 import ProfilePage from './pages/customer/ProfilePage'
 import NotFoundPage from './pages/error/NotFoundPage'
 import LoginPage from './pages/auth/LoginPage'
@@ -28,6 +29,8 @@ import ProductsPage from './pages/admin/ProductsPage'
 import ProductEditor from './pages/admin/ProductEditor'
 import AdminCollectionsPage from './pages/admin/CollectionsPage'
 import MessagingPage from './pages/admin/MessagingPage'
+import SectionEditorPage from './pages/admin/SectionEditorPage'
+import ReviewsPage from './pages/admin/ReviewsPage'
 
 function App() {
   return (
@@ -42,6 +45,8 @@ function App() {
       <Route path="/collections" element={<CustomerCollectionsPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/shop" element={<ShopPage />} />
+      <Route path="/shop/:productId" element={<ProductDetailsPage />} />
+      <Route path="/product/:productId" element={<ProductDetailsPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/account" element={<ProfilePage />} />
 
@@ -64,6 +69,8 @@ function App() {
         <Route path="content/new" element={<BlogPostEditor />} />
         <Route path="content/:postId/edit" element={<BlogPostEditor />} />
         <Route path="collections" element={<AdminCollectionsPage />} />
+        <Route path="sections" element={<SectionEditorPage />} />
+        <Route path="reviews" element={<ReviewsPage />} />
         <Route path="customers" element={<CustomersPage />} />
         <Route path="customers/:customerId" element={<CustomerDetailPage />} />
         <Route path="inquiries" element={<InquiriesPage />} />

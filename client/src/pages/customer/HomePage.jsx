@@ -2,14 +2,14 @@ import { useState } from 'react'
 import Navbar from '../../components/layout/Navbar'
 import Footer from '../../components/layout/Footer'
 import HeroSection from '../../components/home/HeroSection'
-import InstagramVideoSection from '../../components/home/InstagramVideoSection'
+import AboutUsHero from '../../components/home/AboutUsHero'
 import AboutSection from '../../components/home/AboutSection'
 import FeaturedProducts from '../../components/home/FeaturedProducts'
 import AdaptiveFeaturesSection from '../../components/home/AdaptiveFeaturesSection'
 import CategoryGrid from '../../components/home/CategoryGrid'
 import TestimonialsSection from '../../components/home/TestimonialsSection'
 import InstagramFeed from '../../components/home/InstagramFeed'
-import NewsletterSection from '../../components/home/NewsletterSection'
+import ScrollAnimationWrapper from '../../components/ui/ScrollAnimationWrapper'
 
 // Import mock data
 import {
@@ -19,7 +19,6 @@ import {
   adaptiveFeatures,
   categories,
   testimonials,
-  pinnedInstagramVideo,
   footerLinks,
   socialLinks,
 } from '../../data/mockData'
@@ -35,36 +34,43 @@ const HomePage = () => {
     <div className="min-h-screen">
       <Navbar isHeroDark={isHeroDark} />
 
-      {/* Hero Section */}
+      {/* Hero Section - No animation needed, it's above fold */}
       <HeroSection slides={heroSlides} onSlideChange={handleSlideChange} />
 
-      {/* Pinned Instagram Video Section */}
-      <InstagramVideoSection
-        videoUrl={pinnedInstagramVideo.videoUrl}
-        caption={pinnedInstagramVideo.caption}
-        username={pinnedInstagramVideo.username}
-      />
+      {/* Featured Products - Animate on scroll */}
+      <ScrollAnimationWrapper>
+        <FeaturedProducts products={featuredProducts} title="Featured Collection" />
+      </ScrollAnimationWrapper>
+
+      {/* About Us Hero - Full width image section */}
+      <ScrollAnimationWrapper>
+        <AboutUsHero />
+      </ScrollAnimationWrapper>
 
       {/* About/Mission Section */}
-      <AboutSection content={aboutContent} />
-
-      {/* Featured Products */}
-      <FeaturedProducts products={featuredProducts} title="Featured Products" />
+      <ScrollAnimationWrapper>
+        <AboutSection content={aboutContent} />
+      </ScrollAnimationWrapper>
 
       {/* Adaptive Features */}
-      <AdaptiveFeaturesSection features={adaptiveFeatures} />
+      <ScrollAnimationWrapper>
+        <AdaptiveFeaturesSection features={adaptiveFeatures} />
+      </ScrollAnimationWrapper>
 
       {/* Category Grid */}
-      <CategoryGrid categories={categories} />
+      <ScrollAnimationWrapper>
+        <CategoryGrid categories={categories} />
+      </ScrollAnimationWrapper>
 
       {/* Testimonials */}
-      <TestimonialsSection testimonials={testimonials} />
+      <ScrollAnimationWrapper>
+        <TestimonialsSection testimonials={testimonials} />
+      </ScrollAnimationWrapper>
 
       {/* Instagram Feed */}
-      <InstagramFeed username="hisi_studio" />
-
-      {/* Newsletter Signup */}
-      <NewsletterSection />
+      <ScrollAnimationWrapper>
+        <InstagramFeed username="hisi_studio" />
+      </ScrollAnimationWrapper>
 
       {/* Footer */}
       <Footer links={footerLinks} socialLinks={socialLinks} />

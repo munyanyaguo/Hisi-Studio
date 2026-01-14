@@ -15,7 +15,7 @@ const AdaptiveFeaturesSection = ({ features = [] }) => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center mb-16">
-                    <div className="inline-block px-4 py-2 bg-hisi-accent/10 text-hisi-accent rounded-full text-sm font-semibold mb-4">
+                    <div className="inline-block px-4 py-2 bg-hisi-accent/10 text-hisi-accent text-sm font-semibold mb-4">
                         What Makes Us Different
                     </div>
                     <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -35,10 +35,10 @@ const AdaptiveFeaturesSection = ({ features = [] }) => {
                         return (
                             <div
                                 key={feature.id}
-                                className="group bg-white rounded-xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
+                                className="group bg-white p-8 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
                             >
                                 {/* Icon */}
-                                <div className="w-14 h-14 bg-gradient-to-br from-hisi-primary to-hisi-secondary rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <div className="w-14 h-14 bg-gradient-to-br from-hisi-primary to-hisi-secondary flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                                     <IconComponent className="w-7 h-7 text-white" />
                                 </div>
 

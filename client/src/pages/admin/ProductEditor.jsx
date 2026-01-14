@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Save, Upload, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Image as ImageIcon, X } from 'lucide-react';
 import './ProductEditor.css';
 
 const ProductEditor = () => {
@@ -12,6 +12,11 @@ const ProductEditor = () => {
     const [saving, setSaving] = useState(false);
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState('');
+    const [uploading, setUploading] = useState({ main: false, hover: false });
+    const [dragOver, setDragOver] = useState({ main: false, hover: false });
+
+    const mainImageRef = useRef(null);
+    const hoverImageRef = useRef(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -27,11 +32,11 @@ const ProductEditor = () => {
         gender: 'unisex',
         main_image: '',
         hover_image: '',
-        images: [], // gallery not fully implemented in UI for mvp, storing validation only
+        images: [],
         badge: '',
         is_featured: false,
         is_active: true,
-        accessibility_features: {} // JSON field
+        accessibility_features: {}
     });
 
     useEffect(() => {
@@ -110,6 +115,82 @@ const ProductEditor = () => {
         }
     };
 
+    // File upload handler
+    const handleFileUpload = useCallback(async (file, imageType) => {
+        if (!file || !file.type.startsWith('image/')) {
+            setError('Please select a valid image file');
+            return;
+        }
+
+        setUploading(prev => ({ ...prev, [imageType]: true }));
+        setError('');
+
+        try {
+            const token = localStorage.getItem('token');
+            const formDataUpload = new FormData();
+            formDataUpload.append('file', file);
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/media`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formDataUpload
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const imageUrl = data.data?.url || data.url || data.file_url;
+
+                if (imageUrl) {
+                    setFormData(prev => ({
+                        ...prev,
+                        [imageType === 'main' ? 'main_image' : 'hover_image']: imageUrl
+                    }));
+                } else {
+                    setError('Upload succeeded but no URL returned');
+                }
+            } else {
+                const data = await response.json();
+                setError(data.error || 'Failed to upload image');
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            setError('Error uploading image');
+        } finally {
+            setUploading(prev => ({ ...prev, [imageType]: false }));
+        }
+    }, []);
+
+    // Handle file input change
+    const handleFileChange = (e, imageType) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            handleFileUpload(file, imageType);
+        }
+    };
+
+    // Handle drag and drop
+    const handleDragOver = (e, imageType) => {
+        e.preventDefault();
+        setDragOver(prev => ({ ...prev, [imageType]: true }));
+    };
+
+    const handleDragLeave = (e, imageType) => {
+        e.preventDefault();
+        setDragOver(prev => ({ ...prev, [imageType]: false }));
+    };
+
+    const handleDrop = (e, imageType) => {
+        e.preventDefault();
+        setDragOver(prev => ({ ...prev, [imageType]: false }));
+
+        const file = e.dataTransfer.files?.[0];
+        if (file) {
+            handleFileUpload(file, imageType);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -164,6 +245,68 @@ const ProductEditor = () => {
         );
     }
 
+    // Image Upload Zone Component
+    const ImageUploadZone = ({ imageType, label, currentImage }) => (
+        <div className="form-group">
+            <label>{label}</label>
+            <div
+                className={`image-upload-zone ${dragOver[imageType] ? 'drag-over' : ''} ${uploading[imageType] ? 'uploading' : ''}`}
+                onDragOver={(e) => handleDragOver(e, imageType)}
+                onDragLeave={(e) => handleDragLeave(e, imageType)}
+                onDrop={(e) => handleDrop(e, imageType)}
+                onClick={() => imageType === 'main' ? mainImageRef.current?.click() : hoverImageRef.current?.click()}
+            >
+                {uploading[imageType] ? (
+                    <div className="upload-loading">
+                        <div className="spinner-small"></div>
+                        <span>Uploading...</span>
+                    </div>
+                ) : currentImage ? (
+                    <div className="upload-preview">
+                        <img src={currentImage} alt={label} onError={(e) => e.target.style.display = 'none'} />
+                        <button
+                            type="button"
+                            className="remove-image"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setFormData(prev => ({
+                                    ...prev,
+                                    [imageType === 'main' ? 'main_image' : 'hover_image']: ''
+                                }));
+                            }}
+                        >
+                            <X size={16} />
+                        </button>
+                    </div>
+                ) : (
+                    <div className="upload-placeholder">
+                        <Upload size={32} />
+                        <span>Drag & drop an image here</span>
+                        <span className="upload-hint">or click to browse</span>
+                    </div>
+                )}
+            </div>
+            <input
+                type="file"
+                ref={imageType === 'main' ? mainImageRef : hoverImageRef}
+                accept="image/*"
+                onChange={(e) => handleFileChange(e, imageType)}
+                style={{ display: 'none' }}
+            />
+            <div className="url-input-wrapper">
+                <span className="or-divider">or enter URL:</span>
+                <input
+                    type="text"
+                    name={imageType === 'main' ? 'main_image' : 'hover_image'}
+                    value={currentImage}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder="https://..."
+                />
+            </div>
+        </div>
+    );
+
     return (
         <div className="product-editor">
             <div className="editor-header">
@@ -211,41 +354,19 @@ const ProductEditor = () => {
                         </div>
                     </div>
 
-                    {/* Media */}
+                    {/* Media - With Drag & Drop */}
                     <div className="form-section">
                         <h3>Media</h3>
-                        <div className="form-group">
-                            <label htmlFor="main_image">Main Image URL</label>
-                            <div className="form-row">
-                                <input
-                                    type="text"
-                                    id="main_image"
-                                    name="main_image"
-                                    value={formData.main_image}
-                                    onChange={handleChange}
-                                    className="form-input"
-                                    placeholder="https://..."
-                                />
-                            </div>
-                            <small className="helper-text">Enter the full URL of the image.</small>
-                        </div>
-                        {formData.main_image && (
-                            <div className="image-preview">
-                                <img src={formData.main_image} alt="Preview" onError={(e) => e.target.style.display = 'none'} />
-                            </div>
-                        )}
-
-                        <div className="form-group">
-                            <label htmlFor="hover_image">Hover Image URL (Optional)</label>
-                            <input
-                                type="text"
-                                id="hover_image"
-                                name="hover_image"
-                                value={formData.hover_image}
-                                onChange={handleChange}
-                                className="form-input"
-                            />
-                        </div>
+                        <ImageUploadZone
+                            imageType="main"
+                            label="Main Image *"
+                            currentImage={formData.main_image}
+                        />
+                        <ImageUploadZone
+                            imageType="hover"
+                            label="Hover Image (Optional)"
+                            currentImage={formData.hover_image}
+                        />
                     </div>
 
                     {/* Pricing & Inventory */}

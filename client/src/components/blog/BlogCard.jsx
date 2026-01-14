@@ -6,7 +6,7 @@ const BlogCard = ({ post, featured = false }) => {
     return (
         <Link
             to={`/blog/${post.slug}`}
-            className={`group block bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 ${featured ? 'md:col-span-2 md:flex md:flex-row' : ''
+            className={`group block bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 ${featured ? 'md:col-span-2 md:flex md:flex-row' : ''
                 }`}
         >
             {/* Image */}
@@ -20,8 +20,8 @@ const BlogCard = ({ post, featured = false }) => {
 
             {/* Content */}
             <div className={`p-6 ${featured ? 'md:w-1/2 md:flex md:flex-col md:justify-center md:p-8' : ''}`}>
-                {/* Category Badge */}
-                <span className="inline-block bg-hisi-primary/10 text-hisi-primary text-xs font-bold px-3 py-1 rounded-full mb-3">
+                {/* Category Badge - Boxy */}
+                <span className="inline-block bg-hisi-primary/10 text-hisi-primary text-xs font-bold px-3 py-1 mb-3">
                     {post.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 </span>
 

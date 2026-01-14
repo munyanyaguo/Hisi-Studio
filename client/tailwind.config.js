@@ -19,6 +19,7 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         serif: ['Crimson Pro', 'Georgia', 'serif'],
+        braille: ['Raphigrafie', 'monospace'],
       },
       animation: {
         fadeIn: 'fadeIn 0.5s ease-in-out',

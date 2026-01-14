@@ -80,8 +80,8 @@ const Navbar = ({ isHeroDark = true }) => {
   const { user, isAuthenticated, logout } = useAuth()
 
   // Determine if navbar should use light text (white) or dark text
-  // Use white text when: over hero AND hero is dark AND not scrolled past hero AND dropdown not open
-  const useLightText = !isPastHero && isHeroDark && !shopDropdownOpen
+  // Always use white text when at top of page (transparent navbar), regardless of hero brightness
+  const useLightText = !isPastHero
 
   // Cart item count (will come from Redux later)
   const cartItemCount = 0
@@ -153,265 +153,141 @@ const Navbar = ({ isHeroDark = true }) => {
         aria-label="Main navigation"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-24"> {/* Increased height for larger logo */}
+          {/* Even Distribution: Left Links | Logo | Right Links + Icons */}
+          <div className="flex items-center justify-between h-24">
 
-            {/* Left Navigation */}
-            <div className="hidden md:flex items-center space-x-6 lg:space-x-8 flex-1 justify-start min-w-0"> {/* Uses flex-1 to push towards center/left */}
-              {navLinks.slice(0, 3).map((link) => { // Reduced to 3 for balance: Shop, Collections, About
-                // Special handling for Shop link with dropdown
-                if (link.name === 'Shop') {
-                  return (
-                    <div
-                      key={link.name}
-                      className="relative h-full flex items-center"
-                    >
-                      <button
+            {/* Left Side: First half of nav links */}
+            <div className="hidden md:flex items-center flex-1">
+              <div className="flex items-center justify-evenly w-full">
+                {navLinks.slice(0, 3).map((link) => {
+                  if (link.name === 'Shop') {
+                    return (
+                      <div
+                        key={link.name}
+                        className="relative h-full flex items-center"
                         onMouseEnter={() => setShopDropdownOpen(true)}
-                        className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 flex items-center space-x-1 ${useLightText ? 'text-white' : 'text-gray-900'
-                          }`}
                       >
-                        <span>{link.name}</span>
-                        <svg
-                          className={`w-4 h-4 transition-transform duration-300 ${shopDropdownOpen ? 'rotate-180' : ''
-                            }`}
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                        <button
+                          className="text-white hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 flex items-center space-x-1"
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
+                          <span>{link.name}</span>
+                          <svg
+                            className={`w-4 h-4 transition-transform duration-300 ${shopDropdownOpen ? 'rotate-180' : ''
+                              }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
 
-                      {/* Mega Menu Dropdown */}
-                      {shopDropdownOpen && (
-                        <div
-                          className="fixed left-0 right-0 top-24 w-full z-40 flex justify-center" // Matches h-24
-                          onMouseEnter={() => setShopDropdownOpen(true)}
-                          onMouseLeave={() => setShopDropdownOpen(false)}
-                        >
-                          <div className="bg-white shadow-2xl animate-fadeIn border border-gray-200 rounded-b-lg">
-                            <div className="w-full px-6 py-6">
-                              <div className="max-w-5xl mx-auto">
-                                <div className="grid grid-cols-10 gap-6">
-                                  {/* Categories Section - Takes up more space */}
-                                  <div className="col-span-4">
-                                    <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wide border-b border-gray-200 pb-2">
-                                      Shop by Category
-                                    </h3>
-                                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                                      {/* Column 1 */}
-                                      <div className="space-y-2">
-                                        <div>
-                                          <Link
-                                            to="/shop/adaptive-outerwear"
-                                            className="text-gray-900 hover:text-hisi-primary hover:underline transition-colors duration-200 font-semibold text-sm block mb-2"
-                                          >
-                                            Adaptive Outerwear
-                                          </Link>
-                                          <ul className="space-y-1.5 ml-2">
-                                            <li>
-                                              <Link to="/shop/jackets" className="text-gray-600 hover:text-hisi-primary hover:underline text-xs">
-                                                Jackets & Coats
-                                              </Link>
-                                            </li>
-                                            <li>
-                                              <Link to="/shop/blazers" className="text-gray-600 hover:text-hisi-primary text-sm">
-                                                Blazers
-                                              </Link>
-                                            </li>
-                                          </ul>
-                                        </div>
-
-                                        <div>
-                                          <Link
-                                            to="/shop/sensory-friendly"
-                                            className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block mb-2"
-                                          >
-                                            Sensory-Friendly
-                                          </Link>
-                                          <ul className="space-y-2 ml-3">
-                                            <li>
-                                              <Link to="/shop/soft-fabrics" className="text-gray-600 hover:text-hisi-primary text-sm">
-                                                Soft Fabrics
-                                              </Link>
-                                            </li>
-                                            <li>
-                                              <Link to="/shop/tagless" className="text-gray-600 hover:text-hisi-primary text-sm">
-                                                Tag-Free
-                                              </Link>
-                                            </li>
-                                          </ul>
-                                        </div>
-
-                                        <div>
-                                          <Link
-                                            to="/shop/accessories"
-                                            className="text-gray-900 hover:text-hisi-primary hover:underline transition-colors duration-200 font-semibold text-sm block"
-                                          >
-                                            Accessories
-                                          </Link>
+                        {/* Mega Menu Dropdown */}
+                        {shopDropdownOpen && (
+                          <>
+                            {/* Invisible bridge to prevent dropdown from closing when moving between button and menu */}
+                            <div
+                              className="fixed left-0 right-0 top-20 h-8 bg-transparent z-50"
+                              onMouseEnter={() => setShopDropdownOpen(true)}
+                            />
+                            <div
+                              className="fixed left-0 right-0 top-24 w-full z-40 flex justify-center"
+                              onMouseEnter={() => setShopDropdownOpen(true)}
+                              onMouseLeave={() => setShopDropdownOpen(false)}
+                            >
+                              <div className="bg-white shadow-2xl animate-fadeIn border border-gray-200 rounded-b-lg">
+                                <div className="w-full px-6 py-6">
+                                  <div className="max-w-5xl mx-auto">
+                                    <div className="grid grid-cols-10 gap-6">
+                                      {/* Categories Section */}
+                                      <div className="col-span-4">
+                                        <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wide border-b border-gray-200 pb-2">
+                                          Shop by Category
+                                        </h3>
+                                        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                                          <div className="space-y-2">
+                                            <div>
+                                              <Link to="/shop/adaptive-outerwear" className="text-gray-900 hover:text-hisi-primary hover:underline transition-colors duration-200 font-semibold text-sm block mb-2">Adaptive Outerwear</Link>
+                                              <ul className="space-y-1.5 ml-2">
+                                                <li><Link to="/shop/jackets" className="text-gray-600 hover:text-hisi-primary hover:underline text-xs">Jackets & Coats</Link></li>
+                                                <li><Link to="/shop/blazers" className="text-gray-600 hover:text-hisi-primary text-sm">Blazers</Link></li>
+                                              </ul>
+                                            </div>
+                                            <div>
+                                              <Link to="/shop/sensory-friendly" className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block mb-2">Sensory-Friendly</Link>
+                                              <ul className="space-y-2 ml-3">
+                                                <li><Link to="/shop/soft-fabrics" className="text-gray-600 hover:text-hisi-primary text-sm">Soft Fabrics</Link></li>
+                                                <li><Link to="/shop/tagless" className="text-gray-600 hover:text-hisi-primary text-sm">Tag-Free</Link></li>
+                                              </ul>
+                                            </div>
+                                            <div><Link to="/shop/accessories" className="text-gray-900 hover:text-hisi-primary hover:underline transition-colors duration-200 font-semibold text-sm block">Accessories</Link></div>
+                                          </div>
+                                          <div className="space-y-4">
+                                            <div>
+                                              <Link to="/shop/seated-comfort" className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block mb-2">Seated Comfort</Link>
+                                              <ul className="space-y-2 ml-3">
+                                                <li><Link to="/shop/pants" className="text-gray-600 hover:text-hisi-primary text-sm">Pants & Trousers</Link></li>
+                                                <li><Link to="/shop/dresses" className="text-gray-600 hover:text-hisi-primary text-sm">Dresses</Link></li>
+                                              </ul>
+                                            </div>
+                                            <div>
+                                              <Link to="/shop/easy-dressing" className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block mb-2">Easy Dressing</Link>
+                                              <ul className="space-y-2 ml-3">
+                                                <li><Link to="/shop/magnetic-closures" className="text-gray-600 hover:text-hisi-primary text-sm">Magnetic Closures</Link></li>
+                                                <li><Link to="/shop/side-openings" className="text-gray-600 hover:text-hisi-primary text-sm">Side Openings</Link></li>
+                                              </ul>
+                                            </div>
+                                            <div><Link to="/shop/all" className="text-hisi-primary hover:text-hisi-accent transition-colors duration-200 font-semibold text-sm block">View All →</Link></div>
+                                          </div>
                                         </div>
                                       </div>
 
-                                      {/* Column 2 */}
-                                      <div className="space-y-4">
-                                        <div>
-                                          <Link
-                                            to="/shop/seated-comfort"
-                                            className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block mb-2"
-                                          >
-                                            Seated Comfort
-                                          </Link>
-                                          <ul className="space-y-2 ml-3">
-                                            <li>
-                                              <Link to="/shop/pants" className="text-gray-600 hover:text-hisi-primary text-sm">
-                                                Pants & Trousers
-                                              </Link>
-                                            </li>
-                                            <li>
-                                              <Link to="/shop/dresses" className="text-gray-600 hover:text-hisi-primary text-sm">
-                                                Dresses
-                                              </Link>
-                                            </li>
-                                          </ul>
-                                        </div>
+                                      {/* New In Section */}
+                                      <div className="col-span-3 border-l border-gray-200 pl-4">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-6 uppercase tracking-wide">New In</h3>
+                                        <ul className="space-y-2">
+                                          <li><Link to="/shop/new" className="text-gray-900 hover:text-hisi-primary hover:underline transition-colors duration-200 font-semibold text-xs flex items-center space-x-1.5"><span className="w-1.5 h-1.5 bg-hisi-accent rounded-full"></span><span>All New Arrivals</span></Link></li>
+                                          <li><Link to="/shop/best-sellers" className="text-gray-600 hover:text-hisi-primary hover:underline transition-colors duration-200 text-xs">Best Sellers</Link></li>
+                                          <li><Link to="/shop/trending" className="text-gray-600 hover:text-hisi-primary transition-colors duration-200 text-xs">Trending Now</Link></li>
+                                          <li><Link to="/shop/limited-edition" className="text-gray-600 hover:text-hisi-primary transition-colors duration-200 text-xs">Limited Edition</Link></li>
+                                          <li className="pt-4 border-t border-gray-200"><Link to="/shop/sale" className="text-red-600 hover:text-red-700 transition-colors duration-200 text-sm font-bold flex items-center space-x-2"><span>🔥</span><span>Sale - Up to 40% Off</span></Link></li>
+                                        </ul>
+                                      </div>
 
-                                        <div>
-                                          <Link
-                                            to="/shop/easy-dressing"
-                                            className="text-gray-900 hover:text-hisi-primary transition-colors duration-200 font-semibold text-sm block mb-2"
-                                          >
-                                            Easy Dressing
-                                          </Link>
-                                          <ul className="space-y-2 ml-3">
-                                            <li>
-                                              <Link to="/shop/magnetic-closures" className="text-gray-600 hover:text-hisi-primary text-sm">
-                                                Magnetic Closures
-                                              </Link>
-                                            </li>
-                                            <li>
-                                              <Link to="/shop/side-openings" className="text-gray-600 hover:text-hisi-primary text-sm">
-                                                Side Openings
-                                              </Link>
-                                            </li>
-                                          </ul>
-                                        </div>
-
-                                        <div>
-                                          <Link
-                                            to="/shop/all"
-                                            className="text-hisi-primary hover:text-hisi-accent transition-colors duration-200 font-semibold text-sm block"
-                                          >
-                                            View All →
-                                          </Link>
+                                      {/* Featured Products */}
+                                      <div className="col-span-3 border-l border-gray-200 pl-4">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-6 uppercase tracking-wide">Featured</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                          <FlipProductCard id="1" image="/images/products/jacket-main.jpg" name="Adaptive Bomber Jacket" price={89000} description="Stylish bomber jacket with magnetic closures" category="Outerwear" />
+                                          <FlipProductCard id="4" image="/images/products/top-main.jpg" name="Sensory-Friendly Top" price={42000} description="Ultra-soft, tagless top with flat seams" category="Tops" />
                                         </div>
                                       </div>
-                                    </div>
-                                  </div>
-
-                                  {/* New In & Trending Section */}
-                                  <div className="col-span-3 border-l border-gray-200 pl-4">
-                                    <h3 className="text-lg font-bold text-gray-900 mb-6 uppercase tracking-wide">
-                                      New In
-                                    </h3>
-                                    <ul className="space-y-2">
-                                      <li>
-                                        <Link
-                                          to="/shop/new"
-                                          className="text-gray-900 hover:text-hisi-primary hover:underline transition-colors duration-200 font-semibold text-xs flex items-center space-x-1.5"
-                                        >
-                                          <span className="w-1.5 h-1.5 bg-hisi-accent rounded-full"></span>
-                                          <span>All New Arrivals</span>
-                                        </Link>
-                                      </li>
-                                      <li>
-                                        <Link
-                                          to="/shop/best-sellers"
-                                          className="text-gray-600 hover:text-hisi-primary hover:underline transition-colors duration-200 text-xs"
-                                        >
-                                          Best Sellers
-                                        </Link>
-                                      </li>
-                                      <li>
-                                        <Link
-                                          to="/shop/trending"
-                                          className="text-gray-600 hover:text-hisi-primary transition-colors duration-200 text-xs"
-                                        >
-                                          Trending Now
-                                        </Link>
-                                      </li>
-                                      <li>
-                                        <Link
-                                          to="/shop/limited-edition"
-                                          className="text-gray-600 hover:text-hisi-primary transition-colors duration-200 text-xs"
-                                        >
-                                          Limited Edition
-                                        </Link>
-                                      </li>
-                                      <li className="pt-4 border-t border-gray-200">
-                                        <Link
-                                          to="/shop/sale"
-                                          className="text-red-600 hover:text-red-700 transition-colors duration-200 text-sm font-bold flex items-center space-x-2"
-                                        >
-                                          <span>🔥</span>
-                                          <span>Sale - Up to 40% Off</span>
-                                        </Link>
-                                      </li>
-                                    </ul>
-                                  </div>
-
-                                  {/* Featured Products */}
-                                  <div className="col-span-3 border-l border-gray-200 pl-4">
-                                    <h3 className="text-lg font-bold text-gray-900 mb-6 uppercase tracking-wide">
-                                      Featured
-                                    </h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      {/* Product 1 with flip animation */}
-                                      <FlipProductCard
-                                        id="1"
-                                        image="/images/products/jacket-main.jpg"
-                                        name="Adaptive Bomber Jacket"
-                                        price={89000}
-                                        description="Stylish bomber jacket with magnetic closures and easy-access pockets for wheelchair users"
-                                        category="Outerwear"
-                                      />
-
-                                      {/* Product 2 with flip animation */}
-                                      <FlipProductCard
-                                        id="4"
-                                        image="/images/products/top-main.jpg"
-                                        name="Sensory-Friendly Top"
-                                        price={42000}
-                                        description="Ultra-soft, tagless top with flat seams designed for sensory sensitivities"
-                                        category="Tops"
-                                      />
                                     </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )
-                }
+                          </>
+                        )}
+                      </div>
+                    )
+                  }
 
-                // Regular links
-                return (
-                  <Link
-                    key={link.name}
-                    to={link.href}
-                    className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 ${useLightText ? 'text-white' : 'text-gray-900'
-                      }`}
-                  >
-                    {link.name}
-                  </Link>
-                )
-              })}
+                  // Regular links
+                  return (
+                    <Link
+                      key={link.name}
+                      to={link.href}
+                      className="text-white hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1"
+                    >
+                      {link.name}
+                    </Link>
+                  )
+                })}
+              </div>
             </div>
 
-            {/* STATIC Centered Logo with Reserved Space */}
+            {/* Center: Logo */}
             <div className="flex-shrink-0 mx-4 lg:mx-8">
               <Link
                 to="/"
@@ -419,181 +295,112 @@ const Navbar = ({ isHeroDark = true }) => {
                 aria-label="Hisi Studio Home"
               >
                 {useLightText ? (
-                  <img
-                    src="/images/hisi-logo-white.png"
-                    alt="Hisi Studio"
-                    className="h-28 w-auto object-contain transition-all duration-300"
-                  />
+                  <img src="/images/hisi-logo-white.png" alt="Hisi Studio" className="h-20 w-auto object-contain transition-all duration-300" />
                 ) : (
-                  <img
-                    src="/images/hisi-logo-light.png"
-                    alt="Hisi Studio"
-                    className="h-28 w-auto object-contain transition-all duration-300"
-                  />
+                  <img src="/images/hisi-logo-light.png" alt="Hisi Studio" className="h-20 w-auto object-contain transition-all duration-300" />
                 )}
               </Link>
             </div>
 
-            {/* Right Navigation & Icons */}
-            <div className="hidden md:flex items-center justify-end flex-1 min-w-0 space-x-6 lg:space-x-8">
-              {/* Right Side Links (Remaining links) */}
-              {navLinks.slice(3).map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  className={`hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1 ${useLightText ? 'text-white' : 'text-gray-900'
-                    }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
-
-              <div className="h-6 w-px bg-gray-300/50 mx-2"></div> {/* Separator */}
-
-              {/* Right Icons */}
-              <div className="flex items-center space-x-4">
-                {/* Accessibility Toggle */}
-                <button
-                  onClick={toggleHighContrast}
-                  className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
-                    }`}
-                  aria-label={`${highContrast ? 'Disable' : 'Enable'} high contrast mode`}
-                  title="Toggle high contrast"
-                >
-                  <Eye className={`w-5 h-5 transition-colors duration-300 ${highContrast ? 'text-hisi-primary' : (useLightText ? 'text-white' : 'text-gray-700')
-                    }`} />
-                </button>
-
-                {/* Search */}
-                <button
-                  onClick={() => setSearchOpen(!searchOpen)}
-                  className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary hidden sm:block ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
-                    }`}
-                  aria-label="Search"
-                >
-                  <Search className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
-                    }`} />
-                </button>
-
-                {/* User Account - Profile Dropdown */}
-                <div className="relative hidden sm:block">
-                  <button
-                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                    onBlur={() => setTimeout(() => setProfileDropdownOpen(false), 200)}
-                    className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
-                      }`}
-                    aria-label="Account menu"
-                    aria-expanded={profileDropdownOpen}
+            {/* Right Side: Second half of nav links + Icons */}
+            <div className="hidden md:flex items-center flex-1">
+              <div className="flex items-center justify-evenly w-full">
+                {/* Remaining nav links */}
+                {navLinks.slice(3).map((link) => (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    className="text-white hover:text-hisi-accent hover:underline transition-colors duration-300 text-sm font-medium tracking-wide focus:outline-none focus:ring-2 focus:ring-hisi-primary rounded px-2 py-1"
                   >
-                    <User className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
-                      }`} />
+                    {link.name}
+                  </Link>
+                ))}
+
+                {/* Icon Group - Same visual weight as links */}
+                <div className="flex items-center space-x-3">
+                  {/* Accessibility Toggle */}
+                  <button
+                    onClick={toggleHighContrast}
+                    className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'}`}
+                    aria-label={`${highContrast ? 'Disable' : 'Enable'} high contrast mode`}
+                    title="Toggle high contrast"
+                  >
+                    <Eye className={`w-5 h-5 transition-colors duration-300 ${highContrast ? 'text-hisi-primary' : (useLightText ? 'text-white' : 'text-gray-700')}`} />
                   </button>
 
-                  {/* Profile Dropdown Menu */}
-                  {profileDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 animate-fadeIn">
-                      {isAuthenticated() ? (
-                        // Logged In Menu
-                        <>
-                          <div className="px-4 py-3 border-b border-gray-200">
-                            <p className="text-sm font-semibold text-gray-900">
-                              {user?.first_name} {user?.last_name}
-                            </p>
-                            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                          </div>
+                  {/* Search */}
+                  <button
+                    onClick={() => setSearchOpen(!searchOpen)}
+                    className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'}`}
+                    aria-label="Search"
+                  >
+                    <Search className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'}`} />
+                  </button>
 
-                          <Link
-                            to="/profile"
-                            className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                            onClick={() => setProfileDropdownOpen(false)}
-                          >
-                            <UserCircle className="w-4 h-4" />
-                            <span>My Profile</span>
-                          </Link>
+                  {/* User Account - Profile Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                      onBlur={() => setTimeout(() => setProfileDropdownOpen(false), 200)}
+                      className={`p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'}`}
+                      aria-label="Account menu"
+                      aria-expanded={profileDropdownOpen}
+                    >
+                      <User className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'}`} />
+                    </button>
 
-                          <Link
-                            to="/account"
-                            className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                            onClick={() => setProfileDropdownOpen(false)}
-                          >
-                            <Settings className="w-4 h-4" />
-                            <span>Account Settings</span>
-                          </Link>
+                    {/* Profile Dropdown Menu */}
+                    {profileDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50 animate-fadeIn">
+                        {isAuthenticated() ? (
+                          <>
+                            <div className="px-4 py-3 border-b border-gray-200">
+                              <p className="text-sm font-semibold text-gray-900">{user?.first_name} {user?.last_name}</p>
+                              <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                            </div>
+                            <Link to="/profile" className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors" onClick={() => setProfileDropdownOpen(false)}><UserCircle className="w-4 h-4" /><span>My Profile</span></Link>
+                            <Link to="/account" className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors" onClick={() => setProfileDropdownOpen(false)}><Settings className="w-4 h-4" /><span>Account Settings</span></Link>
+                            <div className="border-t border-gray-200 my-1"></div>
+                            <button onClick={() => { logout(); setProfileDropdownOpen(false); navigate('/') }} className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"><LogOut className="w-4 h-4" /><span>Sign Out</span></button>
+                          </>
+                        ) : (
+                          <>
+                            <Link to="/login" className="flex items-center space-x-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors" onClick={() => setProfileDropdownOpen(false)}><User className="w-4 h-4" /><span>Sign In</span></Link>
+                            <Link to="/signup" className="flex items-center space-x-3 px-4 py-3 text-sm font-semibold text-hisi-primary hover:bg-hisi-primary/10 transition-colors" onClick={() => setProfileDropdownOpen(false)}><UserCircle className="w-4 h-4" /><span>Create Account</span></Link>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
 
-                          <div className="border-t border-gray-200 my-1"></div>
-
-                          <button
-                            onClick={() => {
-                              logout()
-                              setProfileDropdownOpen(false)
-                              navigate('/')
-                            }}
-                            className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
-                          >
-                            <LogOut className="w-4 h-4" />
-                            <span>Sign Out</span>
-                          </button>
-                        </>
-                      ) : (
-                        // Logged Out Menu
-                        <>
-                          <Link
-                            to="/login"
-                            className="flex items-center space-x-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                            onClick={() => setProfileDropdownOpen(false)}
-                          >
-                            <User className="w-4 h-4" />
-                            <span>Sign In</span>
-                          </Link>
-
-                          <Link
-                            to="/signup"
-                            className="flex items-center space-x-3 px-4 py-3 text-sm font-semibold text-hisi-primary hover:bg-hisi-primary/10 transition-colors"
-                            onClick={() => setProfileDropdownOpen(false)}
-                          >
-                            <UserCircle className="w-4 h-4" />
-                            <span>Create Account</span>
-                          </Link>
-                        </>
-                      )}
-                    </div>
-                  )}
+                  {/* Shopping Cart - Last item */}
+                  <Link
+                    to="/cart"
+                    className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'}`}
+                    aria-label={`Shopping cart with ${cartItemCount} items`}
+                  >
+                    <ShoppingBag className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'}`} />
+                    {cartItemCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-hisi-accent text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{cartItemCount}</span>
+                    )}
+                  </Link>
                 </div>
-
-                {/* Shopping Cart */}
-                <Link
-                  to="/cart"
-                  className={`relative p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20' : 'hover:bg-gray-100'
-                    }`}
-                  aria-label={`Shopping cart with ${cartItemCount} items`}
-                >
-                  <ShoppingBag className={`w-5 h-5 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
-                    }`} />
-                  {cartItemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-hisi-accent text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {cartItemCount}
-                    </span>
-                  )}
-                </Link>
-
-                {/* Mobile Menu Toggle */}
-                <button
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className={`md:hidden p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20 text-white' : 'hover:bg-gray-100 text-gray-700'
-                    }`}
-                  aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-                  aria-expanded={mobileMenuOpen}
-                >
-                  {mobileMenuOpen ? (
-                    <X className={`w-6 h-6 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
-                      }`} />
-                  ) : (
-                    <Menu className={`w-6 h-6 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'
-                      }`} />
-                  )}
-                </button>
               </div>
             </div>
+
+            {/* Mobile Menu Toggle - Visible on mobile only */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`md:hidden p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-hisi-primary ${useLightText ? 'hover:bg-white/20 text-white' : 'hover:bg-gray-100 text-gray-700'}`}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? (
+                <X className={`w-6 h-6 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'}`} />
+              ) : (
+                <Menu className={`w-6 h-6 transition-colors duration-300 ${useLightText ? 'text-white' : 'text-gray-700'}`} />
+              )}
+            </button>
           </div>
         </div>
 

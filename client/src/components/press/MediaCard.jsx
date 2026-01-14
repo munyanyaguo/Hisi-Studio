@@ -4,13 +4,13 @@ import { ExternalLink, Calendar, Tag } from 'lucide-react'
 const MediaCard = ({ article, featured = false }) => {
     return (
         <div
-            className={`group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 ${featured ? 'border-2 border-hisi-primary' : ''
+            className={`group bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 ${featured ? 'border-2 border-hisi-primary' : ''
                 }`}
         >
-            {/* Featured Badge */}
+            {/* Featured Badge - Boxy */}
             {featured && (
                 <div className="absolute top-4 right-4 z-10">
-                    <span className="bg-hisi-accent text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                    <span className="bg-hisi-accent text-white text-xs font-bold px-3 py-1 shadow-lg">
                         Featured
                     </span>
                 </div>

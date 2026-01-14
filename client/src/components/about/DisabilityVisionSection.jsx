@@ -17,12 +17,12 @@ const DisabilityVisionSection = ({ vision }) => {
                     </p>
                 </div>
 
-                {/* Initiatives Grid */}
+                {/* Initiatives Grid - Boxy Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {vision.initiatives.map((initiative) => (
                         <div
                             key={initiative.id}
-                            className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
+                            className="group bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
                         >
                             {/* Image */}
                             <div className="aspect-[16/10] overflow-hidden">
@@ -46,15 +46,15 @@ const DisabilityVisionSection = ({ vision }) => {
                     ))}
                 </div>
 
-                {/* Call to Action */}
+                {/* Call to Action - Boxy */}
                 <div className="mt-16 text-center">
-                    <div className="inline-block bg-hisi-primary/5 border-2 border-hisi-primary/20 rounded-2xl p-8 max-w-2xl">
+                    <div className="inline-block bg-hisi-primary/5 border-2 border-hisi-primary/20 p-8 max-w-2xl">
                         <p className="text-lg text-gray-700 mb-6">
                             Want to learn more about our accessibility initiatives and adaptive fashion methods?
                         </p>
                         <a
                             href="/accessibility"
-                            className="inline-block bg-hisi-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-hisi-accent transition-colors duration-300 shadow-lg hover:shadow-xl"
+                            className="inline-block bg-hisi-primary text-white px-8 py-4 font-semibold hover:bg-hisi-accent transition-colors duration-300 shadow-lg hover:shadow-xl"
                         >
                             Explore Our Accessibility Work
                         </a>

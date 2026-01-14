@@ -16,10 +16,10 @@ const ImpactMetrics = ({ metrics }) => {
                 return (
                     <div
                         key={metric.id}
-                        className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-hisi-primary group"
+                        className="bg-white p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-hisi-primary group"
                     >
                         <div className="flex flex-col items-center text-center">
-                            <div className="w-16 h-16 bg-hisi-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-hisi-primary group-hover:scale-110 transition-all duration-300">
+                            <div className="w-16 h-16 bg-hisi-primary/10 flex items-center justify-center mb-4 group-hover:bg-hisi-primary group-hover:scale-110 transition-all duration-300">
                                 <IconComponent className="w-8 h-8 text-hisi-primary group-hover:text-white transition-colors duration-300" />
                             </div>
                             <div className="text-4xl font-bold text-hisi-primary mb-2">
