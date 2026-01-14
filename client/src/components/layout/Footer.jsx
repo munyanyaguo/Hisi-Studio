@@ -1,8 +1,55 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Facebook, Instagram, Twitter, Linkedin, Mail } from 'lucide-react'
+import { Facebook, Instagram, Twitter, Linkedin, Mail, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { subscribe } from '../../services/newsletterApi'
 
 const Footer = ({ links, socialLinks }) => {
     const currentYear = new Date().getFullYear()
+    const [email, setEmail] = useState('')
+    const [status, setStatus] = useState('idle') // idle, loading, success, error
+    const [message, setMessage] = useState('')
+
+    const handleNewsletterSubmit = async (e) => {
+        e.preventDefault()
+
+        if (!email) {
+            setStatus('error')
+            setMessage('Please enter your email')
+            return
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(email)) {
+            setStatus('error')
+            setMessage('Please enter a valid email')
+            return
+        }
+
+        setStatus('loading')
+
+        try {
+            await subscribe(email)
+            setStatus('success')
+            setMessage('Subscribed!')
+            setEmail('')
+
+            // Reset after 5 seconds
+            setTimeout(() => {
+                setStatus('idle')
+                setMessage('')
+            }, 5000)
+        } catch (error) {
+            setStatus('error')
+            setMessage(error.message || 'Failed to subscribe')
+
+            // Reset error after 3 seconds
+            setTimeout(() => {
+                setStatus('idle')
+                setMessage('')
+            }, 3000)
+        }
+    }
 
     return (
         <footer className="bg-black text-white">
@@ -30,20 +77,39 @@ const Footer = ({ links, socialLinks }) => {
                         </p>
 
                         {/* Email Input */}
-                        <div className="flex items-center border-b border-gray-600 pb-2">
-                            <input
-                                type="email"
-                                placeholder="ENTER YOUR EMAIL"
-                                className="flex-1 bg-transparent text-white placeholder-gray-400 text-sm uppercase tracking-wider focus:outline-none"
-                            />
-                            <button
-                                type="submit"
-                                className="ml-4 text-white hover:text-gray-300 transition-colors"
-                                aria-label="Subscribe"
-                            >
-                                <Mail className="w-5 h-5" />
-                            </button>
-                        </div>
+                        <form onSubmit={handleNewsletterSubmit} className="space-y-2">
+                            <div className="flex items-center border-b border-gray-600 pb-2">
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="ENTER YOUR EMAIL"
+                                    className="flex-1 bg-transparent text-white placeholder-gray-400 text-sm uppercase tracking-wider focus:outline-none"
+                                    disabled={status === 'loading'}
+                                />
+                                <button
+                                    type="submit"
+                                    className="ml-4 text-white hover:text-gray-300 transition-colors disabled:opacity-50"
+                                    aria-label="Subscribe"
+                                    disabled={status === 'loading'}
+                                >
+                                    {status === 'loading' ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : status === 'success' ? (
+                                        <CheckCircle className="w-5 h-5 text-green-400" />
+                                    ) : status === 'error' ? (
+                                        <AlertCircle className="w-5 h-5 text-red-400" />
+                                    ) : (
+                                        <Mail className="w-5 h-5" />
+                                    )}
+                                </button>
+                            </div>
+                            {message && (
+                                <p className={`text-xs ${status === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                                    {message}
+                                </p>
+                            )}
+                        </form>
                     </div>
 
                     {/* Customer Care Column */}

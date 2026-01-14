@@ -1,26 +1,86 @@
+import { useState, useEffect } from 'react'
 import Navbar from '../../components/layout/Navbar'
 import Footer from '../../components/layout/Footer'
 import MediaCard from '../../components/press/MediaCard'
 
-// Import mock data
+// Import fallback data
 import {
-    pressHero,
-    featuredMedia,
-    pressReleases,
-    exhibitions,
-    speakingEngagements,
-    collaborations,
-    mediaKit,
-    contactPress
+    pressHero as fallbackPressHero,
+    featuredMedia as fallbackFeaturedMedia,
+    pressReleases as fallbackPressReleases,
+    exhibitions as fallbackExhibitions,
+    speakingEngagements as fallbackSpeakingEngagements,
+    collaborations as fallbackCollaborations,
+    mediaKit as fallbackMediaKit,
+    contactPress as fallbackContactPress
 } from '../../data/pressData'
 
 import { footerLinks, socialLinks } from '../../data/mockData'
-import { FileText, Download, Mail, Phone, MapPin, Calendar, Mic } from 'lucide-react'
+import { FileText, Download, Mail, Phone, MapPin, Calendar, Mic, Loader2 } from 'lucide-react'
+import { getPressContent } from '../../services/cmsApi'
 
 const PressPage = () => {
+    const [content, setContent] = useState({
+        pressHero: fallbackPressHero,
+        featuredMedia: fallbackFeaturedMedia,
+        pressReleases: fallbackPressReleases,
+        exhibitions: fallbackExhibitions,
+        speakingEngagements: fallbackSpeakingEngagements,
+        collaborations: fallbackCollaborations,
+        mediaKit: fallbackMediaKit,
+        contactPress: fallbackContactPress
+    })
+    const [loading, setLoading] = useState(true)
+
+    // Fetch press page content from API
+    useEffect(() => {
+        const fetchContent = async () => {
+            setLoading(true)
+            try {
+                const data = await getPressContent()
+                const pressData = data.data || data
+
+                if (pressData) {
+                    setContent({
+                        pressHero: pressData.hero || pressData.pressHero || fallbackPressHero,
+                        featuredMedia: pressData.featured_media || pressData.featuredMedia || fallbackFeaturedMedia,
+                        pressReleases: pressData.press_releases || pressData.pressReleases || fallbackPressReleases,
+                        exhibitions: pressData.exhibitions || fallbackExhibitions,
+                        speakingEngagements: pressData.speaking_engagements || pressData.speakingEngagements || fallbackSpeakingEngagements,
+                        collaborations: pressData.collaborations || fallbackCollaborations,
+                        mediaKit: pressData.media_kit || pressData.mediaKit || fallbackMediaKit,
+                        contactPress: pressData.contact_press || pressData.contactPress || fallbackContactPress
+                    })
+                }
+            } catch (error) {
+                console.error('Failed to fetch press content:', error)
+                // Keep fallback data
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchContent()
+    }, [])
+
+    const { pressHero, featuredMedia, pressReleases, exhibitions, speakingEngagements, collaborations, mediaKit, contactPress } = content
+
     // Separate featured and regular articles
     const featured = featuredMedia.filter(article => article.featured)
     const regular = featuredMedia.filter(article => !article.featured)
+
+    if (loading) {
+        return (
+            <div className="min-h-screen">
+                <Navbar isHeroDark={false} />
+                <div className="pt-32 pb-20 flex flex-col items-center justify-center">
+                    <Loader2 className="w-12 h-12 text-hisi-primary animate-spin mb-4" />
+                    <p className="text-gray-600">Loading content...</p>
+                </div>
+                <Footer links={footerLinks} socialLinks={socialLinks} />
+            </div>
+        )
+    }
 
     return (
         <div className="min-h-screen">

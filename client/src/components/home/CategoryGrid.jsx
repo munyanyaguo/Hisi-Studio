@@ -1,7 +1,99 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Loader2 } from 'lucide-react'
+import { getCategories } from '../../services/productsApi'
 
-const CategoryGrid = ({ categories = [] }) => {
+const CategoryGrid = ({ categories: propCategories = [], fetchFromApi = true }) => {
+    const [categories, setCategories] = useState(propCategories)
+    const [loading, setLoading] = useState(false)
+
+    // Default categories as fallback
+    const defaultCategories = [
+        {
+            id: 1,
+            name: 'Adaptive Outerwear',
+            slug: 'adaptive-outerwear',
+            image: '/images/categories/outerwear.jpg',
+            description: 'Jackets and coats with easy closures',
+            productCount: 24,
+        },
+        {
+            id: 2,
+            name: 'Sensory-Friendly',
+            slug: 'sensory-friendly',
+            image: '/images/categories/sensory.jpg',
+            description: 'Soft fabrics, tag-free, flat seams',
+            productCount: 18,
+        },
+        {
+            id: 3,
+            name: 'Seated Comfort',
+            slug: 'seated-comfort',
+            image: '/images/categories/seated.jpg',
+            description: 'Designed for wheelchair users',
+            productCount: 32,
+        },
+        {
+            id: 4,
+            name: 'Easy Dressing',
+            slug: 'easy-dressing',
+            image: '/images/categories/easy-dressing.jpg',
+            description: 'Magnetic closures, wide openings',
+            productCount: 28,
+        },
+    ]
+
+    // Fetch categories from API if none provided
+    useEffect(() => {
+        const fetchCategoriesData = async () => {
+            if (propCategories.length > 0 || !fetchFromApi) {
+                setCategories(propCategories.length > 0 ? propCategories : defaultCategories)
+                return
+            }
+
+            setLoading(true)
+            try {
+                const data = await getCategories()
+                const fetchedCategories = data.data || data.categories || []
+
+                if (fetchedCategories.length > 0) {
+                    // Transform API data to match component expectations
+                    const transformedCategories = fetchedCategories.map(cat => ({
+                        id: cat.id,
+                        name: cat.name,
+                        slug: cat.slug,
+                        image: cat.image || `/images/categories/${cat.slug}.jpg`,
+                        description: cat.description || 'Explore our collection',
+                        productCount: cat.product_count || cat.productCount || 0,
+                    }))
+                    setCategories(transformedCategories)
+                } else {
+                    setCategories(defaultCategories)
+                }
+            } catch (error) {
+                console.error('Failed to fetch categories:', error)
+                setCategories(defaultCategories)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchCategoriesData()
+    }, [propCategories, fetchFromApi])
+
+    const displayCategories = categories.length > 0 ? categories : defaultCategories
+
+    if (loading) {
+        return (
+            <section className="py-20 bg-white">
+                <div className="flex flex-col items-center justify-center">
+                    <Loader2 className="w-10 h-10 text-hisi-primary animate-spin mb-4" />
+                    <p className="text-gray-600">Loading categories...</p>
+                </div>
+            </section>
+        )
+    }
+
     return (
         <section className="py-20 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,7 +110,7 @@ const CategoryGrid = ({ categories = [] }) => {
 
                 {/* Categories Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {categories.map((category) => (
+                    {displayCategories.map((category) => (
                         <Link
                             key={category.id}
                             to={`/shop/${category.slug}`}
@@ -31,6 +123,9 @@ const CategoryGrid = ({ categories = [] }) => {
                                     alt={category.name}
                                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                                     loading="lazy"
+                                    onError={(e) => {
+                                        e.target.src = '/images/categories/placeholder.jpg'
+                                    }}
                                 />
 
                                 {/* Gradient Overlay */}

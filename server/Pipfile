@@ -15,9 +15,11 @@ flask-jwt-extended = "*"
 python-dotenv = "*"
 rave-python = "*"
 requests = "*"
+gunicorn = "*"
 
 [dev-packages]
 flask-shell-ipython = "*"
+gunicorn = "*"
 
 [requires]
 python_version = "3.12"

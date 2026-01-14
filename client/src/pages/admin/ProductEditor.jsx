@@ -130,7 +130,7 @@ const ProductEditor = () => {
             const formDataUpload = new FormData();
             formDataUpload.append('file', file);
 
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/media`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/media/upload`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`

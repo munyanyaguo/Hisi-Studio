@@ -1,30 +1,97 @@
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navbar from '../../components/layout/Navbar'
 import Footer from '../../components/layout/Footer'
 
-// Import mock data
+// Import fallback data
 import {
     collectionsHero,
-    collections,
+    collections as fallbackCollections,
     collectionCategories,
-    featuredProducts,
+    featuredProducts as fallbackFeaturedProducts,
     collectionsCTA
 } from '../../data/collectionsData'
 
 import { footerLinks, socialLinks } from '../../data/mockData'
-import { ArrowRight, Check, Package, Home, ChevronRight, Sparkles, Heart, Shield } from 'lucide-react'
+import { ArrowRight, Check, Package, Home, ChevronRight, Sparkles, Heart, Shield, Loader2 } from 'lucide-react'
+import { getCollections } from '../../services/cmsApi'
+import { getFeaturedProducts } from '../../services/productsApi'
+import { subscribe } from '../../services/newsletterApi'
 
 const CollectionsPage = () => {
+    const [collections, setCollections] = useState(fallbackCollections)
+    const [featuredProducts, setFeaturedProducts] = useState(fallbackFeaturedProducts)
+    const [loading, setLoading] = useState(true)
+    const [emailInput, setEmailInput] = useState('')
+    const [newsletterStatus, setNewsletterStatus] = useState('idle')
+
+    // Fetch collections and featured products from API
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true)
+            try {
+                // Fetch collections
+                const collectionsData = await getCollections()
+                const fetchedCollections = collectionsData.data || collectionsData.categories || collectionsData
+
+                if (Array.isArray(fetchedCollections) && fetchedCollections.length > 0) {
+                    // Transform API data to match component expectations
+                    const transformedCollections = fetchedCollections.map(col => ({
+                        id: col.id,
+                        name: col.name,
+                        slug: col.slug,
+                        description: col.description || 'Explore our collection',
+                        image: col.image || `/images/collections/${col.slug}.jpg`,
+                        productCount: col.product_count || col.productCount || 0,
+                        features: col.features || col.accessibility_features || [],
+                        featured: col.featured || col.is_featured || false
+                    }))
+                    setCollections(transformedCollections)
+                }
+
+                // Fetch featured products
+                const productsData = await getFeaturedProducts(4)
+                const fetchedProducts = productsData.data?.products || productsData.products || []
+
+                if (fetchedProducts.length > 0) {
+                    const transformedProducts = fetchedProducts.map(prod => ({
+                        id: prod.id,
+                        name: prod.name,
+                        price: prod.price,
+                        image: prod.main_image || prod.images?.main || '/images/products/placeholder.jpg',
+                        collection: prod.category?.name || 'Adaptive Fashion',
+                        badge: prod.badge || (prod.is_featured ? 'Featured' : null)
+                    }))
+                    setFeaturedProducts(transformedProducts)
+                }
+            } catch (error) {
+                console.error('Failed to fetch collections data:', error)
+                // Keep fallback data
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchData()
+    }, [])
+
     // Separate featured and regular collections
     const featuredCollections = collections.filter(c => c.featured)
     const regularCollections = collections.filter(c => !c.featured)
-    const [emailInput, setEmailInput] = useState('')
 
-    const handleNewsletterSubmit = (e) => {
+    const handleNewsletterSubmit = async (e) => {
         e.preventDefault()
-        console.log('Newsletter signup:', emailInput)
-        setEmailInput('')
+        setNewsletterStatus('loading')
+
+        try {
+            await subscribe(emailInput)
+            setNewsletterStatus('success')
+            setEmailInput('')
+            setTimeout(() => setNewsletterStatus('idle'), 5000)
+        } catch (error) {
+            setNewsletterStatus('error')
+            setTimeout(() => setNewsletterStatus('idle'), 3000)
+        }
     }
 
     return (

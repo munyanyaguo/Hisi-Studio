@@ -17,7 +17,7 @@ const ContentPage = () => {
             setLoading(true);
             const token = localStorage.getItem('token');
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/v1/cms/blog-posts`,
+                `${import.meta.env.VITE_API_URL}/api/v1/blog`,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -27,7 +27,8 @@ const ContentPage = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                setPosts(data.data || []);
+                // Handle paginated response structure
+                setPosts(data.data || data.items || []);
             }
         } catch (error) {
             console.error('Error fetching posts:', error);
@@ -41,7 +42,7 @@ const ContentPage = () => {
 
         try {
             const token = localStorage.getItem('token');
-            await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/content/posts/${postId}`, {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/blog/${postId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

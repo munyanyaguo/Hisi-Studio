@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Mail, CheckCircle, AlertCircle } from 'lucide-react'
+import { subscribe } from '../../services/newsletterApi'
 
 const NewsletterSection = () => {
     const [email, setEmail] = useState('')
@@ -27,11 +28,10 @@ const NewsletterSection = () => {
             return
         }
 
-        // Simulate API call
         setStatus('loading')
 
-        // TODO: Replace with actual API call to backend
-        setTimeout(() => {
+        try {
+            await subscribe(email)
             setStatus('success')
             setMessage('Thank you for subscribing! Check your inbox for a welcome email.')
             setEmail('')
@@ -41,7 +41,10 @@ const NewsletterSection = () => {
                 setStatus('idle')
                 setMessage('')
             }, 5000)
-        }, 1000)
+        } catch (error) {
+            setStatus('error')
+            setMessage(error.message || 'Failed to subscribe. Please try again.')
+        }
     }
 
     return (

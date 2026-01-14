@@ -11,13 +11,11 @@ import TestimonialsSection from '../../components/home/TestimonialsSection'
 import InstagramFeed from '../../components/home/InstagramFeed'
 import ScrollAnimationWrapper from '../../components/ui/ScrollAnimationWrapper'
 
-// Import mock data
+// Import fallback data for sections not yet fully API-integrated
 import {
   heroSlides,
-  featuredProducts,
   aboutContent,
   adaptiveFeatures,
-  categories,
   testimonials,
   footerLinks,
   socialLinks,
@@ -37,9 +35,9 @@ const HomePage = () => {
       {/* Hero Section - No animation needed, it's above fold */}
       <HeroSection slides={heroSlides} onSlideChange={handleSlideChange} />
 
-      {/* Featured Products - Animate on scroll */}
+      {/* Featured Products - Fetches from API when fetchFromApi is true */}
       <ScrollAnimationWrapper>
-        <FeaturedProducts products={featuredProducts} title="Featured Collection" />
+        <FeaturedProducts fetchFromApi={true} title="Featured Collection" />
       </ScrollAnimationWrapper>
 
       {/* About Us Hero - Full width image section */}
@@ -57,9 +55,9 @@ const HomePage = () => {
         <AdaptiveFeaturesSection features={adaptiveFeatures} />
       </ScrollAnimationWrapper>
 
-      {/* Category Grid */}
+      {/* Category Grid - Fetches from API when fetchFromApi is true */}
       <ScrollAnimationWrapper>
-        <CategoryGrid categories={categories} />
+        <CategoryGrid fetchFromApi={true} />
       </ScrollAnimationWrapper>
 
       {/* Testimonials */}

@@ -1,16 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { Bell, Search, Menu, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Bell, Search, Menu, X, User, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 import './AdminHeader.css';
 
 const AdminHeader = ({ user }) => {
+    const navigate = useNavigate();
+    const { logout } = useAuth();
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    const profileRef = useRef(null);
+    const notificationRef = useRef(null);
 
     useEffect(() => {
         // Fetch notifications
         fetchNotifications();
+    }, []);
+
+    // Close dropdowns when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (profileRef.current && !profileRef.current.contains(event.target)) {
+                setShowProfileMenu(false);
+            }
+            if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+                setShowNotifications(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     const fetchNotifications = async () => {
@@ -52,6 +75,11 @@ const AdminHeader = ({ user }) => {
         }
     };
 
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     const getNotificationIcon = (type) => {
         switch (type) {
             case 'new_order':
@@ -78,6 +106,26 @@ const AdminHeader = ({ user }) => {
         return `${Math.floor(seconds / 86400)}d ago`;
     };
 
+    const getUserInitials = () => {
+        if (!user) return 'A';
+        const first = user.first_name?.[0] || '';
+        const last = user.last_name?.[0] || '';
+        return (first + last).toUpperCase() || user.email?.[0]?.toUpperCase() || 'A';
+    };
+
+    const getUserDisplayName = () => {
+        if (!user) return 'Admin';
+        if (user.first_name && user.last_name) {
+            return `${user.first_name} ${user.last_name}`;
+        }
+        return user.first_name || user.email || 'Admin';
+    };
+
+    const getRoleBadge = () => {
+        if (!user) return '';
+        return user.role === 'super_admin' ? 'Super Admin' : 'Content Manager';
+    };
+
     return (
         <header className="admin-header">
             <div className="header-left">
@@ -100,7 +148,8 @@ const AdminHeader = ({ user }) => {
             </div>
 
             <div className="header-right">
-                <div className="notification-container">
+                {/* Notifications */}
+                <div className="notification-container" ref={notificationRef}>
                     <button
                         className="notification-button"
                         onClick={() => setShowNotifications(!showNotifications)}
@@ -151,6 +200,72 @@ const AdminHeader = ({ user }) => {
 
                             <div className="notification-footer">
                                 <a href="/admin/notifications">View all notifications</a>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Profile Dropdown */}
+                <div className="profile-container" ref={profileRef}>
+                    <button
+                        className="profile-button"
+                        onClick={() => setShowProfileMenu(!showProfileMenu)}
+                        aria-label="Profile menu"
+                    >
+                        <div className="profile-avatar">
+                            {getUserInitials()}
+                        </div>
+                        <div className="profile-info">
+                            <span className="profile-name">{getUserDisplayName()}</span>
+                            <span className="profile-role">{getRoleBadge()}</span>
+                        </div>
+                        <ChevronDown size={16} className={`chevron ${showProfileMenu ? 'open' : ''}`} />
+                    </button>
+
+                    {showProfileMenu && (
+                        <div className="profile-dropdown">
+                            <div className="profile-dropdown-header">
+                                <div className="profile-avatar large">
+                                    {getUserInitials()}
+                                </div>
+                                <div className="profile-header-info">
+                                    <span className="profile-header-name">{getUserDisplayName()}</span>
+                                    <span className="profile-header-email">{user?.email}</span>
+                                </div>
+                            </div>
+
+                            <div className="profile-dropdown-menu">
+                                <button
+                                    className="profile-menu-item"
+                                    onClick={() => {
+                                        setShowProfileMenu(false);
+                                        navigate('/admin/profile');
+                                    }}
+                                >
+                                    <User size={18} />
+                                    <span>My Profile</span>
+                                </button>
+
+                                <button
+                                    className="profile-menu-item"
+                                    onClick={() => {
+                                        setShowProfileMenu(false);
+                                        navigate('/admin/settings');
+                                    }}
+                                >
+                                    <Settings size={18} />
+                                    <span>Settings</span>
+                                </button>
+
+                                <div className="profile-menu-divider"></div>
+
+                                <button
+                                    className="profile-menu-item logout"
+                                    onClick={handleLogout}
+                                >
+                                    <LogOut size={18} />
+                                    <span>Logout</span>
+                                </button>
                             </div>
                         </div>
                     )}

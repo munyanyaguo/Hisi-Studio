@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ShoppingBag, Heart, Share2, ChevronLeft, ChevronRight, Star, Check, Truck, Shield, RotateCcw } from 'lucide-react';
+import { ShoppingBag, Heart, Share2, ChevronLeft, ChevronRight, Star, Check, Truck, Shield, RotateCcw, Loader2 } from 'lucide-react';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
 import { footerLinks, socialLinks } from '../../data/mockData';
+import { getProductById } from '../../services/productsApi';
 
 const ProductDetailsPage = () => {
     const { productId } = useParams();
@@ -18,46 +19,24 @@ const ProductDetailsPage = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/products/${productId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setProduct(data.data);
-                } else {
-                    // Use mock data for demo
-                    setProduct({
-                        id: productId,
-                        name: 'Adaptive Bomber Jacket',
-                        price: 89000,
-                        originalPrice: 120000,
-                        description: 'Our signature adaptive bomber jacket combines street style with thoughtful accessibility features. Perfect for those who value both fashion and function.',
-                        images: [
-                            '/images/products/jacket-main.jpg',
-                            '/images/products/jacket-back.jpg',
-                            '/images/products/jacket-detail.jpg',
-                        ],
-                        sizes: ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'],
-                        colors: [
-                            { name: 'Black', value: '#000000' },
-                            { name: 'Navy', value: '#1e3a5f' },
-                            { name: 'Olive', value: '#4a5d23' },
-                        ],
-                        accessibilityFeatures: [
-                            'Magnetic closures for easy fastening',
-                            'Easy grip zipper pulls',
-                            'Reinforced seams for durability',
-                            'Seated comfort design',
-                            'Tag-free labels'
-                        ],
-                        materials: '100% Organic Cotton, Recycled Polyester Lining',
-                        careInstructions: 'Machine wash cold, tumble dry low',
-                        rating: 4.8,
-                        reviewCount: 124,
-                        inStock: true,
-                        badge: 'New'
-                    });
-                }
+                const data = await getProductById(productId);
+                // Handle both response formats
+                const productData = data.data || data;
+
+                // Transform API data to match component expectations
+                setProduct({
+                    ...productData,
+                    images: productData.images || [productData.main_image, productData.hover_image].filter(Boolean),
+                    accessibilityFeatures: productData.accessibility_features || productData.accessibilityFeatures || [],
+                    reviewCount: productData.review_count || productData.reviewCount || 0,
+                    originalPrice: productData.original_price || productData.originalPrice,
+                    careInstructions: productData.care_instructions || productData.careInstructions,
+                    inStock: productData.in_stock !== undefined ? productData.in_stock : productData.stock_quantity > 0
+                });
             } catch (error) {
                 console.error('Error fetching product:', error);
+                // Only use mock data if API truly fails
+                setProduct(null);
             } finally {
                 setLoading(false);
             }
@@ -241,8 +220,8 @@ const ProductDetailsPage = () => {
                                             key={size}
                                             onClick={() => setSelectedSize(size)}
                                             className={`px-4 py-2 border-2 font-medium transition-all ${selectedSize === size
-                                                    ? 'border-hisi-primary bg-hisi-primary text-white'
-                                                    : 'border-gray-200 hover:border-hisi-primary'
+                                                ? 'border-hisi-primary bg-hisi-primary text-white'
+                                                : 'border-gray-200 hover:border-hisi-primary'
                                                 }`}
                                         >
                                             {size}
@@ -278,8 +257,8 @@ const ProductDetailsPage = () => {
                                 onClick={handleAddToCart}
                                 disabled={addedToCart}
                                 className={`flex-1 py-4 px-8 font-semibold uppercase tracking-wider flex items-center justify-center space-x-2 transition-all ${addedToCart
-                                        ? 'bg-green-600 text-white'
-                                        : 'bg-hisi-primary text-white hover:bg-hisi-primary/90'
+                                    ? 'bg-green-600 text-white'
+                                    : 'bg-hisi-primary text-white hover:bg-hisi-primary/90'
                                     }`}
                             >
                                 {addedToCart ? (

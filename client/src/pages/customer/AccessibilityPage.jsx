@@ -1,19 +1,21 @@
+import { useState, useEffect } from 'react'
 import Navbar from '../../components/layout/Navbar'
 import Footer from '../../components/layout/Footer'
 import ImpactMetrics from '../../components/accessibility/ImpactMetrics'
 
-// Import mock data
+// Import fallback data
 import {
-    accessibilityHero,
-    adaptiveMethods,
-    tactArtProject,
-    brailleProducts,
-    impactSustainability,
-    partnershipCTA
+    accessibilityHero as fallbackAccessibilityHero,
+    adaptiveMethods as fallbackAdaptiveMethods,
+    tactArtProject as fallbackTactArtProject,
+    brailleProducts as fallbackBrailleProducts,
+    impactSustainability as fallbackImpactSustainability,
+    partnershipCTA as fallbackPartnershipCTA
 } from '../../data/accessibilityData'
 
 import { footerLinks, socialLinks } from '../../data/mockData'
-import { Hand, Type, Headphones, Users, Check } from 'lucide-react'
+import { Hand, Type, Headphones, Users, Check, Loader2 } from 'lucide-react'
+import { getAccessibilityContent } from '../../services/cmsApi'
 
 const iconMap = {
     hand: Hand,
@@ -23,6 +25,60 @@ const iconMap = {
 }
 
 const AccessibilityPage = () => {
+    const [content, setContent] = useState({
+        accessibilityHero: fallbackAccessibilityHero,
+        adaptiveMethods: fallbackAdaptiveMethods,
+        tactArtProject: fallbackTactArtProject,
+        brailleProducts: fallbackBrailleProducts,
+        impactSustainability: fallbackImpactSustainability,
+        partnershipCTA: fallbackPartnershipCTA
+    })
+    const [loading, setLoading] = useState(true)
+
+    // Fetch accessibility page content from API
+    useEffect(() => {
+        const fetchContent = async () => {
+            setLoading(true)
+            try {
+                const data = await getAccessibilityContent()
+                const accessibilityData = data.data || data
+
+                if (accessibilityData) {
+                    setContent({
+                        accessibilityHero: accessibilityData.hero || accessibilityData.accessibilityHero || fallbackAccessibilityHero,
+                        adaptiveMethods: accessibilityData.adaptive_methods || accessibilityData.adaptiveMethods || fallbackAdaptiveMethods,
+                        tactArtProject: accessibilityData.tact_art_project || accessibilityData.tactArtProject || fallbackTactArtProject,
+                        brailleProducts: accessibilityData.braille_products || accessibilityData.brailleProducts || fallbackBrailleProducts,
+                        impactSustainability: accessibilityData.impact_sustainability || accessibilityData.impactSustainability || fallbackImpactSustainability,
+                        partnershipCTA: accessibilityData.partnership_cta || accessibilityData.partnershipCTA || fallbackPartnershipCTA
+                    })
+                }
+            } catch (error) {
+                console.error('Failed to fetch accessibility content:', error)
+                // Keep fallback data
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchContent()
+    }, [])
+
+    const { accessibilityHero, adaptiveMethods, tactArtProject, brailleProducts, impactSustainability, partnershipCTA } = content
+
+    if (loading) {
+        return (
+            <div className="min-h-screen">
+                <Navbar isHeroDark={false} />
+                <div className="pt-32 pb-20 flex flex-col items-center justify-center">
+                    <Loader2 className="w-12 h-12 text-hisi-primary animate-spin mb-4" />
+                    <p className="text-gray-600">Loading content...</p>
+                </div>
+                <Footer links={footerLinks} socialLinks={socialLinks} />
+            </div>
+        )
+    }
+
     return (
         <div className="min-h-screen">
             <Navbar isHeroDark={false} />
@@ -272,8 +328,8 @@ const AccessibilityPage = () => {
                                     key={index}
                                     href={button.href}
                                     className={`px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl ${button.primary
-                                            ? 'bg-white text-hisi-primary hover:bg-gray-100'
-                                            : 'bg-transparent text-white border-2 border-white hover:bg-white hover:text-hisi-primary'
+                                        ? 'bg-white text-hisi-primary hover:bg-gray-100'
+                                        : 'bg-transparent text-white border-2 border-white hover:bg-white hover:text-hisi-primary'
                                         }`}
                                 >
                                     {button.text}

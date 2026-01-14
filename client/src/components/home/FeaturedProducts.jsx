@@ -1,10 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { getFeaturedProducts } from '../../services/productsApi'
+import { Loader2 } from 'lucide-react'
 
-const FeaturedProducts = ({ products = [], title = 'Featured Collection' }) => {
+const FeaturedProducts = ({ products: propProducts = [], title = 'Featured Collection', fetchFromApi = true }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [products, setProducts] = useState(propProducts)
+  const [loading, setLoading] = useState(false)
 
-  // Default products if none provided
+  // Default products as fallback
   const defaultProducts = [
     {
       id: 1,
@@ -53,6 +57,43 @@ const FeaturedProducts = ({ products = [], title = 'Featured Collection' }) => {
     },
   ]
 
+  // Fetch products from API if none provided and fetchFromApi is true
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (propProducts.length > 0 || !fetchFromApi) {
+        setProducts(propProducts.length > 0 ? propProducts : defaultProducts)
+        return
+      }
+
+      setLoading(true)
+      try {
+        const data = await getFeaturedProducts(8)
+        const fetchedProducts = data.data?.products || data.products || []
+
+        if (fetchedProducts.length > 0) {
+          // Transform API data to match component expectations
+          const transformedProducts = fetchedProducts.map(product => ({
+            ...product,
+            images: {
+              main: product.main_image || product.images?.main || '/images/products/placeholder.jpg',
+              hover: product.hover_image || product.images?.hover,
+            }
+          }))
+          setProducts(transformedProducts)
+        } else {
+          setProducts(defaultProducts)
+        }
+      } catch (error) {
+        console.error('Failed to fetch featured products:', error)
+        setProducts(defaultProducts)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [propProducts, fetchFromApi])
+
   const displayProducts = products.length > 0 ? products : defaultProducts
 
   // Featured product is the first one
@@ -74,12 +115,30 @@ const FeaturedProducts = ({ products = [], title = 'Featured Collection' }) => {
 
   // Get visible products for carousel (show 4 at a time)
   const getVisibleProducts = () => {
+    if (carouselProducts.length === 0) return []
     const visible = []
-    for (let i = 0; i < 4; i++) {
+    const count = Math.min(4, carouselProducts.length)
+    for (let i = 0; i < count; i++) {
       const index = (currentIndex + i) % carouselProducts.length
       visible.push(carouselProducts[index])
     }
     return visible
+  }
+
+  // Helper to get product image
+  const getProductImage = (product) => {
+    return product.images?.main || product.main_image || '/images/products/placeholder.jpg'
+  }
+
+  if (loading) {
+    return (
+      <section className="bg-gray-50 py-20" id="main-content">
+        <div className="flex flex-col items-center justify-center">
+          <Loader2 className="w-10 h-10 text-hisi-primary animate-spin mb-4" />
+          <p className="text-gray-600">Loading featured products...</p>
+        </div>
+      </section>
+    )
   }
 
   return (
@@ -96,7 +155,7 @@ const FeaturedProducts = ({ products = [], title = 'Featured Collection' }) => {
           <Link to={`/product/${featuredProduct.id}`} className="block h-full">
             <div className="relative h-[500px] lg:h-[700px] overflow-hidden bg-gray-200">
               <img
-                src={featuredProduct.images.main}
+                src={getProductImage(featuredProduct)}
                 alt={featuredProduct.name}
                 className="w-full h-full object-cover"
               />
@@ -143,23 +202,25 @@ const FeaturedProducts = ({ products = [], title = 'Featured Collection' }) => {
 
           {/* Carousel Section - 4 Small Product Cards */}
           <div className="flex-1">
-            <div className="grid grid-cols-4 gap-3 mb-8">
-              {getVisibleProducts().map((product, index) => (
-                <Link
-                  key={`${product.id}-${index}`}
-                  to={`/product/${product.id}`}
-                  className="group relative aspect-square overflow-hidden bg-white"
-                >
-                  <img
-                    src={product.images.main}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-                </Link>
-              ))}
-            </div>
+            {carouselProducts.length > 0 && (
+              <div className="grid grid-cols-4 gap-3 mb-8">
+                {getVisibleProducts().map((product, index) => (
+                  <Link
+                    key={`${product.id}-${index}`}
+                    to={`/product/${product.id}`}
+                    className="group relative aspect-square overflow-hidden bg-white"
+                  >
+                    <img
+                      src={getProductImage(product)}
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                  </Link>
+                ))}
+              </div>
+            )}
 
             {/* Carousel Indicators */}
             {carouselProducts.length > 4 && (
