@@ -42,11 +42,13 @@ def create_app(config_name='development'):
             Page, BlogPost, SiteSetting, NewsletterSubscriber, ContactMessage,
             Consultation, FAQ, Testimonial,
             Notification, MediaFile, Message, ProductCollection,
-            Review, SectionContent
+            Review, SectionContent,
+            PressHero, MediaCoverage, PressRelease, Exhibition,
+            SpeakingEngagement, Collaboration, MediaKitItem, MediaKitConfig, PressContact
         )
 
     # Register blueprints
-    from app.routes import auth, products, cart, addresses, orders, cms, newsletter, payments, contact, admin, reviews, section_content
+    from app.routes import auth, products, cart, addresses, orders, cms, newsletter, payments, contact, admin, reviews, section_content, press
     app.register_blueprint(auth.bp)
     app.register_blueprint(products.bp)
     app.register_blueprint(cart.bp)
@@ -59,6 +61,7 @@ def create_app(config_name='development'):
     app.register_blueprint(admin.bp)
     app.register_blueprint(reviews.bp)
     app.register_blueprint(section_content.bp)
+    app.register_blueprint(press.bp)
 
     # Configure CORS
     CORS(app, resources={

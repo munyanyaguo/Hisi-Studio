@@ -8,11 +8,14 @@ from app.extensions import db
 from app.models import (
     User, Product, Category,
     Page, BlogPost, SiteSetting,
-    FAQ, Testimonial
+    FAQ, Testimonial,
+    PressHero, MediaCoverage, PressRelease, Exhibition,
+    SpeakingEngagement, Collaboration, MediaKitItem, MediaKitConfig, PressContact
 )
 from werkzeug.security import generate_password_hash
 import uuid
 from datetime import datetime
+import json
 
 def create_admin_user():
     """Create an admin user"""
@@ -718,6 +721,369 @@ def create_contact_settings():
     db.session.commit()
 
 
+def create_press_content():
+    """Create press page content"""
+    print("Creating press page content...")
+
+    # Press Hero
+    hero = PressHero.query.first()
+    if not hero:
+        hero = PressHero(
+            id=str(uuid.uuid4()),
+            title="Press & Media",
+            subtitle="In the Spotlight",
+            description="Discover how Hisi Studio is making waves in adaptive fashion, disability inclusion, and sustainable design across global media.",
+            image="/images/press/hero-bg.jpg"
+        )
+        db.session.add(hero)
+        print("  ✓ Created Press Hero")
+    else:
+        print("  ⚠ Press Hero already exists")
+
+    # Media Coverage
+    media_coverage_data = [
+        {
+            'title': 'Deutsche Welle Feature: Pioneering Adaptive Fashion in Africa',
+            'outlet': 'Deutsche Welle (DW)',
+            'date': '2023-08-15',
+            'category': 'Feature Article',
+            'description': 'An in-depth look at how Hisi Studio is revolutionizing fashion accessibility and championing disability inclusion across Africa.',
+            'image': '/images/press/dw-feature.png',
+            'link': 'https://www.dw.com/hisi-studio-feature',
+            'is_featured': True
+        },
+        {
+            'title': 'Global Social Media Entrepreneurs Spotlight',
+            'outlet': 'GSME',
+            'date': '2023-10-22',
+            'category': 'Entrepreneur Profile',
+            'description': 'Featured as a leading social entrepreneur using fashion as a tool for disability advocacy and community empowerment.',
+            'image': '/images/press/gsme-feature.png',
+            'link': 'https://gsme.org/hisi-studio',
+            'is_featured': True
+        },
+        {
+            'title': 'The Future of Inclusive Fashion',
+            'outlet': 'Fashion Forward Africa',
+            'date': '2024-03-10',
+            'category': 'Industry Analysis',
+            'description': 'How Hisi Studio is setting new standards for adaptive design and accessibility in the African fashion industry.',
+            'image': '/images/press/fashion-forward.png',
+            'link': '#',
+            'is_featured': False
+        },
+        {
+            'title': 'TactART: Making Art Accessible',
+            'outlet': 'Art & Culture Magazine',
+            'date': '2024-05-18',
+            'category': 'Innovation',
+            'description': 'Exploring the groundbreaking TactART initiative that brings visual art to blind and visually impaired communities.',
+            'image': '/images/press/tactart-article.png',
+            'link': '#',
+            'is_featured': False
+        },
+        {
+            'title': 'Sustainable Fashion Meets Social Impact',
+            'outlet': 'EcoStyle Journal',
+            'date': '2024-07-25',
+            'category': 'Sustainability',
+            'description': 'A deep dive into Hisi Studio\'s commitment to eco-friendly practices and community empowerment.',
+            'image': '/images/press/ecostyle.png',
+            'link': '#',
+            'is_featured': False
+        },
+        {
+            'title': 'Breaking Barriers in Fashion',
+            'outlet': 'Disability Rights Today',
+            'date': '2024-09-12',
+            'category': 'Advocacy',
+            'description': 'How adaptive fashion is changing lives and challenging industry norms.',
+            'image': '/images/press/disability-rights.png',
+            'link': '#',
+            'is_featured': False
+        }
+    ]
+
+    for idx, data in enumerate(media_coverage_data):
+        existing = MediaCoverage.query.filter_by(title=data['title']).first()
+        if existing:
+            print(f"  ⚠ Media coverage '{data['title'][:40]}...' already exists")
+            continue
+
+        item = MediaCoverage(
+            id=str(uuid.uuid4()),
+            title=data['title'],
+            outlet=data['outlet'],
+            date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
+            category=data['category'],
+            description=data['description'],
+            image=data['image'],
+            link=data['link'],
+            is_featured=data['is_featured'],
+            is_published=True,
+            display_order=idx
+        )
+        db.session.add(item)
+        print(f"  ✓ Created media coverage: {data['title'][:40]}...")
+
+    # Press Releases
+    press_releases_data = [
+        {
+            'title': 'Hisi Studio Launches New Braille-Branded Collection',
+            'date': '2024-11-01',
+            'excerpt': 'Introducing our latest line of products featuring integrated Braille branding, making fashion truly inclusive for blind communities.'
+        },
+        {
+            'title': 'Partnership Announcement: Collaborating with Disability Advocacy Organizations',
+            'date': '2024-08-15',
+            'excerpt': 'Hisi Studio partners with leading disability rights organizations to expand adaptive fashion access across Africa.'
+        },
+        {
+            'title': 'TactART Exhibition Opens in Nairobi',
+            'date': '2024-06-20',
+            'excerpt': 'Our groundbreaking tactile art exhibition brings visual art to blind communities through multi-sensory experiences.'
+        }
+    ]
+
+    for idx, data in enumerate(press_releases_data):
+        existing = PressRelease.query.filter_by(title=data['title']).first()
+        if existing:
+            print(f"  ⚠ Press release '{data['title'][:40]}...' already exists")
+            continue
+
+        item = PressRelease(
+            id=str(uuid.uuid4()),
+            title=data['title'],
+            date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
+            excerpt=data['excerpt'],
+            is_published=True,
+            display_order=idx
+        )
+        db.session.add(item)
+        print(f"  ✓ Created press release: {data['title'][:40]}...")
+
+    # Exhibitions
+    exhibitions_data = [
+        {
+            'title': 'Adaptive Fashion Showcase 2024',
+            'location': 'Nairobi Fashion Week',
+            'date': '2024-10-15',
+            'description': 'Presented our latest adaptive outerwear collection featuring magnetic closures and sensory-friendly fabrics.',
+            'image': '/images/press/exhibition-nairobi.png',
+            'gallery': [
+                '/images/press/exhibition-nairobi.png',
+                '/images/press/exhibition-nairobi.png',
+                '/images/press/exhibition-nairobi.png'
+            ]
+        },
+        {
+            'title': 'TactART: Touch & See Exhibition',
+            'location': 'National Museum, Kampala',
+            'date': '2024-06-20',
+            'description': 'Interactive tactile art exhibition making visual art accessible to blind and visually impaired visitors.',
+            'image': '/images/press/exhibition-tactart.png',
+            'gallery': [
+                '/images/press/exhibition-tactart.png',
+                '/images/press/exhibition-tactart.png',
+                '/images/press/exhibition-tactart.png'
+            ]
+        },
+        {
+            'title': 'Inclusive Design Summit',
+            'location': 'Kigali Convention Centre',
+            'date': '2024-04-08',
+            'description': 'Showcased adaptive fashion innovations and led workshops on inclusive design methodologies.',
+            'image': '/images/press/exhibition-kigali.png',
+            'gallery': [
+                '/images/press/exhibition-kigali.png',
+                '/images/press/exhibition-kigali.png',
+                '/images/press/exhibition-kigali.png'
+            ]
+        }
+    ]
+
+    for idx, data in enumerate(exhibitions_data):
+        existing = Exhibition.query.filter_by(title=data['title']).first()
+        if existing:
+            print(f"  ⚠ Exhibition '{data['title'][:40]}...' already exists")
+            continue
+
+        item = Exhibition(
+            id=str(uuid.uuid4()),
+            title=data['title'],
+            location=data['location'],
+            date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
+            description=data['description'],
+            image=data['image'],
+            gallery=json.dumps(data['gallery']),
+            is_published=True,
+            display_order=idx
+        )
+        db.session.add(item)
+        print(f"  ✓ Created exhibition: {data['title'][:40]}...")
+
+    # Speaking Engagements
+    speaking_data = [
+        {
+            'title': 'Keynote: The Future of Adaptive Fashion',
+            'event': 'African Fashion Innovation Summit',
+            'location': 'Lagos, Nigeria',
+            'date': '2024-11-20',
+            'description': 'Delivered keynote address on the intersection of fashion, disability inclusion, and African heritage.',
+            'type': 'Keynote'
+        },
+        {
+            'title': 'Panel: Disability Inclusion in Creative Industries',
+            'event': 'Global Accessibility Conference',
+            'location': 'Virtual',
+            'date': '2024-09-05',
+            'description': 'Participated in panel discussion on breaking barriers and creating opportunities for people with disabilities in fashion and art.',
+            'type': 'Panel'
+        },
+        {
+            'title': 'Workshop: Designing for Accessibility',
+            'event': 'Design Thinking Workshop Series',
+            'location': 'Nairobi Design Institute',
+            'date': '2024-07-12',
+            'description': 'Led hands-on workshop teaching designers how to incorporate adaptive features and inclusive design principles.',
+            'type': 'Workshop'
+        },
+        {
+            'title': 'TEDx Talk: Fashion Without Barriers',
+            'event': 'TEDxNairobi',
+            'location': 'Nairobi, Kenya',
+            'date': '2024-05-18',
+            'description': 'Shared the vision and journey of Hisi Studio in creating fashion that celebrates diversity and empowers all people.',
+            'type': 'TEDx'
+        }
+    ]
+
+    for idx, data in enumerate(speaking_data):
+        existing = SpeakingEngagement.query.filter_by(title=data['title']).first()
+        if existing:
+            print(f"  ⚠ Speaking engagement '{data['title'][:40]}...' already exists")
+            continue
+
+        item = SpeakingEngagement(
+            id=str(uuid.uuid4()),
+            title=data['title'],
+            event=data['event'],
+            location=data['location'],
+            date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
+            description=data['description'],
+            engagement_type=data['type'],
+            is_published=True,
+            display_order=idx
+        )
+        db.session.add(item)
+        print(f"  ✓ Created speaking engagement: {data['title'][:40]}...")
+
+    # Collaborations
+    collaborations_data = [
+        {
+            'title': 'Partnership with Local Artisan Cooperatives',
+            'partner': 'Kenya Artisan Collective',
+            'description': 'Collaborating with local artisans to create adaptive fashion pieces that celebrate African craftsmanship and heritage.',
+            'image': '/images/press/ecostyle.png',
+            'year': '2024'
+        },
+        {
+            'title': 'Disability Advocacy Partnership',
+            'partner': 'African Disability Forum',
+            'description': 'Working together to advocate for disability rights and create employment opportunities in the fashion industry.',
+            'image': '/images/press/disability-rights.png',
+            'year': '2024'
+        },
+        {
+            'title': 'Sustainable Materials Initiative',
+            'partner': 'EcoFabrics Africa',
+            'description': 'Sourcing eco-friendly, sustainable fabrics for our adaptive fashion collections.',
+            'image': '/images/press/ecostyle.png',
+            'year': '2023'
+        },
+        {
+            'title': 'Braille Literacy Program',
+            'partner': 'Kenya Society for the Blind',
+            'description': 'Supporting Braille literacy through our Braille-branded products and educational initiatives.',
+            'image': '/images/press/tactart-article.png',
+            'year': '2023'
+        }
+    ]
+
+    for idx, data in enumerate(collaborations_data):
+        existing = Collaboration.query.filter_by(title=data['title']).first()
+        if existing:
+            print(f"  ⚠ Collaboration '{data['title'][:40]}...' already exists")
+            continue
+
+        item = Collaboration(
+            id=str(uuid.uuid4()),
+            title=data['title'],
+            partner=data['partner'],
+            description=data['description'],
+            image=data['image'],
+            year=data['year'],
+            is_published=True,
+            display_order=idx
+        )
+        db.session.add(item)
+        print(f"  ✓ Created collaboration: {data['title'][:40]}...")
+
+    # Media Kit Config
+    kit_config = MediaKitConfig.query.first()
+    if not kit_config:
+        kit_config = MediaKitConfig(
+            id=str(uuid.uuid4()),
+            title="Media Kit",
+            description="Download our press kit for high-resolution images, brand assets, and company information."
+        )
+        db.session.add(kit_config)
+        print("  ✓ Created Media Kit Config")
+    else:
+        print("  ⚠ Media Kit Config already exists")
+
+    # Media Kit Items
+    media_kit_items_data = [
+        {'name': 'Brand Guidelines', 'type': 'PDF', 'size': '2.5 MB'},
+        {'name': 'High-Res Logos', 'type': 'ZIP', 'size': '5.1 MB'},
+        {'name': 'Product Images', 'type': 'ZIP', 'size': '45 MB'},
+        {'name': 'Founder Bio & Photos', 'type': 'PDF', 'size': '3.2 MB'}
+    ]
+
+    for idx, data in enumerate(media_kit_items_data):
+        existing = MediaKitItem.query.filter_by(name=data['name']).first()
+        if existing:
+            print(f"  ⚠ Media kit item '{data['name']}' already exists")
+            continue
+
+        item = MediaKitItem(
+            id=str(uuid.uuid4()),
+            name=data['name'],
+            file_type=data['type'],
+            file_size=data['size'],
+            display_order=idx
+        )
+        db.session.add(item)
+        print(f"  ✓ Created media kit item: {data['name']}")
+
+    # Press Contact
+    contact = PressContact.query.first()
+    if not contact:
+        contact = PressContact(
+            id=str(uuid.uuid4()),
+            title="Media Inquiries",
+            description="For press inquiries, interviews, or collaboration opportunities, please contact our media team.",
+            email="press@hisistudio.com",
+            phone="+254 XXX XXX XXX"
+        )
+        db.session.add(contact)
+        print("  ✓ Created Press Contact")
+    else:
+        print("  ⚠ Press Contact already exists")
+
+    db.session.commit()
+    print("  ✓ Press content seeding complete!")
+
 
 def main():
     """Main seed function"""
@@ -747,6 +1113,9 @@ def main():
         create_faqs()
         create_testimonials()
         create_contact_settings()
+
+        # Create press page content
+        create_press_content()
 
         print("\n" + "="*60)
         print("✓ SEEDING COMPLETE!")

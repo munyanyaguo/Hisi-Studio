@@ -27,11 +27,16 @@ const ContentPage = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                // Handle paginated response structure
-                setPosts(data.data || data.items || []);
+                // Handle paginated response structure: { data: { items: [...], pagination: {...} } }
+                const items = data.data?.items || data.items || data.data || [];
+                // Ensure we always have an array
+                setPosts(Array.isArray(items) ? items : []);
+            } else {
+                setPosts([]);
             }
         } catch (error) {
             console.error('Error fetching posts:', error);
+            setPosts([]);
         } finally {
             setLoading(false);
         }
@@ -56,11 +61,16 @@ const ContentPage = () => {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
+        if (!dateString) return 'No date';
+        try {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        } catch {
+            return 'Invalid date';
+        }
     };
 
     return (

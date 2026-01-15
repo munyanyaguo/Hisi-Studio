@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { getCategories } from '../../services/productsApi'
@@ -6,6 +6,7 @@ import { getCategories } from '../../services/productsApi'
 const CategoryGrid = ({ categories: propCategories = [], fetchFromApi = true }) => {
     const [categories, setCategories] = useState(propCategories)
     const [loading, setLoading] = useState(false)
+    const hasLoadedRef = useRef(false)
 
     // Default categories as fallback
     const defaultCategories = [
@@ -45,13 +46,19 @@ const CategoryGrid = ({ categories: propCategories = [], fetchFromApi = true }) 
 
     // Fetch categories from API if none provided
     useEffect(() => {
+        // Prevent duplicate fetches
+        if (hasLoadedRef.current) return
+
         const fetchCategoriesData = async () => {
             if (propCategories.length > 0 || !fetchFromApi) {
                 setCategories(propCategories.length > 0 ? propCategories : defaultCategories)
+                hasLoadedRef.current = true
                 return
             }
 
             setLoading(true)
+            hasLoadedRef.current = true
+
             try {
                 const data = await getCategories()
                 const fetchedCategories = data.data || data.categories || []
@@ -79,7 +86,8 @@ const CategoryGrid = ({ categories: propCategories = [], fetchFromApi = true }) 
         }
 
         fetchCategoriesData()
-    }, [propCategories, fetchFromApi])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const displayCategories = categories.length > 0 ? categories : defaultCategories
 

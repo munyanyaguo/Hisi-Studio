@@ -14,7 +14,7 @@ class DevelopmentConfig:
     # Database
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ECHO = True  # Log all SQL queries (useful for debugging)
+    SQLALCHEMY_ECHO = False  # Set to True to log SQL queries for debugging
     
     # JWT
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'jwt-secret-key')

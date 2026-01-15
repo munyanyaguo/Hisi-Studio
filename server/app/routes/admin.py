@@ -121,7 +121,7 @@ def get_dashboard_overview():
             'start_date': start_date.isoformat(),
             'end_date': end_date.isoformat(),
             'metrics': {
-                'total_revenue': float(total_revenue) if total_revenue else None,
+                'total_revenue': float(total_revenue) if total_revenue is not None else None,
                 'total_orders': total_orders,
                 'new_customers': new_customers,
                 'pending_orders': pending_orders,

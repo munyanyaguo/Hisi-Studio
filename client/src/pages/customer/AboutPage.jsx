@@ -67,15 +67,27 @@ const AboutPage = () => {
         <div className="min-h-screen">
             <Navbar isHeroDark={false} />
 
-            {/* Page Header */}
-            <div className="pt-32 pb-12 bg-gradient-to-b from-hisi-primary to-hisi-accent">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-                        About Hisi Studio
-                    </h1>
-                    <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
-                        Inclusive Design. African Roots. Global Future.
-                    </p>
+            {/* Hero Section */}
+            <div className="relative pt-24">
+                {/* Hero Image as Full Background */}
+                <div className="w-full bg-white">
+                    <img
+                        src="/images/about-hero.png"
+                        alt="We Are Kind - displayed in text and Braille"
+                        className="w-full h-auto object-contain max-h-[60vh] mx-auto"
+                    />
+                </div>
+
+                {/* Title Bar Below Image */}
+                <div className="py-8 bg-gradient-to-r from-hisi-primary to-hisi-accent">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                        <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
+                            About Hisi Studio
+                        </h1>
+                        <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
+                            Inclusive Design. African Roots. Global Future.
+                        </p>
+                    </div>
                 </div>
             </div>
 

@@ -14,7 +14,8 @@ import {
     ChevronRight,
     ExternalLink,
     Layout,
-    Star
+    Star,
+    Newspaper
 } from 'lucide-react';
 import './AdminSidebar.css';
 
@@ -73,6 +74,12 @@ const AdminSidebar = ({ user }) => {
             roles: ['super_admin', 'content_manager']
         },
         {
+            path: '/admin/press',
+            icon: Newspaper,
+            label: 'Press',
+            roles: ['super_admin', 'content_manager']
+        },
+        {
             path: '/admin/customers',
             icon: Users,
             label: 'Customers',
@@ -108,14 +115,14 @@ const AdminSidebar = ({ user }) => {
             {/* ... header ... */}
             <div className="sidebar-header">
                 {!collapsed && (
-                    <>
+                    <div className="flex flex-col items-center w-full">
                         <img
-                            src="/images/hisi-logo-light.png"
+                            src="/images/hisi-logo-white.png"
                             alt="Hisi Studio"
-                            className="h-12 w-auto mb-1"
+                            className="h-32 w-auto mb-3"
                         />
                         <p className="sidebar-subtitle">Admin Panel</p>
-                    </>
+                    </div>
                 )}
                 <button
                     className="sidebar-toggle"

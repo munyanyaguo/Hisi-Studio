@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { getFeaturedProducts } from '../../services/productsApi'
 import { Loader2 } from 'lucide-react'
@@ -7,6 +7,7 @@ const FeaturedProducts = ({ products: propProducts = [], title = 'Featured Colle
   const [currentIndex, setCurrentIndex] = useState(0)
   const [products, setProducts] = useState(propProducts)
   const [loading, setLoading] = useState(false)
+  const hasLoadedRef = useRef(false)
 
   // Default products as fallback
   const defaultProducts = [
@@ -59,13 +60,19 @@ const FeaturedProducts = ({ products: propProducts = [], title = 'Featured Colle
 
   // Fetch products from API if none provided and fetchFromApi is true
   useEffect(() => {
+    // Prevent duplicate fetches
+    if (hasLoadedRef.current) return
+
     const fetchProducts = async () => {
       if (propProducts.length > 0 || !fetchFromApi) {
         setProducts(propProducts.length > 0 ? propProducts : defaultProducts)
+        hasLoadedRef.current = true
         return
       }
 
       setLoading(true)
+      hasLoadedRef.current = true
+
       try {
         const data = await getFeaturedProducts(8)
         const fetchedProducts = data.data?.products || data.products || []
@@ -92,7 +99,8 @@ const FeaturedProducts = ({ products: propProducts = [], title = 'Featured Colle
     }
 
     fetchProducts()
-  }, [propProducts, fetchFromApi])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const displayProducts = products.length > 0 ? products : defaultProducts
 

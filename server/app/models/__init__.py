@@ -10,6 +10,10 @@ from app.models.cms import Page, BlogPost, SiteSetting, NewsletterSubscriber, Co
 from app.models.admin import Notification, MediaFile, Message, ProductCollection
 from app.models.review import Review
 from app.models.section_content import SectionContent
+from app.models.press import (
+    PressHero, MediaCoverage, PressRelease, Exhibition,
+    SpeakingEngagement, Collaboration, MediaKitItem, MediaKitConfig, PressContact
+)
 
 __all__ = [
     "User",
@@ -34,5 +38,15 @@ __all__ = [
     "Message",
     "ProductCollection",
     "Review",
-    "SectionContent"
+    "SectionContent",
+    "PressHero",
+    "MediaCoverage",
+    "PressRelease",
+    "Exhibition",
+    "SpeakingEngagement",
+    "Collaboration",
+    "MediaKitItem",
+    "MediaKitConfig",
+    "PressContact"
 ]
+

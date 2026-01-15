@@ -31,6 +31,7 @@ import AdminCollectionsPage from './pages/admin/CollectionsPage'
 import MessagingPage from './pages/admin/MessagingPage'
 import SectionEditorPage from './pages/admin/SectionEditorPage'
 import ReviewsPage from './pages/admin/ReviewsPage'
+import PressManagementPage from './pages/admin/PressManagementPage'
 
 function App() {
   return (
@@ -71,6 +72,7 @@ function App() {
         <Route path="collections" element={<AdminCollectionsPage />} />
         <Route path="sections" element={<SectionEditorPage />} />
         <Route path="reviews" element={<ReviewsPage />} />
+        <Route path="press" element={<PressManagementPage />} />
         <Route path="customers" element={<CustomersPage />} />
         <Route path="customers/:customerId" element={<CustomerDetailPage />} />
         <Route path="inquiries" element={<InquiriesPage />} />

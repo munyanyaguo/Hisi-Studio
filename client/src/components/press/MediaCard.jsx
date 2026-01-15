@@ -7,14 +7,6 @@ const MediaCard = ({ article, featured = false }) => {
             className={`group bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 ${featured ? 'border-2 border-hisi-primary' : ''
                 }`}
         >
-            {/* Featured Badge - Boxy */}
-            {featured && (
-                <div className="absolute top-4 right-4 z-10">
-                    <span className="bg-hisi-accent text-white text-xs font-bold px-3 py-1 shadow-lg">
-                        Featured
-                    </span>
-                </div>
-            )}
 
             {/* Image */}
             <div className="aspect-[16/10] overflow-hidden relative">
@@ -55,17 +47,23 @@ const MediaCard = ({ article, featured = false }) => {
                     {article.description}
                 </p>
 
-                {/* Link */}
-                {article.link && article.link !== '#' && (
+                {/* Link - Always show */}
+                {article.link && article.link !== '#' ? (
                     <a
                         href={article.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 text-hisi-primary font-semibold hover:text-hisi-accent transition-colors duration-300"
+                        onClick={(e) => e.stopPropagation()}
                     >
                         <span>Read Article</span>
                         <ExternalLink className="w-4 h-4" />
                     </a>
+                ) : (
+                    <span className="inline-flex items-center gap-2 text-hisi-primary font-semibold">
+                        <span>View Details</span>
+                        <ExternalLink className="w-4 h-4" />
+                    </span>
                 )}
             </div>
         </div>
