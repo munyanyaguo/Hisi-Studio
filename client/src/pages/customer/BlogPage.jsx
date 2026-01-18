@@ -181,9 +181,13 @@ const BlogPage = () => {
                                     key={category.id}
                                     onClick={() => setSelectedCategory(category.slug)}
                                     className={`px-6 py-2 font-semibold transition-all duration-300 ${selectedCategory === category.slug
-                                        ? 'bg-hisi-primary text-white shadow-lg'
+                                        ? 'bg-black text-white shadow-lg'
                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
+                                    style={selectedCategory === category.slug
+                                        ? { backgroundColor: '#000000', color: '#ffffff' }
+                                        : { backgroundColor: '#f3f4f6', color: '#374151' }
+                                    }
                                 >
                                     {category.name}
                                 </button>
