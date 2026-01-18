@@ -7,7 +7,7 @@ from app import create_app
 from app.extensions import db
 from app.models import (
     User, Product, Category,
-    Page, BlogPost, SiteSetting,
+    Page, BlogPost, BlogCategory, SiteSetting,
     FAQ, Testimonial,
     PressHero, MediaCoverage, PressRelease, Exhibition,
     SpeakingEngagement, Collaboration, MediaKitItem, MediaKitConfig, PressContact
@@ -347,48 +347,275 @@ def create_cms_pages():
 
 
 
+def create_blog_categories():
+    """Create blog categories"""
+    print("Creating blog categories...")
+
+    categories_data = [
+        {
+            'name': 'Adaptive Fashion',
+            'slug': 'adaptive-fashion',
+            'description': 'Articles about adaptive fashion trends, designs, and innovations'
+        },
+        {
+            'name': 'Culture & Heritage',
+            'slug': 'culture',
+            'description': 'Exploring African heritage and culture through fashion'
+        },
+        {
+            'name': 'Disability Rights',
+            'slug': 'disability-rights',
+            'description': 'Advocacy, rights, and inclusion for people with disabilities'
+        },
+        {
+            'name': 'Sustainability',
+            'slug': 'sustainability',
+            'description': 'Sustainable fashion practices and eco-friendly design'
+        }
+    ]
+
+    for cat_data in categories_data:
+        category = BlogCategory.query.filter_by(slug=cat_data['slug']).first()
+        if category:
+            print(f"  ⚠ Category '{cat_data['name']}' already exists")
+            continue
+
+        category = BlogCategory(
+            id=str(uuid.uuid4()),
+            name=cat_data['name'],
+            slug=cat_data['slug'],
+            description=cat_data['description'],
+            is_active=True
+        )
+        db.session.add(category)
+        print(f"  ✓ Created category: {category.name}")
+
+    db.session.commit()
+
+
 def create_blog_posts(admin):
     """Create sample blog posts"""
     print("Creating blog posts...")
 
     posts_data = [
         {
-            'title': 'The Future of Adaptive Fashion',
-            'slug': 'future-of-adaptive-fashion',
-            'excerpt': 'Exploring how technology and design are revolutionizing accessible clothing.',
+            'title': 'The Future of Adaptive Fashion in Africa',
+            'slug': 'future-of-adaptive-fashion-africa',
+            'excerpt': 'Exploring how adaptive fashion is transforming lives across the continent and creating new opportunities for inclusion.',
             'content': '''
-                <p>Adaptive fashion is transforming the way we think about clothing design.
-                With innovations like magnetic closures, adjustable fits, and sensory-friendly fabrics,
-                fashion is becoming more inclusive than ever before.</p>
+                <p>Adaptive fashion is transforming the way we think about clothing design across Africa. With innovations like magnetic closures, adjustable fits, and sensory-friendly fabrics, fashion is becoming more inclusive than ever before.</p>
 
-                <h2>Key Trends</h2>
+                <h2>The Rise of Adaptive Design</h2>
+                <p>For too long, people with disabilities have been overlooked by the fashion industry. But a new wave of designers and brands are changing that narrative, creating beautiful, functional clothing that addresses real accessibility needs.</p>
+
+                <h2>Key Innovations</h2>
                 <ul>
-                    <li>Smart fabrics with adaptive properties</li>
-                    <li>Universal design principles in mainstream fashion</li>
-                    <li>Technology-enabled customization</li>
+                    <li><strong>Magnetic closures:</strong> Easy to fasten one-handed or with limited dexterity</li>
+                    <li><strong>Adjustable fits:</strong> Accommodating different body shapes and mobility aids</li>
+                    <li><strong>Seated-wear design:</strong> Optimized for wheelchair users</li>
+                    <li><strong>Sensory-friendly fabrics:</strong> Comfortable for those with sensory sensitivities</li>
                 </ul>
+
+                <h2>Looking Ahead</h2>
+                <p>As awareness grows and technology advances, we expect to see even more innovations in adaptive fashion. The future is inclusive, and we're proud to be part of this movement.</p>
             ''',
-            'meta_title': 'The Future of Adaptive Fashion - Hisi Studio Blog',
-            'meta_description': 'Discover the latest trends and innovations in adaptive fashion design.'
+            'category': 'adaptive-fashion',
+            'is_featured': True,
+            'read_time': '5 min read',
+            'featured_image': '/images/blog/adaptive-fashion-future.jpg'
         },
         {
-            'title': '5 Tips for Choosing Adaptive Clothing',
-            'slug': 'choosing-adaptive-clothing',
-            'excerpt': 'A practical guide to selecting the right adaptive garments for your needs.',
+            'title': 'TactART: Bridging the Gap Between Visual and Tactile Art',
+            'slug': 'tactart-bridging-visual-tactile-art',
+            'excerpt': 'How our TactART initiative is making visual art accessible to blind communities through innovative tactile experiences.',
             'content': '''
-                <p>Choosing the right adaptive clothing can make a significant difference in daily comfort and independence.</p>
+                <p>Art has always been considered a visual medium, but what if we could experience it through touch? Our TactART initiative is breaking down barriers and making art accessible to the blind and visually impaired community.</p>
 
-                <h2>Our Top 5 Tips</h2>
-                <ol>
-                    <li><strong>Consider the closure type:</strong> Magnetic, velcro, or snap closures?</li>
-                    <li><strong>Check the fabric:</strong> Look for stretch and easy-care materials</li>
-                    <li><strong>Think about access points:</strong> Side zippers, open backs, etc.</li>
-                    <li><strong>Prioritize comfort:</strong> Tag-free, soft seams, non-irritating</li>
-                    <li><strong>Don't sacrifice style:</strong> Adaptive can be fashionable!</li>
-                </ol>
+                <h2>What is TactART?</h2>
+                <p>TactART transforms two-dimensional artwork into tactile experiences. Using specialized techniques, we create raised versions of paintings and photographs that can be explored through touch.</p>
+
+                <h2>The Impact</h2>
+                <p>Since launching TactART, we've brought art to hundreds of visually impaired individuals who never thought they could experience paintings and visual art. The emotional response has been overwhelming.</p>
+
+                <blockquote>"For the first time in my life, I could 'see' the Mona Lisa. It was a moment I'll never forget." - Sarah, TactART participant</blockquote>
+
+                <h2>Community Partnerships</h2>
+                <p>We partner with schools, museums, and community centers to bring TactART experiences to those who need them most. If you'd like to host a TactART session, get in touch with our team.</p>
             ''',
-            'meta_title': '5 Tips for Choosing Adaptive Clothing - Hisi Studio',
-            'meta_description': 'Learn how to choose the perfect adaptive clothing with our expert tips.'
+            'category': 'culture',
+            'is_featured': True,
+            'read_time': '7 min read',
+            'featured_image': '/images/blog/tactart-initiative.jpg'
+        },
+        {
+            'title': 'Disability Rights and Fashion: Breaking Down Barriers',
+            'slug': 'disability-rights-fashion-barriers',
+            'excerpt': 'Why the fashion industry must prioritize accessibility and how we\'re leading the charge for inclusive design.',
+            'content': '''
+                <p>The fashion industry has historically excluded people with disabilities. From runway shows to retail stores, accessibility has been an afterthought. It's time to change that.</p>
+
+                <h2>The Problem</h2>
+                <p>According to the World Health Organization, over 1 billion people live with some form of disability. That's 15% of the global population being underserved by mainstream fashion.</p>
+
+                <h2>Our Commitment</h2>
+                <p>At Hisi Studio, accessibility isn't an add-on—it's baked into everything we do. From design to delivery, we ensure our products are accessible to all.</p>
+
+                <h2>What You Can Do</h2>
+                <ul>
+                    <li>Support brands that prioritize accessibility</li>
+                    <li>Advocate for inclusive design in your community</li>
+                    <li>Amplify the voices of disabled fashion advocates</li>
+                </ul>
+            ''',
+            'category': 'disability-rights',
+            'is_featured': False,
+            'read_time': '6 min read',
+            'featured_image': '/images/blog/disability-rights.jpg'
+        },
+        {
+            'title': 'Sustainable Fashion: Our Commitment to the Planet',
+            'slug': 'sustainable-fashion-commitment',
+            'excerpt': 'From eco-friendly materials to ethical production, discover how we\'re building a sustainable fashion ecosystem.',
+            'content': '''
+                <p>Fashion is one of the most polluting industries in the world. At Hisi Studio, we believe that inclusive fashion must also be sustainable fashion.</p>
+
+                <h2>Our Sustainability Pillars</h2>
+                <ul>
+                    <li><strong>Eco-friendly materials:</strong> We use organic cotton, recycled fabrics, and natural dyes</li>
+                    <li><strong>Ethical production:</strong> Fair wages and safe working conditions for all artisans</li>
+                    <li><strong>Minimal waste:</strong> Made-to-order production reduces overstock</li>
+                    <li><strong>Local sourcing:</strong> Supporting African suppliers and reducing carbon footprint</li>
+                </ul>
+
+                <h2>The Bigger Picture</h2>
+                <p>Sustainability isn't just about the environment—it's about building systems that benefit everyone, including the communities where our products are made.</p>
+            ''',
+            'category': 'sustainability',
+            'is_featured': False,
+            'read_time': '5 min read',
+            'featured_image': '/images/blog/sustainable-fashion.jpg'
+        },
+        {
+            'title': 'African Heritage in Modern Adaptive Design',
+            'slug': 'african-heritage-adaptive-design',
+            'excerpt': 'Celebrating African patterns, textiles, and craftsmanship in our contemporary adaptive fashion collections.',
+            'content': '''
+                <p>Africa has a rich textile heritage spanning thousands of years. From Kente cloth to Ankara prints, our continent's patterns tell stories of culture, identity, and resilience.</p>
+
+                <h2>Honoring Tradition</h2>
+                <p>At Hisi Studio, we incorporate traditional African textiles into our adaptive designs, creating pieces that are both culturally meaningful and functionally accessible.</p>
+
+                <h2>Working with Artisans</h2>
+                <p>We partner with local artisans who have inherited generations of textile knowledge. Their expertise helps us create truly unique pieces that honor African heritage.</p>
+
+                <h2>Featured Techniques</h2>
+                <ul>
+                    <li><strong>Batik:</strong> Traditional wax-resist dyeing</li>
+                    <li><strong>Kitenge patterns:</strong> Bold, colorful East African prints</li>
+                    <li><strong>Hand-woven Kente:</strong> Ghanaian strip-woven fabric</li>
+                </ul>
+            ''',
+            'category': 'culture',
+            'is_featured': False,
+            'read_time': '4 min read',
+            'featured_image': '/images/blog/african-heritage.jpg'
+        },
+        {
+            'title': 'Designing for Wheelchair Users: Key Considerations',
+            'slug': 'designing-wheelchair-users',
+            'excerpt': 'Learn about the specific design features that make clothing comfortable and functional for wheelchair users.',
+            'content': '''
+                <p>Designing for wheelchair users requires understanding the unique challenges of seated wear. Traditional clothing often bunches, rides up, or restricts movement when seated for extended periods.</p>
+
+                <h2>Key Design Features</h2>
+                <ul>
+                    <li><strong>Shorter front rise:</strong> Prevents fabric from bunching at the waist</li>
+                    <li><strong>Longer back length:</strong> Provides coverage when seated</li>
+                    <li><strong>Side openings:</strong> Makes dressing easier</li>
+                    <li><strong>Reinforced seams:</strong> Withstands wear in high-friction areas</li>
+                </ul>
+
+                <h2>Input from the Community</h2>
+                <p>Every design decision we make is informed by feedback from wheelchair users. Their insights are invaluable in creating truly functional clothing.</p>
+            ''',
+            'category': 'adaptive-fashion',
+            'is_featured': False,
+            'read_time': '6 min read',
+            'featured_image': '/images/blog/wheelchair-design.jpg'
+        },
+        {
+            'title': 'Sensory-Friendly Fashion: Beyond the Basics',
+            'slug': 'sensory-friendly-fashion-basics',
+            'excerpt': 'Understanding sensory sensitivities and how thoughtful design can make fashion accessible to everyone.',
+            'content': '''
+                <p>For individuals with sensory processing differences, clothing can be a constant source of discomfort. Tags, seams, and certain fabrics can feel overwhelming or even painful.</p>
+
+                <h2>What Makes Clothing Sensory-Friendly?</h2>
+                <ul>
+                    <li><strong>Tag-free labels:</strong> Printed labels instead of sewn tags</li>
+                    <li><strong>Flat seams:</strong> No raised ridges against the skin</li>
+                    <li><strong>Soft fabrics:</strong> Bamboo, modal, and organic cotton</li>
+                    <li><strong>Consistent texture:</strong> No unexpected rough patches</li>
+                </ul>
+
+                <h2>Who Benefits?</h2>
+                <p>While sensory-friendly clothing is essential for many autistic individuals and those with sensory processing disorder, these features benefit everyone who values comfort.</p>
+            ''',
+            'category': 'adaptive-fashion',
+            'is_featured': False,
+            'read_time': '5 min read',
+            'featured_image': '/images/blog/sensory-friendly.jpg'
+        },
+        {
+            'title': 'Community Empowerment Through Fashion',
+            'slug': 'community-empowerment-fashion',
+            'excerpt': 'How our partnerships with local artisans and disability organizations are creating meaningful impact.',
+            'content': '''
+                <p>Fashion can be a powerful tool for community empowerment. At Hisi Studio, we believe in creating opportunities that uplift entire communities.</p>
+
+                <h2>Our Partnership Model</h2>
+                <ul>
+                    <li><strong>Local artisans:</strong> We employ skilled craftspeople from underserved communities</li>
+                    <li><strong>Disability organizations:</strong> We collaborate with disability advocacy groups</li>
+                    <li><strong>Training programs:</strong> We provide skills training to people with disabilities</li>
+                </ul>
+
+                <h2>Impact Stories</h2>
+                <p>Meet Mary, a talented seamstress who learned adaptive clothing construction through our training program. Today, she runs her own small business creating adaptive clothing for her community.</p>
+
+                <h2>Join Our Mission</h2>
+                <p>Whether as a customer, partner, or volunteer, you can be part of creating meaningful change through fashion.</p>
+            ''',
+            'category': 'sustainability',
+            'is_featured': False,
+            'read_time': '7 min read',
+            'featured_image': '/images/blog/community-empowerment.jpg'
+        },
+        {
+            'title': 'The Importance of Braille in Fashion',
+            'slug': 'importance-braille-fashion',
+            'excerpt': 'Why integrating Braille into fashion products is more than just accessibility—it\'s about dignity and independence.',
+            'content': '''
+                <p>For blind and visually impaired individuals, identifying clothing can be a daily challenge. What color is this shirt? Which trousers are the formal ones? Braille integration offers a solution.</p>
+
+                <h2>Braille in Our Products</h2>
+                <p>We incorporate Braille labels into our clothing, providing information about:</p>
+                <ul>
+                    <li>Color description</li>
+                    <li>Care instructions</li>
+                    <li>Size and fit information</li>
+                </ul>
+
+                <h2>Beyond Labels</h2>
+                <p>We're also exploring tactile elements in design—raised patterns and textures that help identify different garments without needing to see them.</p>
+
+                <h2>Independence and Dignity</h2>
+                <p>Being able to dress independently is about more than convenience—it's about dignity and self-determination. That's why Braille integration matters.</p>
+            ''',
+            'category': 'disability-rights',
+            'is_featured': False,
+            'read_time': '4 min read',
+            'featured_image': '/images/blog/braille-fashion.jpg'
         }
     ]
 
@@ -406,10 +633,14 @@ def create_blog_posts(admin):
             excerpt=post_data['excerpt'],
             content=post_data['content'],
             author_id=admin.id,
-            featured_image=f'https://placeholder.com/1200x630/{post_data["slug"]}.jpg',
-            meta_title=post_data['meta_title'],
-            meta_description=post_data['meta_description'],
-            is_published=True
+            category=post_data['category'],
+            is_featured=post_data['is_featured'],
+            read_time=post_data['read_time'],
+            featured_image=post_data['featured_image'],
+            meta_title=f"{post_data['title']} - Hisi Studio Blog",
+            meta_description=post_data['excerpt'],
+            is_published=True,
+            published_at=datetime.utcnow()
         )
         db.session.add(post)
         print(f"  ✓ Created blog post: {post.title}")
@@ -1106,6 +1337,7 @@ def main():
 
         # Create CMS content
         create_cms_pages()
+        create_blog_categories()
         create_blog_posts(admin)
         create_site_settings()
 

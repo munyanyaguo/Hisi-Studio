@@ -10,11 +10,77 @@
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.editor-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
 }
 
 .editor-actions {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.btn-danger {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #fee2e2;
+    color: #dc2626;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.btn-danger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    color: #6b7280;
+}
+
+.loading-state .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .editor-content {
@@ -53,6 +119,28 @@
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.slug-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: monospace;
+    transition: all 0.2s;
+}
+
+.slug-input.readonly {
+    background: #f9fafb;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.slug-hint {
+    font-weight: 400;
+    color: #9ca3af;
+    font-size: 0.75rem;
+}
+
 .excerpt-input,
 .image-input,
 .tags-input {
@@ -79,25 +167,155 @@
 }
 
 .image-input {
-    flex: 1;
-}
-
-.quill-editor {
-    background: white;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
+    font-family: inherit;
+    transition: all 0.2s;
 }
 
-.quill-editor .ql-container {
-    min-height: 400px;
-    font-size: 1rem;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
+.image-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.quill-editor .ql-toolbar {
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+/* Image Upload Zone */
+.image-upload-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
     background: #f9fafb;
+    margin-bottom: 1rem;
+}
+
+.image-upload-zone:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.image-upload-zone.dragging {
+    border-color: #667eea;
+    background: #e8ecff;
+    transform: scale(1.01);
+}
+
+.image-upload-zone.uploading {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.image-upload-zone svg {
+    color: #9ca3af;
+    margin-bottom: 0.5rem;
+}
+
+.upload-text {
+    color: #374151;
+    margin: 0.5rem 0;
+    font-size: 0.9375rem;
+}
+
+.upload-hint {
+    color: #9ca3af;
+    font-size: 0.8125rem;
+    margin: 0;
+}
+
+.upload-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Image Preview */
+.image-preview {
+    position: relative;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    max-width: 400px;
+}
+
+.image-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.remove-image-btn:hover {
+    background: rgba(220, 38, 38, 0.8);
+}
+
+/* URL Input Section */
+.image-url-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.or-divider {
+    font-size: 0.8125rem;
+    color: #9ca3af;
+    text-align: center;
+}
+
+.content-textarea {
+    width: 100%;
+    padding: 1rem;
+    font-size: 0.9375rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    transition: all 0.2s;
+    resize: vertical;
+    min-height: 300px;
+    line-height: 1.6;
+}
+
+.content-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .form-row {
@@ -106,7 +324,8 @@
     gap: 1.5rem;
 }
 
-.status-select {
+.status-select,
+.category-select {
     width: 100%;
     padding: 0.75rem 1rem;
     font-size: 0.9375rem;
@@ -116,10 +335,50 @@
     cursor: pointer;
 }
 
-.status-select:focus {
+.status-select:focus,
+.category-select:focus {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.slug-input,
+.read-time-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.slug-input:focus,
+.read-time-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-label {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: #374151;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    accent-color: #667eea;
 }
 
 /* Preview Styles */

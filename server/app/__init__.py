@@ -26,9 +26,13 @@ def create_app(config_name='development'):
     app = Flask(__name__)
     
     # Load configuration
+    # Load configuration
     if config_name == 'development':
         from app.config.development import DevelopmentConfig
         app.config.from_object(DevelopmentConfig)
+    elif config_name == 'production':
+        from app.config.production import ProductionConfig
+        app.config.from_object(ProductionConfig)
     
     # Initialize extensions
     from app.extensions import init_extensions
@@ -39,7 +43,7 @@ def create_app(config_name='development'):
         from app.models import (
             User, Product, Category, Order, OrderItem,
             Cart, CartItem, UserAddress, Payment,
-            Page, BlogPost, SiteSetting, NewsletterSubscriber, ContactMessage,
+            Page, BlogPost, BlogCategory, SiteSetting, NewsletterSubscriber, ContactMessage,
             Consultation, FAQ, Testimonial,
             Notification, MediaFile, Message, ProductCollection,
             Review, SectionContent,
@@ -95,5 +99,14 @@ def create_app(config_name='development'):
                 'api': '/api/v1'
             }
         }, 200
+    
+    # Serve uploaded files
+    @app.route('/uploads/<path:filename>')
+    def serve_upload(filename):
+        """Serve uploaded files"""
+        import os
+        from flask import send_from_directory
+        uploads_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'uploads')
+        return send_from_directory(uploads_dir, filename)
     
     return app

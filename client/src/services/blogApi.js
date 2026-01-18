@@ -33,14 +33,18 @@ export const getBlogPosts = async (options = {}) => {
 
     const data = await response.json();
 
+    // API returns { data: { items: [...], pagination: {...} } }
+    const items = data.data?.items || data.data || data.items || [];
+    const pagination = data.data?.pagination || data.pagination || {};
+
     // Transform to consistent structure
     return {
         data: {
-            posts: data.data || data.items || [],
-            total: data.pagination?.total || data.total || 0,
-            page: data.pagination?.page || page,
-            per_page: data.pagination?.per_page || perPage,
-            total_pages: data.pagination?.pages || Math.ceil((data.pagination?.total || 0) / perPage)
+            posts: Array.isArray(items) ? items : [],
+            total: pagination.total || items.length || 0,
+            page: pagination.page || page,
+            per_page: pagination.per_page || perPage,
+            total_pages: pagination.pages || Math.ceil((pagination.total || items.length || 0) / perPage)
         }
     };
 };

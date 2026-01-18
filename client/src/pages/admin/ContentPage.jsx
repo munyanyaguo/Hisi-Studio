@@ -1,23 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Eye, FileText } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, FileText, Filter, Star } from 'lucide-react';
 import './ContentPage.css';
 
 const ContentPage = () => {
     const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [statusFilter, setStatusFilter] = useState('all'); // all, published, draft
 
     useEffect(() => {
         fetchPosts();
-    }, []);
+    }, [statusFilter]);
 
     const fetchPosts = async () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token');
+
+            // Build query params
+            const params = new URLSearchParams();
+            if (statusFilter !== 'all') {
+                params.append('status', statusFilter);
+            }
+
             const response = await fetch(
-                `${import.meta.env.VITE_API_URL}/api/v1/blog`,
+                `${import.meta.env.VITE_API_URL}/api/v1/admin/blog?${params}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -27,8 +35,8 @@ const ContentPage = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                // Handle paginated response structure: { data: { items: [...], pagination: {...} } }
-                const items = data.data?.items || data.items || data.data || [];
+                // Handle response structure
+                const items = data.data?.posts || data.data?.items || data.items || data.data || [];
                 // Ensure we always have an array
                 setPosts(Array.isArray(items) ? items : []);
             } else {
@@ -73,6 +81,11 @@ const ContentPage = () => {
         }
     };
 
+    const formatCategory = (category) => {
+        if (!category) return '';
+        return category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
+
     return (
         <div className="content-page">
             <div className="page-header">
@@ -89,6 +102,23 @@ const ContentPage = () => {
                 </button>
             </div>
 
+            {/* Filter Section */}
+            <div className="filter-section">
+                <div className="filter-group">
+                    <Filter size={18} />
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="status-filter"
+                    >
+                        <option value="all">All Posts</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Drafts</option>
+                    </select>
+                </div>
+                <span className="post-count">{posts.length} post{posts.length !== 1 ? 's' : ''}</span>
+            </div>
+
             {loading ? (
                 <div className="loading-state">
                     <div className="spinner"></div>
@@ -97,12 +127,14 @@ const ContentPage = () => {
             ) : posts.length === 0 ? (
                 <div className="empty-state">
                     <FileText size={64} className="empty-icon" />
-                    <h3>No blog posts yet</h3>
-                    <p>Create your first blog post to get started</p>
-                    <button className="btn-primary" onClick={() => navigate('/admin/content/new')}>
-                        <Plus size={18} />
-                        Create Post
-                    </button>
+                    <h3>No blog posts {statusFilter !== 'all' ? `with status "${statusFilter}"` : 'yet'}</h3>
+                    <p>{statusFilter !== 'all' ? 'Try changing the filter' : 'Create your first blog post to get started'}</p>
+                    {statusFilter === 'all' && (
+                        <button className="btn-primary" onClick={() => navigate('/admin/content/new')}>
+                            <Plus size={18} />
+                            Create Post
+                        </button>
+                    )}
                 </div>
             ) : (
                 <div className="posts-grid">
@@ -110,7 +142,16 @@ const ContentPage = () => {
                         <div key={post.id} className="post-card">
                             {post.featured_image && (
                                 <div className="post-image">
-                                    <img src={post.featured_image} alt={post.title} />
+                                    <img
+                                        src={post.featured_image}
+                                        alt={post.title}
+                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                    />
+                                    {post.is_featured && (
+                                        <span className="featured-badge">
+                                            <Star size={12} /> Featured
+                                        </span>
+                                    )}
                                 </div>
                             )}
                             <div className="post-content">
@@ -118,6 +159,9 @@ const ContentPage = () => {
                                 <p className="post-excerpt">{post.excerpt || 'No excerpt available'}</p>
                                 <div className="post-meta">
                                     <span className="post-date">{formatDate(post.created_at)}</span>
+                                    {post.category && (
+                                        <span className="post-category">{formatCategory(post.category)}</span>
+                                    )}
                                     <span className={`post-status ${post.is_published ? 'published' : 'draft'}`}>
                                         {post.is_published ? 'Published' : 'Draft'}
                                     </span>

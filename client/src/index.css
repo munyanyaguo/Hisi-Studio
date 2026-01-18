@@ -136,3 +136,15 @@ code {
 .scroll-animate.visible {
   opacity: 1;
 }
+
+/* Newsletter Input Placeholder */
+.newsletter-input::placeholder {
+  color: #6b7280;
+  opacity: 1;
+  font-weight: 500;
+}
+
+input[type="email"]::placeholder {
+  color: #6b7280;
+  opacity: 1;
+}

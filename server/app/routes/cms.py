@@ -3,11 +3,12 @@
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
-from app.models import Page, BlogPost, SiteSetting, User
+from app.models import Page, BlogPost, BlogCategory, SiteSetting, User
 from app.utils.responses import (
     success_response, error_response, created_response,
     not_found_response, forbidden_response, paginated_response
 )
+from sqlalchemy import or_
 from datetime import datetime
 
 bp = Blueprint('cms', __name__, url_prefix='/api/v1')
@@ -160,12 +161,35 @@ def admin_delete_page(page_id):
 
 @bp.route('/blog', methods=['GET'])
 def get_blog_posts():
-    """Get all published blog posts (public)"""
+    """Get all published blog posts (public) with optional filtering"""
     try:
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
+        category = request.args.get('category')
+        search = request.args.get('search')
+        featured = request.args.get('featured')
 
-        query = BlogPost.query.filter_by(is_published=True).order_by(BlogPost.published_at.desc())
+        query = BlogPost.query.filter_by(is_published=True)
+
+        # Category filter
+        if category and category != 'all':
+            query = query.filter_by(category=category)
+
+        # Search filter
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter(
+                or_(
+                    BlogPost.title.ilike(search_term),
+                    BlogPost.excerpt.ilike(search_term)
+                )
+            )
+
+        # Featured filter
+        if featured and featured.lower() == 'true':
+            query = query.filter_by(is_featured=True)
+
+        query = query.order_by(BlogPost.published_at.desc())
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
 
         return paginated_response(
@@ -178,11 +202,96 @@ def get_blog_posts():
         return error_response(str(e), status_code=500)
 
 
+@bp.route('/blog/categories', methods=['GET'])
+def get_blog_categories():
+    """Get all active blog categories (public)"""
+    try:
+        categories = BlogCategory.query.filter_by(is_active=True).order_by(BlogCategory.name).all()
+        return success_response(data=[cat.to_dict() for cat in categories])
+    except Exception as e:
+        return error_response(str(e), status_code=500)
+
+
+@bp.route('/blog/featured', methods=['GET'])
+def get_featured_blog_posts():
+    """Get featured blog posts (public)"""
+    try:
+        limit = request.args.get('limit', 3, type=int)
+        posts = BlogPost.query.filter_by(
+            is_published=True, 
+            is_featured=True
+        ).order_by(BlogPost.published_at.desc()).limit(limit).all()
+        
+        return success_response(data=[post.to_dict() for post in posts])
+    except Exception as e:
+        return error_response(str(e), status_code=500)
+
+
 @bp.route('/blog/<slug>', methods=['GET'])
 def get_blog_post(slug):
     """Get blog post by slug (public)"""
     try:
         post = BlogPost.query.filter_by(slug=slug, is_published=True).first()
+        if not post:
+            return not_found_response("Blog post not found")
+        return success_response(data=post.to_dict(include_content=True))
+    except Exception as e:
+        return error_response(str(e), status_code=500)
+
+
+# ========== ADMIN BLOG ==========
+
+@bp.route('/admin/blog', methods=['GET'])
+@jwt_required()
+def admin_get_blog_posts():
+    """Get all blog posts including drafts (admin)"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user.is_admin():
+            return forbidden_response("Admin access required")
+
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 20, type=int)
+        category = request.args.get('category')
+        status = request.args.get('status')  # 'published', 'draft', or 'all'
+
+        query = BlogPost.query
+
+        if category and category != 'all':
+            query = query.filter_by(category=category)
+
+        # Filter by status
+        if status == 'published':
+            query = query.filter_by(is_published=True)
+        elif status == 'draft':
+            query = query.filter_by(is_published=False)
+        # 'all' or no status returns all posts
+
+        query = query.order_by(BlogPost.created_at.desc())
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        return paginated_response(
+            items=[post.to_dict() for post in pagination.items],
+            page=page,
+            per_page=per_page,
+            total=pagination.total
+        )
+    except Exception as e:
+        return error_response(str(e), status_code=500)
+
+
+@bp.route('/admin/blog/<post_id>', methods=['GET'])
+@jwt_required()
+def admin_get_blog_post(post_id):
+    """Get single blog post by ID (admin)"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user.is_admin():
+            return forbidden_response("Admin access required")
+
+        post = BlogPost.query.get(post_id)
         if not post:
             return not_found_response("Blog post not found")
         return success_response(data=post.to_dict(include_content=True))
@@ -214,6 +323,9 @@ def admin_create_blog_post():
             excerpt=data.get('excerpt'),
             content=data.get('content'),
             author_id=user_id,
+            category=data.get('category'),
+            is_featured=data.get('is_featured', False),
+            read_time=data.get('read_time'),
             featured_image=data.get('featured_image'),
             meta_title=data.get('meta_title'),
             meta_description=data.get('meta_description'),
@@ -248,9 +360,10 @@ def admin_update_blog_post(post_id):
 
         data = request.get_json()
 
-        # Update fields
+        # Update fields - now including new fields
         updatable_fields = ['title', 'slug', 'excerpt', 'content', 'featured_image',
-                           'meta_title', 'meta_description', 'is_published']
+                           'meta_title', 'meta_description', 'is_published',
+                           'category', 'is_featured', 'read_time']
 
         for field in updatable_fields:
             if field in data:
@@ -285,6 +398,114 @@ def admin_delete_blog_post(post_id):
         db.session.commit()
 
         return success_response(message="Blog post deleted")
+    except Exception as e:
+        db.session.rollback()
+        return error_response(str(e), status_code=500)
+
+
+# ========== ADMIN BLOG CATEGORIES ==========
+
+@bp.route('/admin/categories', methods=['GET'])
+@jwt_required()
+def admin_get_categories():
+    """Get all blog categories (admin)"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user.is_admin():
+            return forbidden_response("Admin access required")
+
+        categories = BlogCategory.query.order_by(BlogCategory.created_at.desc()).all()
+        return success_response(data=[cat.to_dict() for cat in categories])
+    except Exception as e:
+        return error_response(str(e), status_code=500)
+
+
+@bp.route('/admin/categories', methods=['POST'])
+@jwt_required()
+def admin_create_category():
+    """Create blog category (admin)"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user.is_admin():
+            return forbidden_response("Admin access required")
+
+        data = request.get_json()
+
+        if not data.get('name') or not data.get('slug'):
+            return error_response("name and slug are required", status_code=400)
+
+        if BlogCategory.query.filter_by(slug=data['slug']).first():
+            return error_response("Category slug already exists", status_code=409)
+
+        category = BlogCategory(
+            name=data['name'],
+            slug=data['slug'],
+            description=data.get('description'),
+            is_active=data.get('is_active', True)
+        )
+
+        db.session.add(category)
+        db.session.commit()
+
+        return created_response(data=category.to_dict(), message="Category created")
+    except Exception as e:
+        db.session.rollback()
+        return error_response(str(e), status_code=500)
+
+
+@bp.route('/admin/categories/<category_id>', methods=['PUT'])
+@jwt_required()
+def admin_update_category(category_id):
+    """Update blog category (admin)"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user.is_admin():
+            return forbidden_response("Admin access required")
+
+        category = BlogCategory.query.get(category_id)
+        if not category:
+            return not_found_response("Category not found")
+
+        data = request.get_json()
+
+        if 'name' in data:
+            category.name = data['name']
+        if 'slug' in data:
+            category.slug = data['slug']
+        if 'description' in data:
+            category.description = data['description']
+        if 'is_active' in data:
+            category.is_active = data['is_active']
+
+        db.session.commit()
+
+        return success_response(data=category.to_dict(), message="Category updated")
+    except Exception as e:
+        db.session.rollback()
+        return error_response(str(e), status_code=500)
+
+
+@bp.route('/admin/categories/<category_id>', methods=['DELETE'])
+@jwt_required()
+def admin_delete_category(category_id):
+    """Delete blog category (admin)"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user.is_admin():
+            return forbidden_response("Admin access required")
+
+        category = BlogCategory.query.get(category_id)
+        if not category:
+            return not_found_response("Category not found")
+
+        db.session.delete(category)
+        db.session.commit()
+
+        return success_response(message="Category deleted")
     except Exception as e:
         db.session.rollback()
         return error_response(str(e), status_code=500)

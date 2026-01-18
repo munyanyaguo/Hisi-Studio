@@ -349,6 +349,7 @@ def upload_media():
         import uuid
         import os
         from werkzeug.utils import secure_filename
+        from flask import current_app
         
         if 'file' not in request.files:
             return error_response("No file provided", status_code=400)
@@ -360,13 +361,29 @@ def upload_media():
         user_id = get_jwt_identity()
         
         # Generate unique filename
-        file_ext = os.path.splitext(file.filename)[1]
+        file_ext = os.path.splitext(file.filename)[1].lower()
         unique_filename = f"{uuid.uuid4()}{file_ext}"
         
         # Determine file type
         file_type = 'image' if file.content_type.startswith('image/') else 'video'
         
-        # For now, we'll store the file path (in production, upload to cloud storage)
+        # Get the uploads directory path
+        base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        uploads_dir = os.path.join(base_path, 'uploads', f'{file_type}s')
+        
+        # Create directory if it doesn't exist
+        os.makedirs(uploads_dir, exist_ok=True)
+        
+        # Full path for the file
+        full_file_path = os.path.join(uploads_dir, unique_filename)
+        
+        # Save the file to disk
+        file.save(full_file_path)
+        
+        # Get file size after saving
+        file_size = os.path.getsize(full_file_path)
+        
+        # URL path for serving the file
         file_path = f"/uploads/{file_type}s/{unique_filename}"
         url = f"{request.host_url.rstrip('/')}{file_path}"
         
@@ -379,14 +396,9 @@ def upload_media():
             url=url,
             file_type=file_type,
             mime_type=file.content_type,
-            file_size=len(file.read()),
+            file_size=file_size,
             uploaded_by=user_id
         )
-        
-        file.seek(0)  # Reset file pointer after reading size
-        
-        # Save file (in production, upload to S3/cloud storage)
-        # For now, just create the database record
         
         db.session.add(media)
         db.session.commit()

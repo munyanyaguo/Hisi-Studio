@@ -69,6 +69,7 @@ function App() {
         <Route path="content" element={<ContentPage />} />
         <Route path="content/new" element={<BlogPostEditor />} />
         <Route path="content/:postId/edit" element={<BlogPostEditor />} />
+        <Route path="content/edit/:postId" element={<BlogPostEditor />} />
         <Route path="collections" element={<AdminCollectionsPage />} />
         <Route path="sections" element={<SectionEditorPage />} />
         <Route path="reviews" element={<ReviewsPage />} />

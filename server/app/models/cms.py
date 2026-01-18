@@ -45,6 +45,37 @@ class Page(db.Model):
         return f"<Page {self.title}>"
 
 
+class BlogCategory(db.Model):
+    """Blog category model for organizing blog posts"""
+    __tablename__ = 'blog_categories'
+    __table_args__ = {'schema': 'hisi'}
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(100), nullable=False)
+    slug = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    description = db.Column(db.Text, nullable=True)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+
+    # Timestamps
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        """Convert category to dictionary"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'slug': self.slug,
+            'description': self.description,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }
+
+    def __repr__(self):
+        return f"<BlogCategory {self.name}>"
+
+
 class BlogPost(db.Model):
     """Blog post model"""
     __tablename__ = 'blog_posts'
@@ -56,6 +87,11 @@ class BlogPost(db.Model):
     excerpt = db.Column(db.Text, nullable=True)
     content = db.Column(db.Text, nullable=True)  # HTML content
     author_id = db.Column(db.String(36), db.ForeignKey('hisi.users.id'), nullable=False)
+
+    # Category and display
+    category = db.Column(db.String(100), nullable=True)  # Category slug
+    is_featured = db.Column(db.Boolean, default=False, nullable=False)
+    read_time = db.Column(db.String(50), nullable=True)  # e.g., "5 min read"
 
     # Images
     featured_image = db.Column(db.String(500), nullable=True)
@@ -82,6 +118,9 @@ class BlogPost(db.Model):
             'title': self.title,
             'slug': self.slug,
             'excerpt': self.excerpt,
+            'category': self.category,
+            'is_featured': self.is_featured,
+            'read_time': self.read_time,
             'author': {
                 'id': self.author.id,
                 'name': f"{self.author.first_name} {self.author.last_name}",

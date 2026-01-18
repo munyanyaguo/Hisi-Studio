@@ -174,10 +174,10 @@ const BlogPostPage = () => {
                     </div>
 
                     {/* Article Content */}
-                    <div className="prose prose-lg max-w-none">
+                    <div className="prose prose-lg max-w-none" style={{ color: '#374151', lineHeight: '1.8' }}>
                         {/* Excerpt */}
                         {post.excerpt && (
-                            <p className="text-xl text-gray-700 leading-relaxed mb-8">
+                            <p className="text-xl text-gray-700 leading-relaxed mb-8" style={{ fontSize: '1.25rem', marginBottom: '2rem' }}>
                                 {post.excerpt}
                             </p>
                         )}
@@ -186,10 +186,15 @@ const BlogPostPage = () => {
                         {post.content ? (
                             <div
                                 className="space-y-6 text-gray-700 leading-relaxed"
+                                style={{
+                                    color: '#374151',
+                                    fontSize: '1.125rem',
+                                    lineHeight: '1.8'
+                                }}
                                 dangerouslySetInnerHTML={{ __html: post.content }}
                             />
                         ) : (
-                            <div className="space-y-6 text-gray-700 leading-relaxed">
+                            <div className="space-y-6 text-gray-700 leading-relaxed" style={{ color: '#374151', fontSize: '1.125rem' }}>
                                 <p>
                                     This is where the full blog post content would appear. In a real implementation,
                                     this would be populated with the actual article content from the CMS.
@@ -202,7 +207,9 @@ const BlogPostPage = () => {
                     {post.author && (
                         <div className="mt-12 pt-8 border-t border-gray-200">
                             <p className="text-gray-600">
-                                Written by <span className="font-semibold text-gray-900">{post.author}</span>
+                                Written by <span className="font-semibold text-gray-900">
+                                    {typeof post.author === 'object' ? post.author.name : post.author}
+                                </span>
                             </p>
                         </div>
                     )}

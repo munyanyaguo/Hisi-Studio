@@ -3,7 +3,7 @@ import Navbar from '../../components/layout/Navbar'
 import Footer from '../../components/layout/Footer'
 import BlogCard from '../../components/blog/BlogCard'
 import { footerLinks, socialLinks } from '../../data/mockData'
-import { getBlogPosts } from '../../services/blogApi'
+import { getBlogPosts, getBlogCategories } from '../../services/blogApi'
 import { subscribe } from '../../services/newsletterApi'
 import { Search, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 
@@ -14,13 +14,6 @@ const fallbackBlogData = {
         title: 'Stories & Insights',
         description: 'Explore the world of adaptive fashion through stories, tips, and inspiration.'
     },
-    blogCategories: [
-        { id: 'all', name: 'All', slug: 'all' },
-        { id: 'fashion', name: 'Fashion', slug: 'fashion' },
-        { id: 'accessibility', name: 'Accessibility', slug: 'accessibility' },
-        { id: 'stories', name: 'Stories', slug: 'stories' },
-        { id: 'tips', name: 'Tips & Guides', slug: 'tips' }
-    ],
     newsletterCTA: {
         title: 'Stay in the Loop',
         description: 'Subscribe to our newsletter for the latest stories and updates.',
@@ -33,6 +26,7 @@ const BlogPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
     const [blogPosts, setBlogPosts] = useState([])
+    const [blogCategories, setBlogCategories] = useState([{ id: 'all', name: 'All', slug: 'all' }])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [newsletterEmail, setNewsletterEmail] = useState('')
@@ -44,6 +38,25 @@ const BlogPage = () => {
         total: 0,
         totalPages: 0
     })
+
+    // Fetch categories on mount
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await getBlogCategories()
+                const categories = data.data || []
+                // Add "All" option at the beginning
+                setBlogCategories([
+                    { id: 'all', name: 'All', slug: 'all' },
+                    ...categories
+                ])
+            } catch (err) {
+                console.error('Failed to fetch categories:', err)
+            }
+        }
+
+        fetchCategories()
+    }, [])
 
     // Fetch blog posts
     useEffect(() => {
@@ -61,11 +74,11 @@ const BlogPage = () => {
                 const posts = data.data?.posts || data.posts || data.data || []
                 setBlogPosts(Array.isArray(posts) ? posts : [])
 
-                if (data.data?.pagination) {
+                if (data.data?.total_pages) {
                     setPagination(prev => ({
                         ...prev,
-                        total: data.data.pagination.total_items || 0,
-                        totalPages: data.data.pagination.total_pages || 0
+                        total: data.data.total || 0,
+                        totalPages: data.data.total_pages || 0
                     }))
                 }
             } catch (err) {
@@ -121,7 +134,7 @@ const BlogPage = () => {
     const featuredPosts = filteredPosts.filter(post => post.featured || post.is_featured)
     const regularPosts = filteredPosts.filter(post => !post.featured && !post.is_featured)
 
-    const { blogHero, blogCategories, newsletterCTA } = fallbackBlogData
+    const { blogHero, newsletterCTA } = fallbackBlogData
 
     return (
         <div className="min-h-screen">
@@ -258,8 +271,8 @@ const BlogPage = () => {
                                             key={page}
                                             onClick={() => setPagination(prev => ({ ...prev, page }))}
                                             className={`px-4 py-2 ${pagination.page === page
-                                                    ? 'bg-hisi-primary text-white'
-                                                    : 'border border-gray-300 hover:bg-gray-100'
+                                                ? 'bg-hisi-primary text-white'
+                                                : 'border border-gray-300 hover:bg-gray-100'
                                                 } transition-colors`}
                                         >
                                             {page}
@@ -280,21 +293,43 @@ const BlogPage = () => {
                 )}
 
                 {/* Newsletter CTA */}
-                <section className="py-20 bg-gradient-to-br from-hisi-primary to-hisi-accent">
+                <section
+                    className="py-20 bg-gradient-to-br from-hisi-primary to-hisi-accent"
+                    style={{
+                        background: 'linear-gradient(135deg, #1a365d 0%, #ed8936 100%)',
+                        padding: '5rem 0'
+                    }}
+                >
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                        <h2
+                            className="text-4xl md:text-5xl font-bold text-white mb-6"
+                            style={{ color: 'white', fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}
+                        >
                             {newsletterCTA.title}
                         </h2>
-                        <p className="text-xl text-white/90 mb-10">
+                        <p
+                            className="text-xl text-white/90 mb-10"
+                            style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.25rem', marginBottom: '2.5rem' }}
+                        >
                             {newsletterCTA.description}
                         </p>
-                        <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
+                        <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto" style={{ gap: '1rem' }}>
                             <input
                                 type="email"
                                 value={newsletterEmail}
                                 onChange={(e) => setNewsletterEmail(e.target.value)}
                                 placeholder={newsletterCTA.placeholder}
                                 className="flex-1 px-6 py-4 focus:outline-none focus:ring-2 focus:ring-white text-gray-900"
+                                style={{
+                                    flex: 1,
+                                    padding: '1rem 1.5rem',
+                                    fontSize: '1rem',
+                                    border: '2px solid #e5e7eb',
+                                    borderRadius: '0',
+                                    color: '#1a202c',
+                                    backgroundColor: 'white',
+                                    outline: 'none'
+                                }}
                                 disabled={newsletterStatus === 'loading'}
                                 required
                             />
@@ -302,6 +337,14 @@ const BlogPage = () => {
                                 type="submit"
                                 disabled={newsletterStatus === 'loading'}
                                 className="px-8 py-4 bg-white text-hisi-primary font-semibold hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl disabled:opacity-50"
+                                style={{
+                                    padding: '1rem 2rem',
+                                    backgroundColor: 'white',
+                                    color: '#1a365d',
+                                    fontWeight: '600',
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                }}
                             >
                                 {newsletterStatus === 'loading' ? 'Subscribing...' : newsletterCTA.buttonText}
                             </button>
@@ -309,13 +352,13 @@ const BlogPage = () => {
 
                         {/* Newsletter Status Messages */}
                         {newsletterStatus === 'success' && (
-                            <div className="flex items-center justify-center gap-2 mt-4 text-white">
+                            <div className="flex items-center justify-center gap-2 mt-4 text-white" style={{ color: 'white', marginTop: '1rem' }}>
                                 <CheckCircle className="w-5 h-5" />
                                 <span>{newsletterMessage}</span>
                             </div>
                         )}
                         {newsletterStatus === 'error' && (
-                            <div className="flex items-center justify-center gap-2 mt-4 text-red-200">
+                            <div className="flex items-center justify-center gap-2 mt-4 text-red-200" style={{ color: '#feb2b2', marginTop: '1rem' }}>
                                 <AlertCircle className="w-5 h-5" />
                                 <span>{newsletterMessage}</span>
                             </div>
