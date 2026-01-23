@@ -154,7 +154,7 @@ def upgrade():
     sa.UniqueConstraint('page_name', 'section_name', 'content_key', name='unique_section_content'),
     schema='hisi'
     )
-    with op.batch_alter_table('section_content', schema=None) as batch_op:
+    with op.batch_alter_table('section_content', schema='hisi') as batch_op:
         batch_op.create_index(batch_op.f('ix_hisi_section_content_page_name'), ['page_name'], unique=False)
         batch_op.create_index(batch_op.f('ix_hisi_section_content_section_name'), ['section_name'], unique=False)
 
@@ -176,63 +176,63 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     schema='hisi'
     )
-    with op.batch_alter_table('blog_posts', schema=None) as batch_op:
+    with op.batch_alter_table('blog_posts', schema='hisi') as batch_op:
         batch_op.drop_constraint(batch_op.f('blog_posts_author_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'users', ['author_id'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('cart_items', schema=None) as batch_op:
+    with op.batch_alter_table('cart_items', schema='hisi') as batch_op:
         batch_op.drop_constraint(batch_op.f('cart_items_product_id_fkey'), type_='foreignkey')
         batch_op.drop_constraint(batch_op.f('cart_items_cart_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'products', ['product_id'], ['id'], referent_schema='hisi')
         batch_op.create_foreign_key(None, 'carts', ['cart_id'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('carts', schema=None) as batch_op:
+    with op.batch_alter_table('carts', schema='hisi') as batch_op:
         batch_op.drop_constraint(batch_op.f('carts_user_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'users', ['user_id'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('categories', schema=None) as batch_op:
+    with op.batch_alter_table('categories', schema='hisi') as batch_op:
         batch_op.drop_constraint(batch_op.f('categories_parent_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'categories', ['parent_id'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('media_files', schema=None) as batch_op:
+    with op.batch_alter_table('media_files', schema='hisi') as batch_op:
         batch_op.drop_index(batch_op.f('ix_hisi_media_files_uploaded_by'))
         batch_op.drop_constraint(batch_op.f('media_files_uploaded_by_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'users', ['uploaded_by'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('messages', schema=None) as batch_op:
+    with op.batch_alter_table('messages', schema='hisi') as batch_op:
         batch_op.drop_constraint(batch_op.f('messages_recipient_id_fkey'), type_='foreignkey')
         batch_op.drop_constraint(batch_op.f('messages_sender_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'users', ['recipient_id'], ['id'], referent_schema='hisi')
         batch_op.create_foreign_key(None, 'users', ['sender_id'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('notifications', schema=None) as batch_op:
+    with op.batch_alter_table('notifications', schema='hisi') as batch_op:
         batch_op.drop_index(batch_op.f('ix_hisi_notifications_user_id'))
         batch_op.drop_constraint(batch_op.f('notifications_user_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'users', ['user_id'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('order_items', schema=None) as batch_op:
+    with op.batch_alter_table('order_items', schema='hisi') as batch_op:
         batch_op.drop_constraint(batch_op.f('order_items_order_id_fkey'), type_='foreignkey')
         batch_op.drop_constraint(batch_op.f('order_items_product_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'orders', ['order_id'], ['id'], referent_schema='hisi')
         batch_op.create_foreign_key(None, 'products', ['product_id'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('orders', schema=None) as batch_op:
+    with op.batch_alter_table('orders', schema='hisi') as batch_op:
         batch_op.drop_constraint(batch_op.f('orders_user_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'users', ['user_id'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('payments', schema=None) as batch_op:
+    with op.batch_alter_table('payments', schema='hisi') as batch_op:
         batch_op.drop_constraint(batch_op.f('payments_order_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'orders', ['order_id'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('product_collections', schema=None) as batch_op:
+    with op.batch_alter_table('product_collections', schema='hisi') as batch_op:
         batch_op.drop_constraint(batch_op.f('product_collections_featured_image_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'media_files', ['featured_image_id'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('products', schema=None) as batch_op:
+    with op.batch_alter_table('products', schema='hisi') as batch_op:
         batch_op.drop_constraint(batch_op.f('products_category_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'categories', ['category_id'], ['id'], referent_schema='hisi')
 
-    with op.batch_alter_table('user_addresses', schema=None) as batch_op:
+    with op.batch_alter_table('user_addresses', schema='hisi') as batch_op:
         batch_op.drop_constraint(batch_op.f('user_addresses_user_id_fkey'), type_='foreignkey')
         batch_op.create_foreign_key(None, 'users', ['user_id'], ['id'], referent_schema='hisi')
 
@@ -241,68 +241,68 @@ def upgrade():
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
-    with op.batch_alter_table('user_addresses', schema=None) as batch_op:
+    with op.batch_alter_table('user_addresses', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('user_addresses_user_id_fkey'), 'users', ['user_id'], ['id'])
 
-    with op.batch_alter_table('products', schema=None) as batch_op:
+    with op.batch_alter_table('products', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('products_category_id_fkey'), 'categories', ['category_id'], ['id'])
 
-    with op.batch_alter_table('product_collections', schema=None) as batch_op:
+    with op.batch_alter_table('product_collections', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('product_collections_featured_image_id_fkey'), 'media_files', ['featured_image_id'], ['id'])
 
-    with op.batch_alter_table('payments', schema=None) as batch_op:
+    with op.batch_alter_table('payments', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('payments_order_id_fkey'), 'orders', ['order_id'], ['id'])
 
-    with op.batch_alter_table('orders', schema=None) as batch_op:
+    with op.batch_alter_table('orders', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('orders_user_id_fkey'), 'users', ['user_id'], ['id'])
 
-    with op.batch_alter_table('order_items', schema=None) as batch_op:
+    with op.batch_alter_table('order_items', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('order_items_product_id_fkey'), 'products', ['product_id'], ['id'])
         batch_op.create_foreign_key(batch_op.f('order_items_order_id_fkey'), 'orders', ['order_id'], ['id'])
 
-    with op.batch_alter_table('notifications', schema=None) as batch_op:
+    with op.batch_alter_table('notifications', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('notifications_user_id_fkey'), 'users', ['user_id'], ['id'])
         batch_op.create_index(batch_op.f('ix_hisi_notifications_user_id'), ['user_id'], unique=False)
 
-    with op.batch_alter_table('messages', schema=None) as batch_op:
+    with op.batch_alter_table('messages', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('messages_sender_id_fkey'), 'users', ['sender_id'], ['id'])
         batch_op.create_foreign_key(batch_op.f('messages_recipient_id_fkey'), 'users', ['recipient_id'], ['id'])
 
-    with op.batch_alter_table('media_files', schema=None) as batch_op:
+    with op.batch_alter_table('media_files', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('media_files_uploaded_by_fkey'), 'users', ['uploaded_by'], ['id'])
         batch_op.create_index(batch_op.f('ix_hisi_media_files_uploaded_by'), ['uploaded_by'], unique=False)
 
-    with op.batch_alter_table('categories', schema=None) as batch_op:
+    with op.batch_alter_table('categories', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('categories_parent_id_fkey'), 'categories', ['parent_id'], ['id'])
 
-    with op.batch_alter_table('carts', schema=None) as batch_op:
+    with op.batch_alter_table('carts', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('carts_user_id_fkey'), 'users', ['user_id'], ['id'])
 
-    with op.batch_alter_table('cart_items', schema=None) as batch_op:
+    with op.batch_alter_table('cart_items', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('cart_items_cart_id_fkey'), 'carts', ['cart_id'], ['id'])
         batch_op.create_foreign_key(batch_op.f('cart_items_product_id_fkey'), 'products', ['product_id'], ['id'])
 
-    with op.batch_alter_table('blog_posts', schema=None) as batch_op:
+    with op.batch_alter_table('blog_posts', schema='hisi') as batch_op:
         batch_op.drop_constraint(None, type_='foreignkey')
         batch_op.create_foreign_key(batch_op.f('blog_posts_author_id_fkey'), 'users', ['author_id'], ['id'])
 
     op.drop_table('reviews', schema='hisi')
-    with op.batch_alter_table('section_content', schema=None) as batch_op:
+    with op.batch_alter_table('section_content', schema='hisi') as batch_op:
         batch_op.drop_index(batch_op.f('ix_hisi_section_content_section_name'))
         batch_op.drop_index(batch_op.f('ix_hisi_section_content_page_name'))
 
