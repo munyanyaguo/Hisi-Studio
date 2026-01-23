@@ -2,8 +2,18 @@
 node_modules/
 __pycache__/
 *.pyc
-.env
 *.egg-info/
+
+# Environment variables and secrets
+.env
+.env.local
+.env.production
+.env.development
+**/.env
+**/RENDER_ENV_VARIABLES.md
+*.pem
+*.key
+secrets/
 
 # Build outputs
 dist/
