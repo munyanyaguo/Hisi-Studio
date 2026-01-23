@@ -8,7 +8,7 @@ from app.extensions import db
 from app.models import (
     User, Product, Category,
     Page, BlogPost, BlogCategory, SiteSetting,
-    FAQ, Testimonial,
+    FAQ, Testimonial, SectionContent,
     PressHero, MediaCoverage, PressRelease, Exhibition,
     SpeakingEngagement, Collaboration, MediaKitItem, MediaKitConfig, PressContact
 )
@@ -1316,6 +1316,128 @@ def create_press_content():
     print("  ✓ Press content seeding complete!")
 
 
+def create_section_content():
+    """Create editable section content for website pages"""
+    print("Creating section content...")
+    
+    sections_data = [
+        # Home Page - Hero Section
+        {'page_name': 'home', 'section_name': 'hero', 'content_key': 'title', 
+         'content_value': '2 THUKU 0 COLLECTION', 'content_type': 'text',
+         'label': 'Hero Title', 'display_order': 1},
+        {'page_name': 'home', 'section_name': 'hero', 'content_key': 'subtitle',
+         'content_value': 'Adaptive Fashion for Everyone', 'content_type': 'text',
+         'label': 'Hero Subtitle', 'display_order': 2},
+        {'page_name': 'home', 'section_name': 'hero', 'content_key': 'image_url',
+         'content_value': '/images/hero/slide-1.jpg', 'content_type': 'image',
+         'label': 'Hero Background Image', 'display_order': 3},
+        
+        # Home Page - About Section
+        {'page_name': 'home', 'section_name': 'about', 'content_key': 'title',
+         'content_value': 'Fashion That Feels Right', 'content_type': 'text',
+         'label': 'About Section Title', 'display_order': 1},
+        {'page_name': 'home', 'section_name': 'about', 'content_key': 'description',
+         'content_value': 'At Hisi Studio, we believe that everyone deserves to feel confident and comfortable in their clothing. Our adaptive fashion line combines cutting-edge design with practical functionality.',
+         'content_type': 'richtext', 'label': 'About Section Description', 'display_order': 2},
+        {'page_name': 'home', 'section_name': 'about', 'content_key': 'image_url',
+         'content_value': '/images/about/mission.jpg', 'content_type': 'image',
+         'label': 'About Section Image', 'display_order': 3},
+        
+        # Home Page - Mission Section
+        {'page_name': 'home', 'section_name': 'mission', 'content_key': 'title',
+         'content_value': 'Our Mission', 'content_type': 'text',
+         'label': 'Mission Title', 'display_order': 1},
+        {'page_name': 'home', 'section_name': 'mission', 'content_key': 'description',
+         'content_value': 'To create adaptive fashion that combines cutting-edge design with practical functionality, making style accessible to everyone regardless of ability.',
+         'content_type': 'richtext', 'label': 'Mission Statement', 'display_order': 2},
+        
+        # About Page - Hero Section  
+        {'page_name': 'about', 'section_name': 'hero', 'content_key': 'title',
+         'content_value': 'About Hisi Studio', 'content_type': 'text',
+         'label': 'Hero Title', 'display_order': 1},
+        {'page_name': 'about', 'section_name': 'hero', 'content_key': 'subtitle',
+         'content_value': 'Our Story, Our Mission', 'content_type': 'text',
+         'label': 'Hero Subtitle', 'display_order': 2},
+        
+        # About Page - Story Section
+        {'page_name': 'about', 'section_name': 'story', 'content_key': 'title',
+         'content_value': 'Our Story', 'content_type': 'text',
+         'label': 'Story Title', 'display_order': 1},
+        {'page_name': 'about', 'section_name': 'story', 'content_key': 'content',
+         'content_value': 'Hisi Studio was founded with a simple yet powerful vision: to create fashion that celebrates individuality and promotes inclusivity. Our journey began when we recognized the gap in adaptive fashion that truly combines style with functionality.',
+         'content_type': 'richtext', 'label': 'Story Content', 'display_order': 2},
+        
+        # Contact Page - Hero Section
+        {'page_name': 'contact', 'section_name': 'hero', 'content_key': 'title',
+         'content_value': "Let's Get in Touch", 'content_type': 'text',
+         'label': 'Hero Title', 'display_order': 1},
+        {'page_name': 'contact', 'section_name': 'hero', 'content_key': 'subtitle',
+         'content_value': 'We would love to hear from you', 'content_type': 'text',
+         'label': 'Hero Subtitle', 'display_order': 2},
+        
+        # Contact Page - Info Section
+        {'page_name': 'contact', 'section_name': 'info', 'content_key': 'email',
+         'content_value': 'hello@hisi.studio', 'content_type': 'text',
+         'label': 'Contact Email', 'display_order': 1},
+        {'page_name': 'contact', 'section_name': 'info', 'content_key': 'phone',
+         'content_value': '+254 700 000 000', 'content_type': 'text',
+         'label': 'Contact Phone', 'display_order': 2},
+        {'page_name': 'contact', 'section_name': 'info', 'content_key': 'address',
+         'content_value': 'Nairobi, Kenya', 'content_type': 'text',
+         'label': 'Contact Address', 'display_order': 3},
+        
+        # Blog Page - Hero Section
+        {'page_name': 'blog', 'section_name': 'hero', 'content_key': 'title',
+         'content_value': 'Stories & Insights', 'content_type': 'text',
+         'label': 'Blog Hero Title', 'display_order': 1},
+        {'page_name': 'blog', 'section_name': 'hero', 'content_key': 'subtitle',
+         'content_value': 'Our Journal', 'content_type': 'text',
+         'label': 'Blog Hero Subtitle', 'display_order': 2},
+        {'page_name': 'blog', 'section_name': 'hero', 'content_key': 'description',
+         'content_value': 'Explore the world of adaptive fashion through stories, tips, and inspiration.',
+         'content_type': 'text', 'label': 'Blog Hero Description', 'display_order': 3},
+        
+        # Newsletter Section
+        {'page_name': 'blog', 'section_name': 'newsletter', 'content_key': 'title',
+         'content_value': 'Stay in the Loop', 'content_type': 'text',
+         'label': 'Newsletter Title', 'display_order': 1},
+        {'page_name': 'blog', 'section_name': 'newsletter', 'content_key': 'description',
+         'content_value': 'Subscribe to our newsletter for the latest stories and updates.',
+         'content_type': 'text', 'label': 'Newsletter Description', 'display_order': 2},
+    ]
+    
+    created_count = 0
+    skipped_count = 0
+    
+    for section_data in sections_data:
+        existing = SectionContent.query.filter_by(
+            page_name=section_data['page_name'],
+            section_name=section_data['section_name'],
+            content_key=section_data['content_key']
+        ).first()
+        
+        if not existing:
+            section = SectionContent(
+                id=str(uuid.uuid4()),
+                page_name=section_data['page_name'],
+                section_name=section_data['section_name'],
+                content_key=section_data['content_key'],
+                content_value=section_data['content_value'],
+                content_type=section_data['content_type'],
+                label=section_data.get('label'),
+                display_order=section_data.get('display_order', 0)
+            )
+            db.session.add(section)
+            created_count += 1
+        else:
+            skipped_count += 1
+    
+    db.session.commit()
+    print(f"  ✓ Created {created_count} section content items")
+    if skipped_count > 0:
+        print(f"  ⚠ Skipped {skipped_count} existing items")
+
+
 def main():
     """Main seed function"""
     print("\n" + "="*60)
@@ -1348,6 +1470,9 @@ def main():
 
         # Create press page content
         create_press_content()
+
+        # Create editable section content
+        create_section_content()
 
         print("\n" + "="*60)
         print("✓ SEEDING COMPLETE!")

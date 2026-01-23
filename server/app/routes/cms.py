@@ -8,6 +8,7 @@ from app.utils.responses import (
     success_response, error_response, created_response,
     not_found_response, forbidden_response, paginated_response
 )
+from app.utils.cache import cached, invalidate_cache
 from sqlalchemy import or_
 from datetime import datetime
 
@@ -17,6 +18,7 @@ bp = Blueprint('cms', __name__, url_prefix='/api/v1')
 # ========== PAGES ==========
 
 @bp.route('/pages', methods=['GET'])
+@cached('pages:all', ttl=1800)  # Cache for 30 minutes
 def get_pages():
     """Get all published pages (public)"""
     try:
@@ -27,6 +29,7 @@ def get_pages():
 
 
 @bp.route('/pages/<slug>', methods=['GET'])
+@cached('pages:slug', ttl=1800)  # Cache for 30 minutes
 def get_page(slug):
     """Get page by slug (public)"""
     try:
@@ -88,6 +91,9 @@ def admin_create_page():
         db.session.add(page)
         db.session.commit()
 
+        # Invalidate page caches
+        invalidate_cache('pages:*')
+
         return created_response(data=page.to_dict(), message="Page created successfully")
     except Exception as e:
         db.session.rollback()
@@ -128,6 +134,9 @@ def admin_update_page(page_id):
 
         db.session.commit()
 
+        # Invalidate page caches
+        invalidate_cache('pages:*')
+
         return success_response(data=page.to_dict(), message="Page updated successfully")
     except Exception as e:
         db.session.rollback()
@@ -151,6 +160,9 @@ def admin_delete_page(page_id):
         db.session.delete(page)
         db.session.commit()
 
+        # Invalidate page caches
+        invalidate_cache('pages:*')
+
         return success_response(message="Page deleted successfully")
     except Exception as e:
         db.session.rollback()
@@ -160,6 +172,7 @@ def admin_delete_page(page_id):
 # ========== BLOG ==========
 
 @bp.route('/blog', methods=['GET'])
+@cached('blog:list', ttl=600)  # Cache for 10 minutes
 def get_blog_posts():
     """Get all published blog posts (public) with optional filtering"""
     try:
@@ -203,6 +216,7 @@ def get_blog_posts():
 
 
 @bp.route('/blog/categories', methods=['GET'])
+@cached('blog:categories', ttl=1800)  # Cache for 30 minutes
 def get_blog_categories():
     """Get all active blog categories (public)"""
     try:
@@ -213,6 +227,7 @@ def get_blog_categories():
 
 
 @bp.route('/blog/featured', methods=['GET'])
+@cached('blog:featured', ttl=900)  # Cache for 15 minutes
 def get_featured_blog_posts():
     """Get featured blog posts (public)"""
     try:
@@ -228,6 +243,7 @@ def get_featured_blog_posts():
 
 
 @bp.route('/blog/<slug>', methods=['GET'])
+@cached('blog:slug', ttl=900)  # Cache for 15 minutes
 def get_blog_post(slug):
     """Get blog post by slug (public)"""
     try:
@@ -338,6 +354,9 @@ def admin_create_blog_post():
         db.session.add(post)
         db.session.commit()
 
+        # Invalidate blog caches
+        invalidate_cache('blog:*')
+
         return created_response(data=post.to_dict(include_content=True), message="Blog post created")
     except Exception as e:
         db.session.rollback()
@@ -374,6 +393,9 @@ def admin_update_blog_post(post_id):
 
         db.session.commit()
 
+        # Invalidate blog caches
+        invalidate_cache('blog:*')
+
         return success_response(data=post.to_dict(include_content=True), message="Blog post updated")
     except Exception as e:
         db.session.rollback()
@@ -396,6 +418,9 @@ def admin_delete_blog_post(post_id):
 
         db.session.delete(post)
         db.session.commit()
+
+        # Invalidate blog caches
+        invalidate_cache('blog:*')
 
         return success_response(message="Blog post deleted")
     except Exception as e:

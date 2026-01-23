@@ -4,6 +4,7 @@ import Footer from '../../components/layout/Footer'
 import BlogCard from '../../components/blog/BlogCard'
 import { footerLinks, socialLinks } from '../../data/mockData'
 import { getBlogPosts, getBlogCategories } from '../../services/blogApi'
+import { getPageSections } from '../../services/cmsApi'
 import { subscribe } from '../../services/newsletterApi'
 import { Search, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 
@@ -22,6 +23,17 @@ const fallbackBlogData = {
     }
 }
 
+// Helper to transform section content from API format to component format
+const transformSectionContent = (sectionData) => {
+    const result = {};
+    if (sectionData && Array.isArray(sectionData)) {
+        sectionData.forEach(item => {
+            result[item.content_key] = item.content_value;
+        });
+    }
+    return result;
+};
+
 const BlogPage = () => {
     const [selectedCategory, setSelectedCategory] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
@@ -32,12 +44,50 @@ const BlogPage = () => {
     const [newsletterEmail, setNewsletterEmail] = useState('')
     const [newsletterStatus, setNewsletterStatus] = useState('idle') // idle, loading, success, error
     const [newsletterMessage, setNewsletterMessage] = useState('')
+    const [blogHero, setBlogHero] = useState(fallbackBlogData.blogHero)
+    const [newsletterCTA, setNewsletterCTA] = useState(fallbackBlogData.newsletterCTA)
     const [pagination, setPagination] = useState({
         page: 1,
         perPage: 12,
         total: 0,
         totalPages: 0
     })
+
+    // Fetch section content from CMS
+    useEffect(() => {
+        const fetchSectionContent = async () => {
+            try {
+                const data = await getPageSections('blog');
+                const sections = data.data || {};
+
+                // Transform hero section
+                if (sections.hero) {
+                    const heroData = transformSectionContent(sections.hero);
+                    setBlogHero({
+                        subtitle: heroData.subtitle || fallbackBlogData.blogHero.subtitle,
+                        title: heroData.title || fallbackBlogData.blogHero.title,
+                        description: heroData.description || fallbackBlogData.blogHero.description
+                    });
+                }
+
+                // Transform newsletter section
+                if (sections.newsletter) {
+                    const nlData = transformSectionContent(sections.newsletter);
+                    setNewsletterCTA({
+                        title: nlData.title || fallbackBlogData.newsletterCTA.title,
+                        description: nlData.description || fallbackBlogData.newsletterCTA.description,
+                        placeholder: nlData.placeholder || fallbackBlogData.newsletterCTA.placeholder,
+                        buttonText: nlData.buttonText || fallbackBlogData.newsletterCTA.buttonText
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch section content:', error);
+                // Use fallback data
+            }
+        };
+
+        fetchSectionContent();
+    }, []);
 
     // Fetch categories on mount
     useEffect(() => {
@@ -133,8 +183,6 @@ const BlogPage = () => {
     // Separate featured and regular posts
     const featuredPosts = filteredPosts.filter(post => post.featured || post.is_featured)
     const regularPosts = filteredPosts.filter(post => !post.featured && !post.is_featured)
-
-    const { blogHero, newsletterCTA } = fallbackBlogData
 
     return (
         <div className="min-h-screen">

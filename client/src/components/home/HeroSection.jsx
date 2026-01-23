@@ -158,15 +158,26 @@ const HeroSection = ({ slides = [], onSlideChange }) => {
             <div className="absolute inset-0 flex items-end justify-start px-8 sm:px-12 lg:px-16 pb-16 sm:pb-20 lg:pb-24">
               <div className="animate-fadeInUp">
                 <h2 className="text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-none font-braille">
-                  <span className="block">2 THUKU 0</span>
-                  <span className="block">COLLECTION</span>
+                  {slide.title && slide.title.includes(' ') ? (
+                    <>
+                      <span className="block">{slide.title.split(' ').slice(0, Math.ceil(slide.title.split(' ').length / 2)).join(' ')}</span>
+                      <span className="block">{slide.title.split(' ').slice(Math.ceil(slide.title.split(' ').length / 2)).join(' ')}</span>
+                    </>
+                  ) : (
+                    <span className="block">{slide.title || '2 THUKU 0 COLLECTION'}</span>
+                  )}
                 </h2>
+                {slide.subtitle && (
+                  <p className="text-white/80 text-lg sm:text-xl mt-4 font-light">
+                    {slide.subtitle}
+                  </p>
+                )}
                 <div className="flex justify-center mt-8">
                   <a
-                    href="/shop"
+                    href={slide.ctaLink || '/shop'}
                     className="inline-block bg-white text-gray-900 px-8 py-4 text-sm font-medium uppercase tracking-wider hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-white/50"
                   >
-                    SHOP NOW
+                    {slide.cta || 'SHOP NOW'}
                   </a>
                 </div>
               </div>

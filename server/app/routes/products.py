@@ -5,11 +5,13 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
 from app.models import Product, Category, User
 from app.utils.admin_decorators import admin_required
+from app.utils.cache import cached, invalidate_cache
 
 bp = Blueprint('products', __name__, url_prefix='/api/v1/products')
 
 
 @bp.route('', methods=['GET'])
+@cached('products:list', ttl=600)  # Cache for 10 minutes
 def get_products():
     """Get all products with optional filtering"""
     try:
@@ -87,6 +89,7 @@ def get_products():
 
 
 @bp.route('/<product_id>', methods=['GET'])
+@cached('products:id', ttl=900)  # Cache for 15 minutes
 def get_product(product_id):
     """Get a single product by ID"""
     try:
@@ -104,6 +107,7 @@ def get_product(product_id):
 
 
 @bp.route('/slug/<slug>', methods=['GET'])
+@cached('products:slug', ttl=900)  # Cache for 15 minutes
 def get_product_by_slug(slug):
     """Get a single product by slug"""
     try:
@@ -162,6 +166,9 @@ def create_product():
         db.session.add(product)
         db.session.commit()
 
+        # Invalidate product caches
+        invalidate_cache('products:*')
+
         return jsonify({
             'message': 'Product created successfully',
             'product': product.to_dict()
@@ -198,6 +205,9 @@ def update_product(product_id):
 
         db.session.commit()
 
+        # Invalidate product caches
+        invalidate_cache('products:*')
+
         return jsonify({
             'message': 'Product updated successfully',
             'product': product.to_dict()
@@ -220,6 +230,9 @@ def delete_product(product_id):
         db.session.delete(product)
         db.session.commit()
 
+        # Invalidate product caches
+        invalidate_cache('products:*')
+
         return jsonify({
             'message': 'Product deleted successfully'
         }), 200
@@ -231,6 +244,7 @@ def delete_product(product_id):
 
 # Categories endpoints
 @bp.route('/categories', methods=['GET'])
+@cached('categories:all', ttl=1800)  # Cache for 30 minutes (categories change rarely)
 def get_categories():
     """Get all categories"""
     try:

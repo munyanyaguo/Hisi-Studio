@@ -1,12 +1,22 @@
 import { Link } from 'react-router-dom'
 
-const AboutUsHero = () => {
+const AboutUsHero = ({ missionData }) => {
+    // Use CMS data with fallback to default values
+    const title = missionData?.title || 'About Hisi Studio';
+    const description = missionData?.description || `While we've been in the jewelry business since 2011,
+it was 2015 when we truly found our niche in
+customized jewelry. The happiness in our clients'
+eyes when they see creations made just for them
+prompted us to switch gears and focus on quality
+handcrafted pieces instead.`;
+    const imageUrl = missionData?.image_url || '/images/about-hero.jpg';
+
     return (
         <section className="relative h-[600px] md:h-[700px] overflow-hidden">
             {/* Background Image */}
             <div className="absolute inset-0">
                 <img
-                    src="/images/about-hero.jpg"
+                    src={imageUrl}
                     alt="Model wearing Hisi Studio designs"
                     className="w-full h-full object-cover"
                 />
@@ -18,17 +28,12 @@ const AboutUsHero = () => {
             <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8">
                 {/* Title */}
                 <h2 className="text-4xl md:text-5xl lg:text-6xl text-white font-serif italic mb-8">
-                    About Hisi Studio
+                    {title}
                 </h2>
 
                 {/* Description */}
                 <p className="text-white text-sm md:text-base uppercase tracking-widest leading-relaxed max-w-2xl mb-10">
-                    While we've been in the jewelry business since 2011,
-                    it was 2015 when we truly found our niche in
-                    customized jewelry. The happiness in our clients'
-                    eyes when they see creations made just for them
-                    prompted us to switch gears and focus on quality
-                    handcrafted pieces instead.
+                    {description}
                 </p>
 
                 {/* CTA Button */}
@@ -44,3 +49,4 @@ const AboutUsHero = () => {
 }
 
 export default AboutUsHero
+
