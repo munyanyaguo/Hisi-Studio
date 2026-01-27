@@ -50,7 +50,7 @@ class OrderService:
                 tax=tax,
                 discount=discount,
                 total=total,
-                currency='NGN',
+                currency='KES',
                 shipping_address=shipping_address,
                 billing_address=billing_address or shipping_address,
                 customer_notes=notes

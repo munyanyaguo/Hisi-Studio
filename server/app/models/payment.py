@@ -19,7 +19,7 @@ class Payment(db.Model):
 
     # Payment info
     amount = db.Column(db.Numeric(10, 2), nullable=False)
-    currency = db.Column(db.String(3), nullable=False, default='NGN')
+    currency = db.Column(db.String(3), nullable=False, default='KES')
     payment_method = db.Column(db.String(50), nullable=True)  # 'card', 'mpesa', 'bank_transfer', etc.
     status = db.Column(db.String(20), nullable=False, default='pending')
     # Status options: 'pending', 'processing', 'successful', 'failed', 'cancelled', 'refunded'

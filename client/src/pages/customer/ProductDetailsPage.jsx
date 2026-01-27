@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ShoppingBag, Heart, Share2, ChevronLeft, ChevronRight, Star, Check, Truck, Shield, RotateCcw, Loader2 } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ShoppingBag, Heart, Share2, ChevronLeft, ChevronRight, Star, Check, Truck, Shield, RotateCcw, Loader2, AlertCircle } from 'lucide-react';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
 import { footerLinks, socialLinks } from '../../data/mockData';
 import { getProductById } from '../../services/productsApi';
+import { useCart } from '../../contexts/CartContext';
 
 const ProductDetailsPage = () => {
     const { productId } = useParams();
+    const navigate = useNavigate();
+    const { addToCart: addItemToCart } = useCart();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(0);
@@ -15,6 +18,8 @@ const ProductDetailsPage = () => {
     const [selectedColor, setSelectedColor] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [addedToCart, setAddedToCart] = useState(false);
+    const [addingToCart, setAddingToCart] = useState(false);
+    const [cartError, setCartError] = useState(null);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -45,10 +50,35 @@ const ProductDetailsPage = () => {
         fetchProduct();
     }, [productId]);
 
-    const handleAddToCart = () => {
-        // TODO: Integrate with cart API
-        setAddedToCart(true);
-        setTimeout(() => setAddedToCart(false), 3000);
+    const handleAddToCart = async () => {
+        setAddingToCart(true);
+        setCartError(null);
+
+        const result = await addItemToCart(product.id, quantity);
+
+        if (result.success) {
+            setAddedToCart(true);
+            setTimeout(() => setAddedToCart(false), 3000);
+        } else {
+            setCartError(result.error || 'Failed to add item to cart');
+        }
+
+        setAddingToCart(false);
+    };
+
+    const handleBuyNow = async () => {
+        setAddingToCart(true);
+        setCartError(null);
+
+        const result = await addItemToCart(product.id, quantity);
+
+        if (result.success) {
+            navigate('/cart');
+        } else {
+            setCartError(result.error || 'Failed to add item to cart');
+        }
+
+        setAddingToCart(false);
     };
 
     const formatPrice = (price) => {
@@ -251,34 +281,58 @@ const ProductDetailsPage = () => {
                             </div>
                         </div>
 
+                        {/* Cart Error */}
+                        {cartError && (
+                            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 text-red-700 text-sm">
+                                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                                <span>{cartError}</span>
+                            </div>
+                        )}
+
                         {/* Actions */}
-                        <div className="flex space-x-4">
-                            <button
-                                onClick={handleAddToCart}
-                                disabled={addedToCart}
-                                className={`flex-1 py-4 px-8 font-semibold uppercase tracking-wider flex items-center justify-center space-x-2 transition-all ${addedToCart
-                                    ? 'bg-green-600 text-white'
-                                    : 'bg-hisi-primary text-white hover:bg-hisi-primary/90'
-                                    }`}
-                            >
-                                {addedToCart ? (
-                                    <>
-                                        <Check className="w-5 h-5" />
-                                        <span>Added to Cart</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <ShoppingBag className="w-5 h-5" />
-                                        <span>Add to Cart</span>
-                                    </>
-                                )}
-                            </button>
-                            <button className="w-14 h-14 border-2 border-gray-200 flex items-center justify-center hover:border-hisi-primary hover:text-hisi-primary transition-colors">
-                                <Heart className="w-6 h-6" />
-                            </button>
-                            <button className="w-14 h-14 border-2 border-gray-200 flex items-center justify-center hover:border-hisi-primary hover:text-hisi-primary transition-colors">
-                                <Share2 className="w-6 h-6" />
-                            </button>
+                        <div className="space-y-4">
+                            <div className="flex space-x-4">
+                                <button
+                                    onClick={handleAddToCart}
+                                    disabled={addedToCart || addingToCart || !product.inStock}
+                                    className={`flex-1 py-4 px-8 font-semibold uppercase tracking-wider flex items-center justify-center space-x-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${addedToCart
+                                        ? 'bg-green-600 text-white'
+                                        : 'bg-hisi-primary text-white hover:bg-hisi-primary/90'
+                                        }`}
+                                >
+                                    {addingToCart ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                            <span>Adding...</span>
+                                        </>
+                                    ) : addedToCart ? (
+                                        <>
+                                            <Check className="w-5 h-5" />
+                                            <span>Added to Cart</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ShoppingBag className="w-5 h-5" />
+                                            <span>{product.inStock ? 'Add to Cart' : 'Out of Stock'}</span>
+                                        </>
+                                    )}
+                                </button>
+                                <button className="w-14 h-14 border-2 border-gray-200 flex items-center justify-center hover:border-hisi-primary hover:text-hisi-primary transition-colors">
+                                    <Heart className="w-6 h-6" />
+                                </button>
+                                <button className="w-14 h-14 border-2 border-gray-200 flex items-center justify-center hover:border-hisi-primary hover:text-hisi-primary transition-colors">
+                                    <Share2 className="w-6 h-6" />
+                                </button>
+                            </div>
+                            {product.inStock && (
+                                <button
+                                    onClick={handleBuyNow}
+                                    disabled={addingToCart}
+                                    className="w-full py-4 px-8 border-2 border-hisi-primary text-hisi-primary font-semibold uppercase tracking-wider hover:bg-hisi-primary hover:text-white transition-all disabled:opacity-50"
+                                >
+                                    Buy Now
+                                </button>
+                            )}
                         </div>
 
                         {/* Features */}
