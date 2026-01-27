@@ -10,10 +10,6 @@ import ContactPage from './pages/customer/ContactPage'
 import ShopPage from './pages/customer/ShopPage'
 import ProductDetailsPage from './pages/customer/ProductDetailsPage'
 import ProfilePage from './pages/customer/ProfilePage'
-import CartPage from './pages/customer/CartPage'
-import CheckoutPage from './pages/customer/CheckoutPage'
-import PaymentCallbackPage from './pages/customer/PaymentCallbackPage'
-import CustomerOrdersPage from './pages/customer/OrdersPage'
 import NotFoundPage from './pages/error/NotFoundPage'
 import LoginPage from './pages/auth/LoginPage'
 import SignUpPage from './pages/auth/SignUpPage'
@@ -54,10 +50,6 @@ function App() {
       <Route path="/product/:productId" element={<ProductDetailsPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/account" element={<ProfilePage />} />
-      <Route path="/cart" element={<CartPage />} />
-      <Route path="/checkout" element={<CheckoutPage />} />
-      <Route path="/payment/callback" element={<PaymentCallbackPage />} />
-      <Route path="/orders" element={<CustomerOrdersPage />} />
 
       {/* Auth Routes */}
       <Route path="/login" element={<LoginPage />} />

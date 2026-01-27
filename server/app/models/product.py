@@ -18,7 +18,7 @@ class Product(db.Model):
     # Pricing
     price = db.Column(db.Numeric(10, 2), nullable=False)
     original_price = db.Column(db.Numeric(10, 2), nullable=True)
-    currency = db.Column(db.String(3), nullable=False, default='KES')
+    currency = db.Column(db.String(3), nullable=False, default='NGN')
 
     # Inventory
     sku = db.Column(db.String(100), unique=True, nullable=False)

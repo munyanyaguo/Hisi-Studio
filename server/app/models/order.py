@@ -29,7 +29,7 @@ class Order(db.Model):
     tax = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     discount = db.Column(db.Numeric(10, 2), nullable=False, default=0)
     total = db.Column(db.Numeric(10, 2), nullable=False)
-    currency = db.Column(db.String(3), nullable=False, default='KES')
+    currency = db.Column(db.String(3), nullable=False, default='NGN')
 
     # Shipping details
     shipping_address = db.Column(db.JSON, nullable=True)

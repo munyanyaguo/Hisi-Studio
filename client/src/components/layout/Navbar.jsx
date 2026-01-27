@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Search, ShoppingCart, ShoppingBag, User, Menu, X, Heart, Accessibility, Eye, LogOut, UserCircle, Settings } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
-import { useCart } from '../../contexts/CartContext'
 import FlipProductCard from '../product/FlipProductCard'
 
 // Product Card with Image Carousel on Hover
@@ -79,11 +78,13 @@ const Navbar = ({ isHeroDark = true }) => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const navigate = useNavigate()
   const { user, isAuthenticated, logout } = useAuth()
-  const { cartItemCount } = useCart()
 
   // Determine if navbar should use light text (white) or dark text
   // Always use white text when at top of page (transparent navbar), regardless of hero brightness
   const useLightText = !isPastHero
+
+  // Cart item count (will come from Redux later)
+  const cartItemCount = 0
 
   // Handle scroll effect - check if past hero section
   useEffect(() => {
