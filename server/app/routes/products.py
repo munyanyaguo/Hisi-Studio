@@ -2,6 +2,7 @@
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy.orm import joinedload
 from app.extensions import db
 from app.models import Product, Category, User
 from app.utils.admin_decorators import admin_required
@@ -26,8 +27,10 @@ def get_products():
         sort_by = request.args.get('sort_by', 'created_at', type=str)
         sort_order = request.args.get('sort_order', 'desc', type=str)
 
-        # Build query
-        query = Product.query.filter_by(is_active=True)
+        # Build query with eager loading for category
+        query = Product.query.options(
+            joinedload(Product.category)
+        ).filter_by(is_active=True)
 
         # Apply filters
         if category:

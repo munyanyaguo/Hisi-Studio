@@ -2,6 +2,7 @@
 
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy.orm import joinedload
 from app.extensions import db
 from app.models import Order, User, Cart, UserAddress
 from app.services.order_service import OrderService
@@ -94,7 +95,11 @@ def get_user_orders():
         # Status filter
         status = request.args.get('status')
 
-        query = Order.query.filter_by(user_id=user_id)
+        # Use joinedload to prevent N+1 queries when accessing order.items
+        query = Order.query.options(
+            joinedload(Order.items),
+            joinedload(Order.user)
+        ).filter_by(user_id=user_id)
 
         if status:
             query = query.filter_by(status=status)
@@ -121,7 +126,10 @@ def get_order(order_id):
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
 
-        order = Order.query.get(order_id)
+        # Eager load items to prevent N+1 queries
+        order = Order.query.options(
+            joinedload(Order.items)
+        ).get(order_id)
         if not order:
             return not_found_response("Order not found")
 

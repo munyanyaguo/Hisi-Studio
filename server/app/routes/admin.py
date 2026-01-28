@@ -2,6 +2,7 @@
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy.orm import joinedload
 from app.extensions import db
 from app.models import User, Order, Product, ContactMessage, Notification
 from app.utils.admin_decorators import admin_required, super_admin_required, permission_required, PERMISSIONS

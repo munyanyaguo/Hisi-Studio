@@ -7,26 +7,24 @@ from flask_jwt_extended import (
 )
 from app.extensions import db
 from app.models import User
+from app.utils.validators import validate_request, validate_registration_data, validate_login_data
+from app.utils.rate_limit import rate_limit
 from datetime import datetime
 
 bp = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
 
 @bp.route('/register', methods=['POST'])
+@rate_limit(max_requests=5, window_seconds=300)  # 5 registrations per 5 minutes
+@validate_request(validate_registration_data)
 def register():
     """Register a new user"""
     try:
         data = request.get_json()
 
-        # Validate required fields
-        required_fields = ['email', 'password', 'first_name', 'last_name']
-        for field in required_fields:
-            if not data.get(field):
-                return jsonify({'error': f'{field} is required'}), 400
-
         # Check if user already exists
         if User.query.filter_by(email=data['email'].lower()).first():
-            return jsonify({'error': 'Email already registered'}), 409
+            return jsonify({'success': False, 'error': 'Email already registered'}), 409
 
         # Create new user
         user = User(
@@ -58,14 +56,12 @@ def register():
 
 
 @bp.route('/login', methods=['POST'])
+@rate_limit(max_requests=10, window_seconds=60)  # 10 login attempts per minute
+@validate_request(validate_login_data)
 def login():
     """Login user"""
     try:
         data = request.get_json()
-
-        # Validate required fields
-        if not data.get('email') or not data.get('password'):
-            return jsonify({'error': 'Email and password are required'}), 400
 
         # Find user
         user = User.query.filter_by(email=data['email'].lower()).first()

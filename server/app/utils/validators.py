@@ -1,5 +1,49 @@
+"""
+Input validation utilities for API endpoints.
+Provides validators and a decorator for easy route validation.
+"""
+
 import re
-from typing import Dict, List, Optional
+from functools import wraps
+from typing import Dict, List, Optional, Callable
+from flask import request, jsonify
+
+
+def validate_request(validator_func: Callable[[Dict], Dict[str, str]]):
+    """
+    Decorator to validate request JSON data before processing.
+
+    Usage:
+        @bp.route('/register', methods=['POST'])
+        @validate_request(validate_registration_data)
+        def register():
+            # Request data is already validated
+            data = request.get_json()
+            ...
+    """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            data = request.get_json()
+            if not data:
+                return jsonify({
+                    'success': False,
+                    'message': 'Request body is required',
+                    'errors': {'body': 'No JSON data provided'}
+                }), 400
+
+            errors = validator_func(data)
+            if errors:
+                return jsonify({
+                    'success': False,
+                    'message': 'Validation failed',
+                    'errors': errors
+                }), 400
+
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
 
 def validate_email(email: str) -> tuple[bool, Optional[str]]:
     if not email:
@@ -149,5 +193,143 @@ def validate_profile_update(data: Dict) -> Dict[str, str]:
         valid, error = validate_phone(phone)
         if not valid:
             errors['phone'] = error
+
+    return errors
+
+
+# ============== Product Validators ==============
+
+def validate_price(price, field_name: str = "Price") -> tuple[bool, Optional[str]]:
+    """Validate price is a positive number."""
+    if price is None:
+        return False, f"{field_name} is required"
+
+    try:
+        price_float = float(price)
+        if price_float < 0:
+            return False, f"{field_name} cannot be negative"
+        if price_float > 10000000:  # 10 million limit
+            return False, f"{field_name} exceeds maximum allowed value"
+        return True, None
+    except (TypeError, ValueError):
+        return False, f"{field_name} must be a valid number"
+
+
+def validate_product_data(data: Dict) -> Dict[str, str]:
+    """Validate product creation/update data."""
+    errors = {}
+
+    # Required fields
+    name = data.get('name', '').strip() if data.get('name') else ''
+    if not name:
+        errors['name'] = "Product name is required"
+    elif len(name) > 255:
+        errors['name'] = "Product name is too long"
+
+    slug = data.get('slug', '').strip() if data.get('slug') else ''
+    if not slug:
+        errors['slug'] = "Slug is required"
+    elif not re.match(r'^[a-z0-9]+(?:-[a-z0-9]+)*$', slug):
+        errors['slug'] = "Slug must be lowercase letters, numbers, and hyphens only"
+
+    # Price validation
+    valid, error = validate_price(data.get('price'))
+    if not valid:
+        errors['price'] = error
+
+    # SKU validation
+    sku = data.get('sku', '').strip() if data.get('sku') else ''
+    if not sku:
+        errors['sku'] = "SKU is required"
+    elif len(sku) > 50:
+        errors['sku'] = "SKU is too long"
+
+    # Stock quantity
+    stock = data.get('stock_quantity')
+    if stock is not None:
+        try:
+            stock_int = int(stock)
+            if stock_int < 0:
+                errors['stock_quantity'] = "Stock cannot be negative"
+        except (TypeError, ValueError):
+            errors['stock_quantity'] = "Stock must be a valid number"
+
+    return errors
+
+
+# ============== Contact/Message Validators ==============
+
+def validate_contact_message(data: Dict) -> Dict[str, str]:
+    """Validate contact form submission."""
+    errors = {}
+
+    # Name validation
+    name = data.get('name', '').strip() if data.get('name') else ''
+    valid, error = validate_name(name, "Name")
+    if not valid:
+        errors['name'] = error
+
+    # Email validation
+    email = data.get('email', '').strip() if data.get('email') else ''
+    valid, error = validate_email(email)
+    if not valid:
+        errors['email'] = error
+
+    # Message validation
+    message = data.get('message', '').strip() if data.get('message') else ''
+    if not message:
+        errors['message'] = "Message is required"
+    elif len(message) < 10:
+        errors['message'] = "Message must be at least 10 characters"
+    elif len(message) > 5000:
+        errors['message'] = "Message is too long (max 5000 characters)"
+
+    # Optional phone
+    phone = data.get('phone', '').strip() if data.get('phone') else ''
+    if phone:
+        valid, error = validate_phone(phone)
+        if not valid:
+            errors['phone'] = error
+
+    return errors
+
+
+# ============== Order Validators ==============
+
+def validate_order_data(data: Dict) -> Dict[str, str]:
+    """Validate order creation data."""
+    errors = {}
+
+    # Shipping address validation
+    shipping = data.get('shipping_address', {})
+    if not shipping:
+        errors['shipping_address'] = "Shipping address is required"
+    else:
+        if not shipping.get('street'):
+            errors['shipping_address.street'] = "Street address is required"
+        if not shipping.get('city'):
+            errors['shipping_address.city'] = "City is required"
+        if not shipping.get('country'):
+            errors['shipping_address.country'] = "Country is required"
+
+    # Payment method
+    payment_method = data.get('payment_method', '').strip() if data.get('payment_method') else ''
+    valid_methods = ['card', 'mpesa', 'bank_transfer', 'cash_on_delivery']
+    if payment_method and payment_method not in valid_methods:
+        errors['payment_method'] = f"Invalid payment method. Must be one of: {', '.join(valid_methods)}"
+
+    return errors
+
+
+# ============== Newsletter Validators ==============
+
+def validate_newsletter_subscription(data: Dict) -> Dict[str, str]:
+    """Validate newsletter subscription."""
+    errors = {}
+
+    email = data.get('email', '').strip() if data.get('email') else ''
+    valid, error = validate_email(email)
+    if not valid:
+        errors['email'] = error
 
     return errors
