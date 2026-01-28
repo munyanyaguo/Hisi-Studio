@@ -3,10 +3,12 @@ Flask application factory
 Creates and configures the Flask app
 """
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 
 # Load environment variables
 load_dotenv()
@@ -108,5 +110,115 @@ def create_app(config_name='development'):
         from flask import send_from_directory
         uploads_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'uploads')
         return send_from_directory(uploads_dir, filename)
-    
+
+    # Configure logging
+    configure_logging(app)
+
+    # Register global error handlers
+    register_error_handlers(app)
+
     return app
+
+
+def configure_logging(app):
+    """Configure application logging"""
+    if not app.debug:
+        # Create logs directory if it doesn't exist
+        logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+        if not os.path.exists(logs_dir):
+            os.makedirs(logs_dir)
+
+        # File handler for errors
+        file_handler = RotatingFileHandler(
+            os.path.join(logs_dir, 'hisi_studio.log'),
+            maxBytes=10240000,  # 10MB
+            backupCount=10
+        )
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+
+    app.logger.setLevel(logging.INFO)
+    app.logger.info('Hisi Studio API startup')
+
+
+def register_error_handlers(app):
+    """Register global error handlers for consistent API responses"""
+
+    @app.errorhandler(400)
+    def bad_request(error):
+        app.logger.warning(f'Bad request: {error}')
+        return jsonify({
+            'success': False,
+            'message': 'Bad request',
+            'error': str(error.description) if hasattr(error, 'description') else str(error)
+        }), 400
+
+    @app.errorhandler(401)
+    def unauthorized(error):
+        return jsonify({
+            'success': False,
+            'message': 'Unauthorized',
+            'error': 'Authentication required'
+        }), 401
+
+    @app.errorhandler(403)
+    def forbidden(error):
+        return jsonify({
+            'success': False,
+            'message': 'Forbidden',
+            'error': 'You do not have permission to access this resource'
+        }), 403
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({
+            'success': False,
+            'message': 'Not found',
+            'error': 'The requested resource was not found'
+        }), 404
+
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        return jsonify({
+            'success': False,
+            'message': 'Method not allowed',
+            'error': 'The method is not allowed for this endpoint'
+        }), 405
+
+    @app.errorhandler(422)
+    def unprocessable_entity(error):
+        return jsonify({
+            'success': False,
+            'message': 'Unprocessable entity',
+            'error': str(error.description) if hasattr(error, 'description') else 'Invalid data'
+        }), 422
+
+    @app.errorhandler(429)
+    def too_many_requests(error):
+        return jsonify({
+            'success': False,
+            'message': 'Too many requests',
+            'error': 'Rate limit exceeded. Please try again later.'
+        }), 429
+
+    @app.errorhandler(500)
+    def internal_server_error(error):
+        app.logger.error(f'Internal server error: {error}', exc_info=True)
+        return jsonify({
+            'success': False,
+            'message': 'Internal server error',
+            'error': 'An unexpected error occurred'
+        }), 500
+
+    @app.errorhandler(Exception)
+    def handle_exception(error):
+        """Handle all unhandled exceptions"""
+        app.logger.error(f'Unhandled exception: {error}', exc_info=True)
+        return jsonify({
+            'success': False,
+            'message': 'Internal server error',
+            'error': 'An unexpected error occurred'
+        }), 500

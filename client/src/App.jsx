@@ -1,4 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+
+// Customer pages - loaded eagerly (main user experience)
 import HomePage from './pages/customer/HomePage'
 import AboutPage from './pages/customer/AboutPage'
 import AccessibilityPage from './pages/customer/AccessibilityPage'
@@ -13,7 +16,11 @@ import ProfilePage from './pages/customer/ProfilePage'
 import NotFoundPage from './pages/error/NotFoundPage'
 import LoginPage from './pages/auth/LoginPage'
 import SignUpPage from './pages/auth/SignUpPage'
+
+// Admin layout - loaded eagerly for auth check
 import AdminLayout from './layouts/AdminLayout'
+
+// Admin pages - lightweight ones loaded eagerly
 import DashboardPage from './pages/admin/DashboardPage'
 import OrdersPage from './pages/admin/OrdersPage'
 import OrderDetailPage from './pages/admin/OrderDetailPage'
@@ -23,15 +30,24 @@ import InquiriesPage from './pages/admin/InquiriesPage'
 import SettingsPage from './pages/admin/SettingsPage'
 import CustomersPage from './pages/admin/CustomersPage'
 import CustomerDetailPage from './pages/admin/CustomerDetailPage'
-import AnalyticsPage from './pages/admin/AnalyticsPage'
-import BlogPostEditor from './pages/admin/BlogPostEditor'
 import ProductsPage from './pages/admin/ProductsPage'
-import ProductEditor from './pages/admin/ProductEditor'
 import AdminCollectionsPage from './pages/admin/CollectionsPage'
 import MessagingPage from './pages/admin/MessagingPage'
 import SectionEditorPage from './pages/admin/SectionEditorPage'
 import ReviewsPage from './pages/admin/ReviewsPage'
-import PressManagementPage from './pages/admin/PressManagementPage'
+
+// Heavy admin pages - lazy loaded to reduce initial bundle size
+const AnalyticsPage = lazy(() => import('./pages/admin/AnalyticsPage'))
+const BlogPostEditor = lazy(() => import('./pages/admin/BlogPostEditor'))
+const ProductEditor = lazy(() => import('./pages/admin/ProductEditor'))
+const PressManagementPage = lazy(() => import('./pages/admin/PressManagementPage'))
+
+// Loading fallback for lazy-loaded components
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+  </div>
+)
 
 function App() {
   return (
@@ -59,21 +75,49 @@ function App() {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="analytics" element={
+          <Suspense fallback={<PageLoader />}>
+            <AnalyticsPage />
+          </Suspense>
+        } />
         <Route path="orders" element={<OrdersPage />} />
         <Route path="orders/:orderId" element={<OrderDetailPage />} />
         <Route path="products" element={<ProductsPage />} />
-        <Route path="products/new" element={<ProductEditor />} />
-        <Route path="products/:id/edit" element={<ProductEditor />} />
+        <Route path="products/new" element={
+          <Suspense fallback={<PageLoader />}>
+            <ProductEditor />
+          </Suspense>
+        } />
+        <Route path="products/:id/edit" element={
+          <Suspense fallback={<PageLoader />}>
+            <ProductEditor />
+          </Suspense>
+        } />
         <Route path="media" element={<MediaPage />} />
         <Route path="content" element={<ContentPage />} />
-        <Route path="content/new" element={<BlogPostEditor />} />
-        <Route path="content/:postId/edit" element={<BlogPostEditor />} />
-        <Route path="content/edit/:postId" element={<BlogPostEditor />} />
+        <Route path="content/new" element={
+          <Suspense fallback={<PageLoader />}>
+            <BlogPostEditor />
+          </Suspense>
+        } />
+        <Route path="content/:postId/edit" element={
+          <Suspense fallback={<PageLoader />}>
+            <BlogPostEditor />
+          </Suspense>
+        } />
+        <Route path="content/edit/:postId" element={
+          <Suspense fallback={<PageLoader />}>
+            <BlogPostEditor />
+          </Suspense>
+        } />
         <Route path="collections" element={<AdminCollectionsPage />} />
         <Route path="sections" element={<SectionEditorPage />} />
         <Route path="reviews" element={<ReviewsPage />} />
-        <Route path="press" element={<PressManagementPage />} />
+        <Route path="press" element={
+          <Suspense fallback={<PageLoader />}>
+            <PressManagementPage />
+          </Suspense>
+        } />
         <Route path="customers" element={<CustomersPage />} />
         <Route path="customers/:customerId" element={<CustomerDetailPage />} />
         <Route path="inquiries" element={<InquiriesPage />} />

@@ -165,7 +165,7 @@ const CollectionsPage = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="text-center p-6">
-                                <div className="w-16 h-16 bg-hisi-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <div className="w-16 h-16 bg-hisi-primary/10 flex items-center justify-center mx-auto mb-4">
                                     <Sparkles className="w-8 h-8 text-hisi-primary" />
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-3">Innovative Design</h3>
@@ -175,7 +175,7 @@ const CollectionsPage = () => {
                             </div>
 
                             <div className="text-center p-6">
-                                <div className="w-16 h-16 bg-hisi-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <div className="w-16 h-16 bg-hisi-accent/10 flex items-center justify-center mx-auto mb-4">
                                     <Heart className="w-8 h-8 text-hisi-accent" />
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-3">Inclusive for All</h3>
@@ -185,7 +185,7 @@ const CollectionsPage = () => {
                             </div>
 
                             <div className="text-center p-6">
-                                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <div className="w-16 h-16 bg-green-100 flex items-center justify-center mx-auto mb-4">
                                     <Shield className="w-8 h-8 text-green-600" />
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-3">Quality & Sustainability</h3>
@@ -206,7 +206,7 @@ const CollectionsPage = () => {
                                 <Link
                                     key={collection.id}
                                     to={`/shop?collection=${collection.slug}`}
-                                    className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
+                                    className="group relative bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
                                 >
                                     {/* Image */}
                                     <div className="aspect-[4/5] overflow-hidden relative">
@@ -231,7 +231,7 @@ const CollectionsPage = () => {
                                                 {collection.features.slice(0, 2).map((feature, idx) => (
                                                     <span
                                                         key={idx}
-                                                        className="text-xs bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full"
+                                                        className="text-xs bg-white/20 backdrop-blur-sm px-3 py-1"
                                                     >
                                                         {feature}
                                                     </span>
@@ -263,7 +263,7 @@ const CollectionsPage = () => {
                                 <Link
                                     key={collection.id}
                                     to={`/shop?collection=${collection.slug}`}
-                                    className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100"
+                                    className="group bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100"
                                 >
                                     {/* Image */}
                                     <div className="aspect-square overflow-hidden">
@@ -316,7 +316,7 @@ const CollectionsPage = () => {
                             {collectionCategories.map((category) => (
                                 <div
                                     key={category.id}
-                                    className="bg-white rounded-2xl p-8 border-2 border-gray-100 hover:border-hisi-primary/30 transition-colors duration-300"
+                                    className="bg-white p-8 border-2 border-gray-100 hover:border-hisi-primary/30 transition-colors duration-300"
                                 >
                                     <h3 className="text-2xl font-bold text-gray-900 mb-6">
                                         {category.name}
@@ -349,7 +349,7 @@ const CollectionsPage = () => {
                                 <Link
                                     key={product.id}
                                     to={`/product/${product.id}`}
-                                    className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100"
+                                    className="group bg-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100"
                                 >
                                     {/* Image with Badge */}
                                     <div className="aspect-[4/5] overflow-hidden relative">
@@ -359,7 +359,7 @@ const CollectionsPage = () => {
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                         />
                                         {product.badge && (
-                                            <span className="absolute top-4 right-4 bg-hisi-accent text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                                            <span className="absolute top-4 right-4 bg-hisi-accent text-white text-xs font-bold px-3 py-1 shadow-lg">
                                                 {product.badge}
                                             </span>
                                         )}
@@ -386,7 +386,7 @@ const CollectionsPage = () => {
                 {/* Newsletter Signup */}
                 <section className="py-20 bg-gray-50">
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="bg-gradient-to-br from-hisi-primary/10 to-hisi-accent/10 rounded-3xl p-12 text-center border-2 border-hisi-primary/20">
+                        <div className="bg-gradient-to-br from-hisi-primary/10 to-hisi-accent/10 p-12 text-center border-2 border-hisi-primary/20">
                             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                                 Stay Updated on New Collections
                             </h2>
@@ -399,12 +399,12 @@ const CollectionsPage = () => {
                                     value={emailInput}
                                     onChange={(e) => setEmailInput(e.target.value)}
                                     placeholder="Enter your email"
-                                    className="flex-1 px-6 py-4 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-hisi-primary focus:border-transparent"
+                                    className="flex-1 px-6 py-4 border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-hisi-primary focus:border-transparent"
                                     required
                                 />
                                 <button
                                     type="submit"
-                                    className="px-8 py-4 bg-hisi-primary text-white rounded-lg font-semibold hover:bg-hisi-accent transition-colors duration-300 shadow-lg hover:shadow-xl whitespace-nowrap"
+                                    className="px-8 py-4 bg-hisi-primary text-white font-semibold hover:bg-hisi-accent transition-colors duration-300 shadow-lg hover:shadow-xl whitespace-nowrap"
                                 >
                                     Subscribe
                                 </button>
@@ -417,17 +417,17 @@ const CollectionsPage = () => {
                 </section>
 
                 {/* Custom Design CTA */}
-                <section className="py-20 bg-gradient-to-br from-hisi-primary to-hisi-accent">
+                <section className="py-20 bg-gray-100 border-t border-gray-200">
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
                             {collectionsCTA.title}
                         </h2>
-                        <p className="text-xl text-white/90 mb-10">
+                        <p className="text-xl text-gray-600 mb-10">
                             {collectionsCTA.description}
                         </p>
                         <Link
                             to={collectionsCTA.buttonLink}
-                            className="inline-block px-8 py-4 bg-white text-hisi-primary rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl"
+                            className="inline-block px-8 py-4 bg-gray-900 text-white font-semibold hover:bg-gray-800 transition-colors duration-300 shadow-lg hover:shadow-xl"
                         >
                             {collectionsCTA.buttonText}
                         </Link>

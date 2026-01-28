@@ -3,45 +3,53 @@
  * Handles all contact-related API calls
  */
 
-import axios from 'axios';
-
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+
+/**
+ * Helper function for API requests
+ */
+const apiRequest = async (endpoint, options = {}) => {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers,
+        },
+        ...options,
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw errorData.message || errorData.error || `HTTP error! status: ${response.status}`;
+    }
+
+    return response.json();
+};
 
 /**
  * Submit contact form
  */
 export const submitContactForm = async (formData) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/contact`, formData);
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || { message: 'Failed to submit contact form' };
-    }
+    return apiRequest('/contact', {
+        method: 'POST',
+        body: JSON.stringify(formData),
+    });
 };
 
 /**
  * Get contact page statistics
  */
 export const getContactStats = async () => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/contact/stats`);
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || { message: 'Failed to fetch statistics' };
-    }
+    return apiRequest('/contact/stats');
 };
-
 
 /**
  * Book a consultation
  */
 export const bookConsultation = async (bookingData) => {
-    try {
-        const response = await axios.post(`${API_BASE_URL}/consultations`, bookingData);
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || { message: 'Failed to book consultation' };
-    }
+    return apiRequest('/consultations', {
+        method: 'POST',
+        body: JSON.stringify(bookingData),
+    });
 };
 
 /**
@@ -49,15 +57,8 @@ export const bookConsultation = async (bookingData) => {
  * @param {string} category - Optional category filter
  */
 export const getFAQs = async (category = null) => {
-    try {
-        const url = category
-            ? `${API_BASE_URL}/faqs?category=${category}`
-            : `${API_BASE_URL}/faqs`;
-        const response = await axios.get(url);
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || { message: 'Failed to fetch FAQs' };
-    }
+    const url = category ? `/faqs?category=${category}` : '/faqs';
+    return apiRequest(url);
 };
 
 /**
@@ -65,27 +66,15 @@ export const getFAQs = async (category = null) => {
  * @param {boolean} featuredOnly - Get only featured testimonials
  */
 export const getTestimonials = async (featuredOnly = false) => {
-    try {
-        const url = featuredOnly
-            ? `${API_BASE_URL}/testimonials?featured=true`
-            : `${API_BASE_URL}/testimonials`;
-        const response = await axios.get(url);
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || { message: 'Failed to fetch testimonials' };
-    }
+    const url = featuredOnly ? '/testimonials?featured=true' : '/testimonials';
+    return apiRequest(url);
 };
 
 /**
  * Get site settings
  */
 export const getSiteSettings = async () => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/settings`);
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || { message: 'Failed to fetch site settings' };
-    }
+    return apiRequest('/settings');
 };
 
 /**
@@ -93,8 +82,7 @@ export const getSiteSettings = async () => {
  */
 export const getContactInfo = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/contact/info`);
-        return response.data;
+        return await apiRequest('/contact/info');
     } catch (error) {
         console.error('Failed to fetch contact info:', error);
         // Return defaults if fetch fails
@@ -109,14 +97,13 @@ export const getContactInfo = async () => {
     }
 };
 
-
 /**
  * Get contact settings (phone, email, WhatsApp, Instagram, location)
  */
 export const getContactSettings = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/settings`);
-        const settings = response.data.data || response.data;
+        const response = await apiRequest('/settings');
+        const settings = response.data || response;
 
         // Extract contact-related settings
         return {

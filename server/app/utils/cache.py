@@ -1,13 +1,22 @@
 """
 Redis cache utility for caching frequently accessed data
 Improves API performance by reducing database queries
+
+Note: Redis is optional. If not installed or configured, caching is disabled gracefully.
 """
 
 import json
-import redis
 from functools import wraps
 from flask import current_app, request
 import hashlib
+
+# Optional redis import - gracefully handle if not installed
+try:
+    import redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    redis = None
+    REDIS_AVAILABLE = False
 
 
 class RedisCache:
@@ -18,6 +27,10 @@ class RedisCache:
 
     def init_app(self, app):
         """Initialize Redis with Flask app"""
+        if not REDIS_AVAILABLE:
+            app.logger.info("Redis package not installed. Caching disabled.")
+            return
+
         redis_url = app.config.get('REDIS_URL')
 
         if redis_url:
