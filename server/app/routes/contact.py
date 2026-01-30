@@ -3,7 +3,7 @@
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
-from app.models import ContactMessage, Consultation, FAQ, Testimonial, User, Order, SiteSetting
+from app.models import ContactMessage, ContactEntry, User, Order, SiteSetting
 from app.services.email_service import email_service
 from app.utils.responses import (
     success_response, error_response, created_response,
@@ -29,10 +29,15 @@ def get_contact_stats():
         resolved_messages = ContactMessage.query.filter_by(status='resolved').count()
         
         # Count total consultations
-        total_consultations = Consultation.query.count()
-        
+        total_consultations = ContactEntry.query.filter_by(
+            entry_type=ContactEntry.TYPE_CONSULTATION
+        ).count()
+
         # Count completed consultations
-        completed_consultations = Consultation.query.filter_by(status='completed').count()
+        completed_consultations = ContactEntry.query.filter_by(
+            entry_type=ContactEntry.TYPE_CONSULTATION,
+            status='completed'
+        ).count()
         
         # Count total orders (if Order model exists)
         try:
@@ -377,7 +382,8 @@ def book_consultation():
             return error_response("Invalid date format. Use YYYY-MM-DD", status_code=400)
         
         # Create consultation
-        consultation = Consultation(
+        consultation = ContactEntry(
+            entry_type=ContactEntry.TYPE_CONSULTATION,
             name=data['name'],
             email=data['email'],
             phone=data.get('phone'),
@@ -437,12 +443,12 @@ def admin_get_consultations():
         status = request.args.get('status')
         
         # Build query
-        query = Consultation.query
-        
+        query = ContactEntry.query.filter_by(entry_type=ContactEntry.TYPE_CONSULTATION)
+
         if status:
             query = query.filter_by(status=status)
         
-        consultations = query.order_by(Consultation.preferred_date.desc(), Consultation.preferred_time).all()
+        consultations = query.order_by(ContactEntry.preferred_date.desc(), ContactEntry.preferred_time).all()
         
         return success_response(data=[c.to_dict() for c in consultations])
         
@@ -460,22 +466,25 @@ def admin_update_consultation(consultation_id):
         if user.role != 'admin':
             return forbidden_response("Admin access required")
         
-        consultation = Consultation.query.get(consultation_id)
+        consultation = ContactEntry.query.filter_by(
+            id=consultation_id,
+            entry_type=ContactEntry.TYPE_CONSULTATION
+        ).first()
         if not consultation:
             return not_found_response("Consultation not found")
-        
+
         data = request.get_json()
-        
+
         # Update allowed fields
         if 'status' in data:
             consultation.status = data['status']
         if 'admin_notes' in data:
             consultation.admin_notes = data['admin_notes']
-        
+
         db.session.commit()
-        
+
         return success_response(data=consultation.to_dict(), message="Consultation updated successfully")
-        
+
     except Exception as e:
         db.session.rollback()
         return error_response(str(e), status_code=500)
@@ -490,14 +499,17 @@ def admin_delete_consultation(consultation_id):
         user = User.query.get(user_id)
         if user.role != 'admin':
             return forbidden_response("Admin access required")
-        
-        consultation = Consultation.query.get(consultation_id)
+
+        consultation = ContactEntry.query.filter_by(
+            id=consultation_id,
+            entry_type=ContactEntry.TYPE_CONSULTATION
+        ).first()
         if not consultation:
             return not_found_response("Consultation not found")
-        
+
         db.session.delete(consultation)
         db.session.commit()
-        
+
         return success_response(message="Consultation deleted successfully")
         
     except Exception as e:
@@ -512,16 +524,19 @@ def get_faqs():
     """Get published FAQs (public)"""
     try:
         category = request.args.get('category')
-        
-        query = FAQ.query.filter_by(is_published=True)
-        
+
+        query = ContactEntry.query.filter_by(
+            entry_type=ContactEntry.TYPE_FAQ,
+            is_published=True
+        )
+
         if category:
             query = query.filter_by(category=category)
-        
-        faqs = query.order_by(FAQ.display_order, FAQ.created_at).all()
-        
+
+        faqs = query.order_by(ContactEntry.display_order, ContactEntry.created_at).all()
+
         return success_response(data=[faq.to_dict() for faq in faqs])
-        
+
     except Exception as e:
         return error_response(str(e), status_code=500)
 
@@ -535,11 +550,13 @@ def admin_get_faqs():
         user = User.query.get(user_id)
         if user.role != 'admin':
             return forbidden_response("Admin access required")
-        
-        faqs = FAQ.query.order_by(FAQ.category, FAQ.display_order).all()
-        
+
+        faqs = ContactEntry.query.filter_by(
+            entry_type=ContactEntry.TYPE_FAQ
+        ).order_by(ContactEntry.category, ContactEntry.display_order).all()
+
         return success_response(data=[faq.to_dict() for faq in faqs])
-        
+
     except Exception as e:
         return error_response(str(e), status_code=500)
 
@@ -553,25 +570,26 @@ def admin_create_faq():
         user = User.query.get(user_id)
         if user.role != 'admin':
             return forbidden_response("Admin access required")
-        
+
         data = request.get_json()
-        
+
         if not data.get('category') or not data.get('question') or not data.get('answer'):
             return error_response("Category, question, and answer are required", status_code=400)
-        
-        faq = FAQ(
+
+        faq = ContactEntry(
+            entry_type=ContactEntry.TYPE_FAQ,
             category=data['category'],
             question=data['question'],
             answer=data['answer'],
             display_order=data.get('display_order', 0),
             is_published=data.get('is_published', True)
         )
-        
+
         db.session.add(faq)
         db.session.commit()
-        
+
         return created_response(data=faq.to_dict(), message="FAQ created successfully")
-        
+
     except Exception as e:
         db.session.rollback()
         return error_response(str(e), status_code=500)
@@ -586,13 +604,16 @@ def admin_update_faq(faq_id):
         user = User.query.get(user_id)
         if user.role != 'admin':
             return forbidden_response("Admin access required")
-        
-        faq = FAQ.query.get(faq_id)
+
+        faq = ContactEntry.query.filter_by(
+            id=faq_id,
+            entry_type=ContactEntry.TYPE_FAQ
+        ).first()
         if not faq:
             return not_found_response("FAQ not found")
-        
+
         data = request.get_json()
-        
+
         # Update fields
         if 'category' in data:
             faq.category = data['category']
@@ -604,11 +625,11 @@ def admin_update_faq(faq_id):
             faq.display_order = data['display_order']
         if 'is_published' in data:
             faq.is_published = data['is_published']
-        
+
         db.session.commit()
-        
+
         return success_response(data=faq.to_dict(), message="FAQ updated successfully")
-        
+
     except Exception as e:
         db.session.rollback()
         return error_response(str(e), status_code=500)
@@ -623,11 +644,14 @@ def admin_delete_faq(faq_id):
         user = User.query.get(user_id)
         if user.role != 'admin':
             return forbidden_response("Admin access required")
-        
-        faq = FAQ.query.get(faq_id)
+
+        faq = ContactEntry.query.filter_by(
+            id=faq_id,
+            entry_type=ContactEntry.TYPE_FAQ
+        ).first()
         if not faq:
             return not_found_response("FAQ not found")
-        
+
         db.session.delete(faq)
         db.session.commit()
         
@@ -645,16 +669,19 @@ def get_testimonials():
     """Get published testimonials (public)"""
     try:
         featured_only = request.args.get('featured', 'false').lower() == 'true'
-        
-        query = Testimonial.query.filter_by(is_published=True)
-        
+
+        query = ContactEntry.query.filter_by(
+            entry_type=ContactEntry.TYPE_TESTIMONIAL,
+            is_published=True
+        )
+
         if featured_only:
             query = query.filter_by(is_featured=True)
-        
-        testimonials = query.order_by(Testimonial.display_order, Testimonial.created_at.desc()).all()
-        
+
+        testimonials = query.order_by(ContactEntry.display_order, ContactEntry.created_at.desc()).all()
+
         return success_response(data=[t.to_dict() for t in testimonials])
-        
+
     except Exception as e:
         return error_response(str(e), status_code=500)
 
@@ -668,11 +695,13 @@ def admin_get_testimonials():
         user = User.query.get(user_id)
         if user.role != 'admin':
             return forbidden_response("Admin access required")
-        
-        testimonials = Testimonial.query.order_by(Testimonial.display_order).all()
-        
+
+        testimonials = ContactEntry.query.filter_by(
+            entry_type=ContactEntry.TYPE_TESTIMONIAL
+        ).order_by(ContactEntry.display_order).all()
+
         return success_response(data=[t.to_dict() for t in testimonials])
-        
+
     except Exception as e:
         return error_response(str(e), status_code=500)
 
@@ -686,13 +715,14 @@ def admin_create_testimonial():
         user = User.query.get(user_id)
         if user.role != 'admin':
             return forbidden_response("Admin access required")
-        
+
         data = request.get_json()
-        
+
         if not data.get('name') or not data.get('story'):
             return error_response("Name and story are required", status_code=400)
-        
-        testimonial = Testimonial(
+
+        testimonial = ContactEntry(
+            entry_type=ContactEntry.TYPE_TESTIMONIAL,
             name=data['name'],
             role=data.get('role'),
             image_url=data.get('image_url'),
@@ -703,12 +733,12 @@ def admin_create_testimonial():
             display_order=data.get('display_order', 0),
             is_published=data.get('is_published', True)
         )
-        
+
         db.session.add(testimonial)
         db.session.commit()
-        
+
         return created_response(data=testimonial.to_dict(), message="Testimonial created successfully")
-        
+
     except Exception as e:
         db.session.rollback()
         return error_response(str(e), status_code=500)
@@ -723,25 +753,28 @@ def admin_update_testimonial(testimonial_id):
         user = User.query.get(user_id)
         if user.role != 'admin':
             return forbidden_response("Admin access required")
-        
-        testimonial = Testimonial.query.get(testimonial_id)
+
+        testimonial = ContactEntry.query.filter_by(
+            id=testimonial_id,
+            entry_type=ContactEntry.TYPE_TESTIMONIAL
+        ).first()
         if not testimonial:
             return not_found_response("Testimonial not found")
-        
+
         data = request.get_json()
-        
+
         # Update fields
-        updatable_fields = ['name', 'role', 'image_url', 'story', 'result', 
+        updatable_fields = ['name', 'role', 'image_url', 'story', 'result',
                            'rating', 'is_featured', 'display_order', 'is_published']
-        
+
         for field in updatable_fields:
             if field in data:
                 setattr(testimonial, field, data[field])
-        
+
         db.session.commit()
-        
+
         return success_response(data=testimonial.to_dict(), message="Testimonial updated successfully")
-        
+
     except Exception as e:
         db.session.rollback()
         return error_response(str(e), status_code=500)
@@ -756,8 +789,11 @@ def admin_delete_testimonial(testimonial_id):
         user = User.query.get(user_id)
         if user.role != 'admin':
             return forbidden_response("Admin access required")
-        
-        testimonial = Testimonial.query.get(testimonial_id)
+
+        testimonial = ContactEntry.query.filter_by(
+            id=testimonial_id,
+            entry_type=ContactEntry.TYPE_TESTIMONIAL
+        ).first()
         if not testimonial:
             return not_found_response("Testimonial not found")
         

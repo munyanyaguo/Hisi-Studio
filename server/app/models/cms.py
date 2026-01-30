@@ -275,135 +275,98 @@ class ContactMessage(db.Model):
         return f"<ContactMessage from {self.email}>"
 
 
-class Consultation(db.Model):
-    """Consultation booking model"""
-    __tablename__ = 'consultations'
+class ContactEntry(db.Model):
+    """Unified model for consultations, FAQs, and testimonials"""
+    __tablename__ = 'contact_entries'
     __table_args__ = {'schema': 'hisi'}
 
+    # Entry types
+    TYPE_CONSULTATION = 'consultation'
+    TYPE_FAQ = 'faq'
+    TYPE_TESTIMONIAL = 'testimonial'
+
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = db.Column(db.String(200), nullable=False)
-    email = db.Column(db.String(255), nullable=False)
+    entry_type = db.Column(db.String(20), nullable=False)  # consultation, faq, testimonial
+
+    # Common fields
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Shared display fields (FAQ, Testimonial)
+    display_order = db.Column(db.Integer, nullable=True, default=0)
+    is_published = db.Column(db.Boolean, nullable=True, default=True)
+
+    # Consultation-specific fields
+    name = db.Column(db.String(200), nullable=True)  # Also used by Testimonial
+    email = db.Column(db.String(255), nullable=True)
     phone = db.Column(db.String(20), nullable=True)
-    
-    # Consultation details
-    consultation_type = db.Column(db.String(50), nullable=False)
-    # Types: styling, accessibility, custom, fitting
-    
-    meeting_type = db.Column(db.String(20), nullable=False, default='in-person')
-    # Types: in-person, virtual
-    
-    preferred_date = db.Column(db.Date, nullable=False)
-    preferred_time = db.Column(db.String(20), nullable=False)
-    
-    # Status and notes
-    status = db.Column(db.String(20), nullable=False, default='pending')
-    # Status: pending, confirmed, completed, cancelled
-    
+    consultation_type = db.Column(db.String(50), nullable=True)  # styling, accessibility, custom, fitting
+    meeting_type = db.Column(db.String(20), nullable=True)  # in-person, virtual
+    preferred_date = db.Column(db.Date, nullable=True)
+    preferred_time = db.Column(db.String(20), nullable=True)
+    status = db.Column(db.String(20), nullable=True, default='pending')  # pending, confirmed, completed, cancelled
     notes = db.Column(db.Text, nullable=True)
     admin_notes = db.Column(db.Text, nullable=True)
-    confirmation_sent = db.Column(db.Boolean, default=False, nullable=False)
-    
-    # Timestamps
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    confirmation_sent = db.Column(db.Boolean, nullable=True, default=False)
 
-    def to_dict(self):
-        """Convert consultation to dictionary"""
-        return {
-            'id': self.id,
-            'name': self.name,
-            'email': self.email,
-            'phone': self.phone,
-            'consultation_type': self.consultation_type,
-            'meeting_type': self.meeting_type,
-            'preferred_date': self.preferred_date.isoformat() if self.preferred_date else None,
-            'preferred_time': self.preferred_time,
-            'status': self.status,
-            'notes': self.notes,
-            'admin_notes': self.admin_notes,
-            'confirmation_sent': self.confirmation_sent,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
+    # FAQ-specific fields
+    category = db.Column(db.String(50), nullable=True)  # orders, accessibility, shipping, returns, general
+    question = db.Column(db.Text, nullable=True)
+    answer = db.Column(db.Text, nullable=True)
 
-    def __repr__(self):
-        return f"<Consultation {self.consultation_type} - {self.email}>"
-
-
-class FAQ(db.Model):
-    """Frequently Asked Questions model"""
-    __tablename__ = 'faqs'
-    __table_args__ = {'schema': 'hisi'}
-
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    category = db.Column(db.String(50), nullable=False)
-    # Categories: orders, accessibility, shipping, returns, general
-    
-    question = db.Column(db.Text, nullable=False)
-    answer = db.Column(db.Text, nullable=False)
-    
-    display_order = db.Column(db.Integer, nullable=False, default=0)
-    is_published = db.Column(db.Boolean, default=True, nullable=False)
-    
-    # Timestamps
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def to_dict(self):
-        """Convert FAQ to dictionary"""
-        return {
-            'id': self.id,
-            'category': self.category,
-            'question': self.question,
-            'answer': self.answer,
-            'display_order': self.display_order,
-            'is_published': self.is_published,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
-
-    def __repr__(self):
-        return f"<FAQ {self.category} - {self.question[:50]}>"
-
-
-class Testimonial(db.Model):
-    """Customer testimonial model"""
-    __tablename__ = 'testimonials'
-    __table_args__ = {'schema': 'hisi'}
-
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = db.Column(db.String(200), nullable=False)
+    # Testimonial-specific fields
     role = db.Column(db.String(200), nullable=True)
     image_url = db.Column(db.String(500), nullable=True)
-    
-    story = db.Column(db.Text, nullable=False)
+    story = db.Column(db.Text, nullable=True)
     result = db.Column(db.String(500), nullable=True)
-    rating = db.Column(db.Integer, nullable=False, default=5)
-    
-    is_featured = db.Column(db.Boolean, default=False, nullable=False)
-    display_order = db.Column(db.Integer, nullable=False, default=0)
-    is_published = db.Column(db.Boolean, default=True, nullable=False)
-    
-    # Timestamps
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    rating = db.Column(db.Integer, nullable=True, default=5)
+    is_featured = db.Column(db.Boolean, nullable=True, default=False)
 
     def to_dict(self):
-        """Convert testimonial to dictionary"""
-        return {
+        """Convert to dictionary based on entry type"""
+        base = {
             'id': self.id,
-            'name': self.name,
-            'role': self.role,
-            'image_url': self.image_url,
-            'story': self.story,
-            'result': self.result,
-            'rating': self.rating,
-            'is_featured': self.is_featured,
-            'display_order': self.display_order,
-            'is_published': self.is_published,
+            'entry_type': self.entry_type,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
+        if self.entry_type == self.TYPE_CONSULTATION:
+            base.update({
+                'name': self.name,
+                'email': self.email,
+                'phone': self.phone,
+                'consultation_type': self.consultation_type,
+                'meeting_type': self.meeting_type,
+                'preferred_date': self.preferred_date.isoformat() if self.preferred_date else None,
+                'preferred_time': self.preferred_time,
+                'status': self.status,
+                'notes': self.notes,
+                'admin_notes': self.admin_notes,
+                'confirmation_sent': self.confirmation_sent
+            })
+        elif self.entry_type == self.TYPE_FAQ:
+            base.update({
+                'category': self.category,
+                'question': self.question,
+                'answer': self.answer,
+                'display_order': self.display_order,
+                'is_published': self.is_published
+            })
+        elif self.entry_type == self.TYPE_TESTIMONIAL:
+            base.update({
+                'name': self.name,
+                'role': self.role,
+                'image_url': self.image_url,
+                'story': self.story,
+                'result': self.result,
+                'rating': self.rating,
+                'is_featured': self.is_featured,
+                'display_order': self.display_order,
+                'is_published': self.is_published
+            })
+
+        return base
+
     def __repr__(self):
-        return f"<Testimonial from {self.name}>"
+        return f"<ContactEntry {self.entry_type}: {self.id}>"

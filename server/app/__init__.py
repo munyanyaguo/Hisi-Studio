@@ -46,7 +46,7 @@ def create_app(config_name='development'):
             User, Product, Category, Order, OrderItem,
             Cart, CartItem, UserAddress, Payment,
             Page, BlogPost, BlogCategory, SiteSetting, NewsletterSubscriber, ContactMessage,
-            Consultation, FAQ, Testimonial,
+            ContactEntry,
             Notification, MediaFile, Message, ProductCollection,
             Review, SectionContent,
             PressHero, MediaCoverage, PressRelease, PressEvent,
