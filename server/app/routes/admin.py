@@ -1,6 +1,6 @@
 """Admin routes - Dashboard, Analytics, Management"""
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.orm import joinedload
 from app.extensions import db

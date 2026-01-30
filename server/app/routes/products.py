@@ -1,12 +1,16 @@
 """Products routes"""
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.orm import joinedload
 from app.extensions import db
 from app.models import Product, Category, User
 from app.utils.admin_decorators import admin_required
 from app.utils.cache import cached, invalidate_cache
+from app.utils.responses import (
+    success_response, error_response, created_response,
+    not_found_response, paginated_response
+)
 
 bp = Blueprint('products', __name__, url_prefix='/api/v1/products')
 
@@ -88,7 +92,7 @@ def get_products():
         }), 200
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return error_response(str(e), status_code=500)
 
 
 @bp.route('/<product_id>', methods=['GET'])
@@ -99,14 +103,12 @@ def get_product(product_id):
         product = Product.query.filter_by(id=product_id, is_active=True).first()
 
         if not product:
-            return jsonify({'error': 'Product not found'}), 404
+            return not_found_response('Product not found')
 
-        return jsonify({
-            'product': product.to_dict()
-        }), 200
+        return success_response(data={'product': product.to_dict()})
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return error_response(str(e), status_code=500)
 
 
 @bp.route('/slug/<slug>', methods=['GET'])
@@ -117,14 +119,12 @@ def get_product_by_slug(slug):
         product = Product.query.filter_by(slug=slug, is_active=True).first()
 
         if not product:
-            return jsonify({'error': 'Product not found'}), 404
+            return not_found_response('Product not found')
 
-        return jsonify({
-            'product': product.to_dict()
-        }), 200
+        return success_response(data={'product': product.to_dict()})
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return error_response(str(e), status_code=500)
 
 
 @bp.route('', methods=['POST'])
@@ -138,11 +138,11 @@ def create_product():
         required_fields = ['name', 'slug', 'price', 'sku']
         for field in required_fields:
             if not data.get(field):
-                return jsonify({'error': f'{field} is required'}), 400
+                return error_response(f'{field} is required', status_code=400)
 
         # Check if slug already exists
         if Product.query.filter_by(slug=data['slug']).first():
-            return jsonify({'error': 'Slug already exists'}), 409
+            return error_response('Slug already exists', status_code=409)
 
         # Create product
         product = Product(
@@ -172,14 +172,14 @@ def create_product():
         # Invalidate product caches
         invalidate_cache('products:*')
 
-        return jsonify({
-            'message': 'Product created successfully',
-            'product': product.to_dict()
-        }), 201
+        return created_response(
+            data={'product': product.to_dict()},
+            message='Product created successfully'
+        )
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return error_response(str(e), status_code=500)
 
 
 @bp.route('/<product_id>', methods=['PUT'])
@@ -189,7 +189,7 @@ def update_product(product_id):
     try:
         product = Product.query.get(product_id)
         if not product:
-            return jsonify({'error': 'Product not found'}), 404
+            return not_found_response('Product not found')
 
         data = request.get_json()
 
@@ -211,14 +211,14 @@ def update_product(product_id):
         # Invalidate product caches
         invalidate_cache('products:*')
 
-        return jsonify({
-            'message': 'Product updated successfully',
-            'product': product.to_dict()
-        }), 200
+        return success_response(
+            data={'product': product.to_dict()},
+            message='Product updated successfully'
+        )
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return error_response(str(e), status_code=500)
 
 
 @bp.route('/<product_id>', methods=['DELETE'])
@@ -228,7 +228,7 @@ def delete_product(product_id):
     try:
         product = Product.query.get(product_id)
         if not product:
-            return jsonify({'error': 'Product not found'}), 404
+            return not_found_response('Product not found')
 
         db.session.delete(product)
         db.session.commit()
@@ -236,13 +236,11 @@ def delete_product(product_id):
         # Invalidate product caches
         invalidate_cache('products:*')
 
-        return jsonify({
-            'message': 'Product deleted successfully'
-        }), 200
+        return success_response(message='Product deleted successfully')
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return error_response(str(e), status_code=500)
 
 
 # Categories endpoints
@@ -253,9 +251,7 @@ def get_categories():
     try:
         categories = Category.query.filter_by(is_active=True).order_by(Category.display_order).all()
 
-        return jsonify({
-            'categories': [cat.to_dict() for cat in categories]
-        }), 200
+        return success_response(data={'categories': [cat.to_dict() for cat in categories]})
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return error_response(str(e), status_code=500)
