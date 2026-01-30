@@ -11,8 +11,8 @@ from app.models.admin import Notification, MediaFile, Message, ProductCollection
 from app.models.review import Review
 from app.models.section_content import SectionContent
 from app.models.press import (
-    PressHero, MediaCoverage, PressRelease, Exhibition,
-    SpeakingEngagement, Collaboration, MediaKitItem, MediaKitConfig, PressContact
+    PressHero, MediaCoverage, PressRelease, PressEvent,
+    MediaKitItem, MediaKitConfig, PressContact
 )
 
 __all__ = [
@@ -43,9 +43,7 @@ __all__ = [
     "PressHero",
     "MediaCoverage",
     "PressRelease",
-    "Exhibition",
-    "SpeakingEngagement",
-    "Collaboration",
+    "PressEvent",
     "MediaKitItem",
     "MediaKitConfig",
     "PressContact"

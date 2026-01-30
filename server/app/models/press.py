@@ -110,122 +110,92 @@ class PressRelease(db.Model):
         return f"<PressRelease {self.title}>"
 
 
-class Exhibition(db.Model):
-    """Exhibitions and shows"""
-    __tablename__ = 'exhibitions'
+class PressEvent(db.Model):
+    """Unified model for exhibitions, speaking engagements, and collaborations"""
+    __tablename__ = 'press_events'
     __table_args__ = {'schema': 'hisi'}
 
+    # Event types
+    TYPE_EXHIBITION = 'exhibition'
+    TYPE_SPEAKING = 'speaking'
+    TYPE_COLLABORATION = 'collaboration'
+
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    event_type = db.Column(db.String(20), nullable=False)  # exhibition, speaking, collaboration
     title = db.Column(db.String(255), nullable=False)
-    location = db.Column(db.String(255), nullable=False)
-    date = db.Column(db.Date, nullable=False)
     description = db.Column(db.Text, nullable=True)
-    image = db.Column(db.String(500), nullable=True)  # Main image
-    gallery = db.Column(db.Text, nullable=True)  # JSON array of gallery image URLs
     is_published = db.Column(db.Boolean, default=True, nullable=False)
     display_order = db.Column(db.Integer, nullable=False, default=0)
-    
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def to_dict(self):
-        gallery = self.gallery
-        if gallery:
-            try:
-                gallery = json.loads(gallery)
-            except:
-                gallery = []
-        else:
-            gallery = []
-            
-        return {
-            'id': self.id,
-            'title': self.title,
-            'location': self.location,
-            'date': self.date.isoformat() if self.date else None,
-            'description': self.description,
-            'image': self.image,
-            'gallery': gallery,
-            'is_published': self.is_published,
-            'display_order': self.display_order,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
+    # Date field - used by exhibition and speaking, optional for collaboration
+    date = db.Column(db.Date, nullable=True)
 
-    def __repr__(self):
-        return f"<Exhibition {self.title}>"
+    # Location - used by exhibition and speaking
+    location = db.Column(db.String(255), nullable=True)
 
-
-class SpeakingEngagement(db.Model):
-    """Speaking engagements and events"""
-    __tablename__ = 'speaking_engagements'
-    __table_args__ = {'schema': 'hisi'}
-
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    title = db.Column(db.String(255), nullable=False)
-    event = db.Column(db.String(255), nullable=False)  # Event name
-    location = db.Column(db.String(255), nullable=False)
-    date = db.Column(db.Date, nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    engagement_type = db.Column(db.String(50), nullable=False)  # Keynote, Panel, Workshop, TEDx
-    is_published = db.Column(db.Boolean, default=True, nullable=False)
-    display_order = db.Column(db.Integer, nullable=False, default=0)
-    
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'event': self.event,
-            'location': self.location,
-            'date': self.date.isoformat() if self.date else None,
-            'description': self.description,
-            'type': self.engagement_type,
-            'is_published': self.is_published,
-            'display_order': self.display_order,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
-
-    def __repr__(self):
-        return f"<SpeakingEngagement {self.title}>"
-
-
-class Collaboration(db.Model):
-    """Brand collaborations and partnerships"""
-    __tablename__ = 'collaborations'
-    __table_args__ = {'schema': 'hisi'}
-
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    title = db.Column(db.String(255), nullable=False)
-    partner = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text, nullable=True)
+    # Image - used by exhibition and collaboration
     image = db.Column(db.String(500), nullable=True)
-    year = db.Column(db.String(4), nullable=False)
-    is_published = db.Column(db.Boolean, default=True, nullable=False)
-    display_order = db.Column(db.Integer, nullable=False, default=0)
-    
+
+    # Exhibition-specific: gallery images
+    gallery = db.Column(db.Text, nullable=True)  # JSON array of image URLs
+
+    # Speaking-specific fields
+    event_name = db.Column(db.String(255), nullable=True)  # Name of the event they spoke at
+    engagement_type = db.Column(db.String(50), nullable=True)  # Keynote, Panel, Workshop, TEDx
+
+    # Collaboration-specific fields
+    partner = db.Column(db.String(255), nullable=True)
+    year = db.Column(db.String(4), nullable=True)
+
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def to_dict(self):
-        return {
+        """Convert to dictionary based on event type"""
+        base = {
             'id': self.id,
+            'event_type': self.event_type,
             'title': self.title,
-            'partner': self.partner,
             'description': self.description,
-            'image': self.image,
-            'year': self.year,
             'is_published': self.is_published,
             'display_order': self.display_order,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
 
+        if self.event_type == self.TYPE_EXHIBITION:
+            gallery = self.gallery
+            if gallery:
+                try:
+                    gallery = json.loads(gallery)
+                except:
+                    gallery = []
+            else:
+                gallery = []
+            base.update({
+                'location': self.location,
+                'date': self.date.isoformat() if self.date else None,
+                'image': self.image,
+                'gallery': gallery
+            })
+        elif self.event_type == self.TYPE_SPEAKING:
+            base.update({
+                'event': self.event_name,
+                'location': self.location,
+                'date': self.date.isoformat() if self.date else None,
+                'type': self.engagement_type
+            })
+        elif self.event_type == self.TYPE_COLLABORATION:
+            base.update({
+                'partner': self.partner,
+                'image': self.image,
+                'year': self.year
+            })
+
+        return base
+
     def __repr__(self):
-        return f"<Collaboration {self.title}>"
+        return f"<PressEvent {self.event_type}: {self.title}>"
 
 
 class MediaKitItem(db.Model):

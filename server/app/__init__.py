@@ -49,8 +49,8 @@ def create_app(config_name='development'):
             Consultation, FAQ, Testimonial,
             Notification, MediaFile, Message, ProductCollection,
             Review, SectionContent,
-            PressHero, MediaCoverage, PressRelease, Exhibition,
-            SpeakingEngagement, Collaboration, MediaKitItem, MediaKitConfig, PressContact
+            PressHero, MediaCoverage, PressRelease, PressEvent,
+            MediaKitItem, MediaKitConfig, PressContact
         )
 
     # Register blueprints

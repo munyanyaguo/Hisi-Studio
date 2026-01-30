@@ -4,8 +4,8 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
 from app.models import (
-    User, PressHero, MediaCoverage, PressRelease, Exhibition,
-    SpeakingEngagement, Collaboration, MediaKitItem, MediaKitConfig, PressContact
+    User, PressHero, MediaCoverage, PressRelease, PressEvent,
+    MediaKitItem, MediaKitConfig, PressContact
 )
 from app.utils.responses import (
     success_response, error_response, created_response,
@@ -57,19 +57,22 @@ def get_press_page_content():
         ).order_by(PressRelease.date.desc()).all()
         
         # Get exhibitions
-        exhibitions = Exhibition.query.filter_by(
+        exhibitions = PressEvent.query.filter_by(
+            event_type=PressEvent.TYPE_EXHIBITION,
             is_published=True
-        ).order_by(Exhibition.date.desc()).all()
-        
+        ).order_by(PressEvent.date.desc()).all()
+
         # Get speaking engagements
-        speaking_engagements = SpeakingEngagement.query.filter_by(
+        speaking_engagements = PressEvent.query.filter_by(
+            event_type=PressEvent.TYPE_SPEAKING,
             is_published=True
-        ).order_by(SpeakingEngagement.date.desc()).all()
-        
+        ).order_by(PressEvent.date.desc()).all()
+
         # Get collaborations
-        collaborations = Collaboration.query.filter_by(
+        collaborations = PressEvent.query.filter_by(
+            event_type=PressEvent.TYPE_COLLABORATION,
             is_published=True
-        ).order_by(Collaboration.display_order).all()
+        ).order_by(PressEvent.display_order).all()
         
         # Get media kit config and items
         media_kit_config = MediaKitConfig.query.first()
@@ -120,9 +123,10 @@ def get_media_coverage():
 def get_exhibitions():
     """Get all exhibitions (public)"""
     try:
-        items = Exhibition.query.filter_by(
+        items = PressEvent.query.filter_by(
+            event_type=PressEvent.TYPE_EXHIBITION,
             is_published=True
-        ).order_by(Exhibition.date.desc()).all()
+        ).order_by(PressEvent.date.desc()).all()
         return success_response(data=[item.to_dict() for item in items])
     except Exception as e:
         return error_response(str(e), status_code=500)
@@ -435,9 +439,11 @@ def admin_get_exhibitions():
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
-        items = Exhibition.query.order_by(Exhibition.date.desc()).all()
+        items = PressEvent.query.filter_by(
+            event_type=PressEvent.TYPE_EXHIBITION
+        ).order_by(PressEvent.date.desc()).all()
         return success_response(data=[item.to_dict() for item in items])
     except Exception as e:
         return error_response(str(e), status_code=500)
@@ -450,21 +456,22 @@ def admin_create_exhibition():
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
         data = request.get_json()
-        
+
         required = ['title', 'location', 'date']
         for field in required:
             if not data.get(field):
                 return error_response(f"{field} is required", status_code=400)
-        
+
         gallery = data.get('gallery', [])
         if isinstance(gallery, list):
             gallery = json.dumps(gallery)
-        
-        item = Exhibition(
+
+        item = PressEvent(
             id=str(uuid.uuid4()),
+            event_type=PressEvent.TYPE_EXHIBITION,
             title=data['title'],
             location=data['location'],
             date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
@@ -474,10 +481,10 @@ def admin_create_exhibition():
             is_published=data.get('is_published', True),
             display_order=data.get('display_order', 0)
         )
-        
+
         db.session.add(item)
         db.session.commit()
-        
+
         return created_response(data=item.to_dict(), message="Exhibition created")
     except Exception as e:
         db.session.rollback()
@@ -491,14 +498,17 @@ def admin_update_exhibition(item_id):
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
-        item = Exhibition.query.get(item_id)
+        item = PressEvent.query.filter_by(
+            id=item_id,
+            event_type=PressEvent.TYPE_EXHIBITION
+        ).first()
         if not item:
             return not_found_response("Exhibition not found")
-        
+
         data = request.get_json()
-        
+
         if 'title' in data:
             item.title = data['title']
         if 'location' in data:
@@ -518,7 +528,7 @@ def admin_update_exhibition(item_id):
             item.is_published = data['is_published']
         if 'display_order' in data:
             item.display_order = data['display_order']
-        
+
         db.session.commit()
         return success_response(data=item.to_dict(), message="Exhibition updated")
     except Exception as e:
@@ -533,12 +543,15 @@ def admin_delete_exhibition(item_id):
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
-        item = Exhibition.query.get(item_id)
+        item = PressEvent.query.filter_by(
+            id=item_id,
+            event_type=PressEvent.TYPE_EXHIBITION
+        ).first()
         if not item:
             return not_found_response("Exhibition not found")
-        
+
         db.session.delete(item)
         db.session.commit()
         return success_response(message="Exhibition deleted")
@@ -556,9 +569,11 @@ def admin_get_speaking_engagements():
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
-        items = SpeakingEngagement.query.order_by(SpeakingEngagement.date.desc()).all()
+        items = PressEvent.query.filter_by(
+            event_type=PressEvent.TYPE_SPEAKING
+        ).order_by(PressEvent.date.desc()).all()
         return success_response(data=[item.to_dict() for item in items])
     except Exception as e:
         return error_response(str(e), status_code=500)
@@ -571,19 +586,20 @@ def admin_create_speaking_engagement():
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
         data = request.get_json()
-        
+
         required = ['title', 'event', 'location', 'date', 'type']
         for field in required:
             if not data.get(field):
                 return error_response(f"{field} is required", status_code=400)
-        
-        item = SpeakingEngagement(
+
+        item = PressEvent(
             id=str(uuid.uuid4()),
+            event_type=PressEvent.TYPE_SPEAKING,
             title=data['title'],
-            event=data['event'],
+            event_name=data['event'],
             location=data['location'],
             date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
             description=data.get('description'),
@@ -591,10 +607,10 @@ def admin_create_speaking_engagement():
             is_published=data.get('is_published', True),
             display_order=data.get('display_order', 0)
         )
-        
+
         db.session.add(item)
         db.session.commit()
-        
+
         return created_response(data=item.to_dict(), message="Speaking engagement created")
     except Exception as e:
         db.session.rollback()
@@ -608,18 +624,21 @@ def admin_update_speaking_engagement(item_id):
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
-        item = SpeakingEngagement.query.get(item_id)
+        item = PressEvent.query.filter_by(
+            id=item_id,
+            event_type=PressEvent.TYPE_SPEAKING
+        ).first()
         if not item:
             return not_found_response("Speaking engagement not found")
-        
+
         data = request.get_json()
-        
+
         if 'title' in data:
             item.title = data['title']
         if 'event' in data:
-            item.event = data['event']
+            item.event_name = data['event']
         if 'location' in data:
             item.location = data['location']
         if 'date' in data:
@@ -632,7 +651,7 @@ def admin_update_speaking_engagement(item_id):
             item.is_published = data['is_published']
         if 'display_order' in data:
             item.display_order = data['display_order']
-        
+
         db.session.commit()
         return success_response(data=item.to_dict(), message="Speaking engagement updated")
     except Exception as e:
@@ -647,12 +666,15 @@ def admin_delete_speaking_engagement(item_id):
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
-        item = SpeakingEngagement.query.get(item_id)
+        item = PressEvent.query.filter_by(
+            id=item_id,
+            event_type=PressEvent.TYPE_SPEAKING
+        ).first()
         if not item:
             return not_found_response("Speaking engagement not found")
-        
+
         db.session.delete(item)
         db.session.commit()
         return success_response(message="Speaking engagement deleted")
@@ -670,9 +692,11 @@ def admin_get_collaborations():
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
-        items = Collaboration.query.order_by(Collaboration.display_order).all()
+        items = PressEvent.query.filter_by(
+            event_type=PressEvent.TYPE_COLLABORATION
+        ).order_by(PressEvent.display_order).all()
         return success_response(data=[item.to_dict() for item in items])
     except Exception as e:
         return error_response(str(e), status_code=500)
@@ -685,17 +709,18 @@ def admin_create_collaboration():
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
         data = request.get_json()
-        
+
         required = ['title', 'partner', 'year']
         for field in required:
             if not data.get(field):
                 return error_response(f"{field} is required", status_code=400)
-        
-        item = Collaboration(
+
+        item = PressEvent(
             id=str(uuid.uuid4()),
+            event_type=PressEvent.TYPE_COLLABORATION,
             title=data['title'],
             partner=data['partner'],
             description=data.get('description'),
@@ -704,10 +729,10 @@ def admin_create_collaboration():
             is_published=data.get('is_published', True),
             display_order=data.get('display_order', 0)
         )
-        
+
         db.session.add(item)
         db.session.commit()
-        
+
         return created_response(data=item.to_dict(), message="Collaboration created")
     except Exception as e:
         db.session.rollback()
@@ -721,14 +746,17 @@ def admin_update_collaboration(item_id):
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
-        item = Collaboration.query.get(item_id)
+        item = PressEvent.query.filter_by(
+            id=item_id,
+            event_type=PressEvent.TYPE_COLLABORATION
+        ).first()
         if not item:
             return not_found_response("Collaboration not found")
-        
+
         data = request.get_json()
-        
+
         if 'title' in data:
             item.title = data['title']
         if 'partner' in data:
@@ -743,7 +771,7 @@ def admin_update_collaboration(item_id):
             item.is_published = data['is_published']
         if 'display_order' in data:
             item.display_order = data['display_order']
-        
+
         db.session.commit()
         return success_response(data=item.to_dict(), message="Collaboration updated")
     except Exception as e:
@@ -758,12 +786,15 @@ def admin_delete_collaboration(item_id):
     user = verify_admin_access()
     if not user:
         return forbidden_response("Admin access required")
-    
+
     try:
-        item = Collaboration.query.get(item_id)
+        item = PressEvent.query.filter_by(
+            id=item_id,
+            event_type=PressEvent.TYPE_COLLABORATION
+        ).first()
         if not item:
             return not_found_response("Collaboration not found")
-        
+
         db.session.delete(item)
         db.session.commit()
         return success_response(message="Collaboration deleted")
